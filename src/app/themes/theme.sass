@@ -1,0 +1,24 @@
+// Import Angular Material theming functions and the default theme
+@use '@angular/material' as mat;
+
+// Define the primary color and apply it to the theme
+$primary-color: #B71C1C;
+
+$my-app-primary: mat.define-palette(mat.$red-palette, 800);
+$my-app-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$my-app-warn: mat.define-palette(mat.$red-palette);
+
+$my-app-theme: mat.define-light-theme((
+  color: (
+    primary: $my-app-primary,
+    accent: $my-app-accent,
+    warn: $my-app-warn,
+  )
+));
+
+// Include the Angular Material theme styles
+@include mat.all-component-themes($my-app-theme);
+
+// Optionally include the Angular Material typography styles
+// If you want to keep the default font styles, you can include them as follows:
+@include mat.typography();
