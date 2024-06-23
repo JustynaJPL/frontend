@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostBinding } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AppNaviComponent } from "./app-navi/app-navi.component";
 import { DashComponent } from "./dash/dash.component";
@@ -12,4 +12,9 @@ import { DashComponent } from "./dash/dash.component";
 })
 export class AppComponent {
   title = 'frontend';
+  isDark = true;
+  @HostBinding('class')
+  get themeMode(){
+    return this.isDark ? 'dark-theme' :'light-theme';
+  }
 }
