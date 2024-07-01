@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-app-navi',
@@ -22,7 +23,8 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
     MatListModule,
     MatIconModule,
     AsyncPipe,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    RouterOutlet
   ]
 })
 export class AppNaviComponent {
