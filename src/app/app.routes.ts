@@ -1,7 +1,19 @@
 import { Routes } from '@angular/router';
-import path from 'path';
-import { DashComponent } from './dash/dash.component';
+import { AuthService } from './auth.service';
+import { AuthGuardService } from './auth-guard.service';
 
 export const routes: Routes = [
-  {path: "", component: DashComponent}
+  {
+    path:'login',
+    loadChildren: () => import('./login/login.module').then(m => m.LoginModule)
+  },
+  {
+    path:'logged',
+    loadChildren: () => import('./main/main.module').then(m => m.MainModule)
+  },
+  {
+    path: '',
+    redirectTo:'login',
+    pathMatch:'full'
+  }
 ];
