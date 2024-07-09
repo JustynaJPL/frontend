@@ -1,6 +1,8 @@
 <div class="grid-container">
-  <h1 class="mat-h1">Dashboard</h1>
-  <mat-grid-list cols="2" rowHeight="350px">
+  <h1 class="mat-h1">
+
+  </h1>
+  <mat-grid-list cols="2" rowHeight="250px">
     @for (card of cards | async; track card) {
       <mat-grid-tile [colspan]="card.cols" [rowspan]="card.rows">
         <mat-card class="dashboard-card">
@@ -17,7 +19,7 @@
             </mat-card-title>
           </mat-card-header>
           <mat-card-content class="dashboard-card-content">
-            <div>Card Content Here</div>
+            {{card.comp}}
           </mat-card-content>
         </mat-card>
       </mat-grid-tile>
