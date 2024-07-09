@@ -38,7 +38,8 @@
             "prerender": true,
             "ssr": {
               "entry": "server.ts"
-            }
+            },
+            "sourceMap": true
           },
           "configurations": {
             "production": {

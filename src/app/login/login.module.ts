@@ -5,6 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LogUserComponent } from './log-user/log-user.component';
 import { AuthGuardService } from '../auth-guard.service';
 import { AuthService } from '../auth.service';
+import { ReactiveFormsModule } from '@angular/forms';
 
 const routes: Routes = [
   {   path: '',   component: LogUserComponent}
@@ -13,7 +14,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [],
   imports: [
-    CommonModule, RouterModule.forChild(routes)
+    CommonModule, RouterModule.forChild(routes), ReactiveFormsModule, RouterModule
   ],
   providers:[LoggerService, AuthGuardService, AuthService]
 })

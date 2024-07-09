@@ -1,26 +1,37 @@
-import { Component, HostBinding } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { AppNaviComponent } from "./app-navi/app-navi.component";
-import { DashComponent } from "./dash/dash.component";
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { Component } from '@angular/core';
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { AppNaviComponent } from './app-navi/app-navi.component';
+import { DashComponent } from './dash/dash.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { routes } from './app.routes';
 
 @Component({
-    selector: 'app-root',
-    standalone: true,
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.sass',
-    imports: [RouterOutlet, AppNaviComponent, DashComponent, MatSlideToggleModule,
-      MatSidenavModule
-    ]
+  selector: 'app-root',
+  standalone: true,
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.sass'],
+  imports: [
+    RouterModule,
+    RouterOutlet,
+    AppNaviComponent,
+    DashComponent,
+    MatSlideToggleModule,
+    MatSidenavModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    MatToolbarModule,
+    ScrollingModule
+  ]
 })
 export class AppComponent {
-
   title = 'frontend';
-
 }

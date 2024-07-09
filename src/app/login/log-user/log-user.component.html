@@ -1,24 +1,28 @@
 <div class="login-cont">
   <mat-card class="login-card" appearance="outlined">
     <mat-card-header>
-      <mat-card-title class="haslo"> <h2>Witamy!</h2> </mat-card-title>
+      <mat-card-title> <h2>Witamy!</h2> </mat-card-title>
     </mat-card-header>
     <mat-card-content class="card-cont">
-      <mat-form-field appearance="fill">
-        <mat-label>Login</mat-label>
-        <mat-icon matSuffix>person</mat-icon>
-        <input matInput placeholder="Login" />
-        <mat-hint></mat-hint>
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Hasło</mat-label>
-        <input matInput placeholder="Hasło" type="password" />
-        <mat-icon matSuffix>visibility</mat-icon>
-        <mat-hint></mat-hint>
-      </mat-form-field>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="card-cont">
+        <mat-form-field appearance="fill">
+          <mat-label>Login</mat-label>
+          <mat-icon matSuffix>person</mat-icon>
+          <input matInput placeholder="Login" formControlName="login" type="email"/>
+          <mat-error *ngIf="loginForm.get('login')?.invalid && loginForm.get('login')?.touched">Login jest wymagany</mat-error>
+          <mat-hint></mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Hasło</mat-label>
+          <input matInput [type]="isPassVisible ? 'text' : 'password'" placeholder="Hasło" formControlName="pass" />
+          <mat-icon matSuffix (click)="togglePassword()">{{ isPassVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <mat-error *ngIf="loginForm.get('pass')?.invalid && loginForm.get('pass')?.touched">Hasło jest wymagane</mat-error>
+          <mat-hint></mat-hint>
+        </mat-form-field>
+        <mat-card-footer class="example-card-footer">
+          <button mat-button class="btn-sub" type="submit" [disabled]="loginForm.invalid">Zaloguj</button>
+        </mat-card-footer>
+      </form>
     </mat-card-content>
-    <mat-card-footer class="example-card-footer">
-      <button mat-button>Zaloguj</button>
-    </mat-card-footer>
   </mat-card>
 </div>
