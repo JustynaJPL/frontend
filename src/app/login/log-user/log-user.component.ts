@@ -58,12 +58,11 @@ export class LogUserComponent implements OnInit {
       console.log("Form is valid, submitting..."); // Dodane logowanie
       this.loggerService.login(this.loginForm.value).subscribe(
         (response) => {
-          if (response && response.data && response.data.jwt && response.data.user) {
-            localStorage.setItem('token', response.data.jwt);
-            console.log(localStorage.getItem('token'));
-            localStorage.setItem('userId', response.data.user.id);
-            console.log(localStorage.getItem('userId'));
-          }
+          localStorage.setItem('token', response.jwt);
+            // console.log(localStorage.getItem('token'));
+          localStorage.setItem('userId', response.user.id);
+            // console.log(localStorage.getItem('userId'));
+
           this.router.navigate(["/logged"]);
         },
         (error) => {

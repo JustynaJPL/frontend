@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { AppNaviComponent } from './app-navi/app-navi.component';
 import { DashComponent } from './main/day-view/dash/dash.component';
@@ -30,7 +30,10 @@ import { routes } from './app.routes';
     MatListModule,
     MatToolbarModule,
     ScrollingModule
-  ]
+  ],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA,
+    NO_ERRORS_SCHEMA]
 })
 export class AppComponent {
   title = 'frontend';

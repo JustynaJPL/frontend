@@ -1,0 +1,220 @@
+.back
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: flex-start
+  align-items: flex-start
+  align-content: flex-start
+  button
+    margin: 10px
+    color: var(--text)
+    background-color: var(--light-primary-color)
+    border: 1px solid var(--light-primary-color)
+    font-size: 19px
+    border-radius: 15px
+    // padding: 15px 50px;
+    cursor: pointer
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: space-between
+    align-items: flex-start
+    align-content: center
+    span,
+    label
+      padding: 10px
+      cursor: pointer
+      // font-size: 30px;
+
+    &:hover
+      background-color: var(--dark-primary-color)
+      border: 1px solid var(--dark-primary-color)
+
+
+
+
+.new-recipe
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: center
+  align-items: flex-start
+  align-content: flex-start
+  padding: 0 1%
+
+  .recipe-form
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: center
+    align-items: flex-start
+    align-content: flex-start
+
+    .image-cont
+      flex: 0 0 29%
+      display: flex
+      flex-direction: column
+      flex-wrap: wrap
+      justify-content: flex-start
+      align-items: center
+      align-content: flex-start
+
+      img
+        width: 100%
+
+
+
+    .recipe-content
+      flex: 0 0 60%
+      display: flex
+      flex-direction: column
+      flex-wrap: wrap
+      justify-content: flex-start
+      align-items: flex-start
+      align-content: flex-start
+      padding: 0 2%
+
+      h1
+        display: block
+        margin: 10px 20px
+
+
+      mat-form-field
+        width: 100%
+
+
+      .kategoria
+        display: flex
+        flex-direction: column
+        flex-wrap: wrap
+        justify-content: flex-start
+        align-items: flex-start
+        align-content: flex-start
+        width: 100%
+        mat-form-field
+          width: 100%
+
+
+
+      .skladniki-content
+        display: flex
+        flex-direction: column
+        flex-wrap: wrap
+        justify-content: flex-start
+        align-items: flex-start
+        align-content: flex-start
+        width: 100%
+
+        .main
+          display: flex
+          flex-direction: row
+          flex-wrap: wrap
+          justify-content: flex-start
+          align-items: flex-start
+          align-content: flex-start
+          width: 100%
+          mat-form-field
+            width: 50%
+
+
+
+        .statistics
+          display: flex
+          flex-direction: row
+          flex-wrap: wrap
+          justify-content: space-around
+          align-items: flex-start
+          align-content: flex-start
+          width: 100%
+          .per100
+            width: 25%
+
+          .perp
+            width: 25%
+
+          button
+            width: 100%
+            margin: 10px 0
+
+
+
+        button
+          width: 100%
+          margin: 10px 0
+
+
+
+
+    .summary
+      display: flex
+      flex-direction: row
+      flex-wrap: wrap
+      justify-content: flex-end
+      align-items: flex-start
+      align-content: flex-start
+      width: 100%
+      .fin8
+        width: 25%
+
+
+      mat-label
+        color: var(--primary-color)
+
+
+
+
+    .instructions
+      display: flex
+      flex-direction: column
+      flex-wrap: wrap
+      justify-content: flex-start
+      align-items: flex-start
+      align-content: flex-start
+      width: 100%
+      mat-form-field
+        width: 100%
+
+
+
+    .submit-btn
+      width: 100%
+
+
+
+
+.error-btn
+  background-color: var(--primary-color)
+  border: none
+  color: var(--text)
+  padding: 5px
+  margin: 20px
+
+
+mat-select
+  width: 100%
+
+.kategoria
+  width: 100%
+
+
+.addskladnik
+  background-color: var(--accent-color)
+  border: none
+  color: var(--text)
+  padding: 5px
+  margin: 20px
+  border-radius: 5px
+  font-size: large
+  font-style: bold
+
+
+.submit-btn
+  background-color: var(--primary-color)
+  border: none
+  color: var(--text)
+  padding: 5px
+  margin: 20px
+  border-radius: 5px
+  font-size: large
+  font-style: bold
+
