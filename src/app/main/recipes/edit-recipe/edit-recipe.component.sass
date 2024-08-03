@@ -1,0 +1,185 @@
+@use '../../../../custom-theme.scss' as custom
+
+.container
+  margin-left: 200px
+  display: flex
+  flex-direction: column
+  flex-wrap: wrap
+  justify-content: center
+  align-items: flex-start
+  align-content: stretch
+  .back
+    button
+      margin: 20px
+      cursor: pointer
+      mat-icon, label
+        cursor: pointer
+
+  mat-card
+    margin-left: 20px
+    mat-card-content
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: center
+    align-items: flex-start
+    align-content: flex-start
+    padding: 0 1%
+
+    .recipe-form
+      display: flex
+      flex-direction: row
+      flex-wrap: wrap
+      justify-content: center
+      align-items: flex-start
+      align-content: flex-start
+
+
+
+      .image-cont
+        flex: 0 0 29%
+        display: flex
+        flex-direction: column
+        flex-wrap: wrap
+        justify-content: flex-start
+        align-items: center
+        align-content: flex-start
+
+        button
+          margin-bottom: 20px
+
+        img
+          width: 100%
+
+      .recipe-content
+        flex: 0 0 60%
+        display: flex
+        flex-direction: column
+        flex-wrap: wrap
+        justify-content: flex-start
+        align-items: flex-start
+        align-content: flex-start
+        padding: 0 2%
+        color: custom.$primary-text-color
+
+        h1
+          display: block
+          margin: 10px 20px
+
+        mat-form-field
+          width: 100%
+
+        .kategoria
+          display: flex
+          flex-direction: column
+          flex-wrap: wrap
+          justify-content: flex-start
+          align-items: flex-start
+          align-content: flex-start
+          width: 100%
+        mat-form-field
+          width: 100%
+
+        .skladniki-content
+          display: flex
+          flex-direction: column
+          flex-wrap: wrap
+          justify-content: flex-start
+          align-items: flex-start
+          align-content: flex-start
+          width: 100%
+
+          .main
+            display: flex
+            flex-direction: row
+            flex-wrap: wrap
+            justify-content: flex-start
+            align-items: flex-start
+            align-content: flex-start
+            width: 100%
+          mat-form-field
+            width: 50%
+
+          .statistics
+            display: flex
+            flex-direction: row
+            flex-wrap: wrap
+            justify-content: space-around
+            align-items: flex-start
+            align-content: flex-start
+            width: 100%
+            .per100
+              width: 25%
+
+            .perp
+              width: 25%
+
+            button
+              width: 100%
+              margin: 10px 0
+
+          button
+            width: 100%
+            margin: 10px 0
+
+      .summary
+        display: flex
+        flex-direction: row
+        flex-wrap: wrap
+        justify-content: flex-end
+        align-items: flex-start
+        align-content: flex-start
+        width: 100%
+        .fin8
+          width: 25%
+
+        mat-label
+          color: custom.$accent-color
+
+      .instructions
+        display: flex
+        flex-direction: column
+        flex-wrap: wrap
+        justify-content: flex-start
+        align-items: flex-start
+        align-content: flex-start
+        width: 100%
+      mat-form-field
+        width: 100%
+
+        .submit-btn
+          width: 100%
+
+  .error-btn
+    background-color: custom.$warn-color
+    border: none
+    color: custom.$primary-text-color
+    padding: 5px
+    margin: 20px
+
+  mat-select
+    width: 100%
+
+  .kategoria
+    width: 100%
+
+  .addskladnik
+    background-color: custom.$accent-color
+    border: none
+    color: custom.$primary-text-color
+    padding: 5px
+    margin: 20px
+    border-radius: 5px
+    font-size: large
+    font-style: bold
+
+  .submit-btn
+    background-color: custom.$primary-color
+    border: none
+    color: custom.$primary-text-color
+    padding: 5px
+    margin: 20px
+    border-radius: 5px
+    font-size: large
+    font-style: bold
+    cursor: pointer

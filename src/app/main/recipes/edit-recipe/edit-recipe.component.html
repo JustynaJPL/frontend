@@ -1,1 +1,286 @@
-<p>edit-recipe works!</p>
+<app-app-navi></app-app-navi>
+<div class="container">
+  <div class="back">
+    <button mat-raised-button color="accent" (click)="goBack()">
+      <mat-icon class="mat-18">arrow_back</mat-icon>
+      <label for="">Powrót</label>
+    </button>
+  </div>
+
+  <mat-card appearance="outlined">
+    <mat-card-content>
+    <form
+    *ngIf="recipeForm"
+      [formGroup]="recipeForm"
+      class="recipe-form"
+      (ngSubmit)="submitForm()"
+    >
+      <ng-container>
+        <div class="image-cont">
+          <input
+            type="file"
+            (change)="handleFileInput($event)"
+            accept="image/*"
+            name="image"
+            id="fileInput"
+            hidden
+          />
+          <button mat-raised-button color="primary" (click)="triggerFileInput()" class="imgbut">
+            Wybierz zdjęcie
+          </button>
+          <mat-error *ngIf="hasError('image', 'required')">
+            <button mat-raised-button color="primary" class="error-btn">
+              Zdjęcie jest wymagane
+            </button>
+          </mat-error>
+          <img
+            [src]="recipeForm.get('image')!.value ? recipeForm.get('image')!.value : '../assets/placeholder.jpg'"
+            alt="Wybrane zdjęcie"
+            class="image"
+          />
+        </div>
+
+      </ng-container>
+
+      <div class="recipe-content">
+        <h1>Dodaj nowy przepis</h1>
+        <ng-container>
+          <mat-form-field>
+            <mat-label>Nazwa przepisu</mat-label>
+            <input
+              matInput
+              placeholder="Np. Owsianka z malinami"
+              formControlName="nazwaPrzepisu"
+            />
+            <mat-error *ngIf="hasError('nazwaPrzepisu', 'required')">
+              <button mat-raised-button class="error-btn">
+                Nazwa przepisu jest wymagana
+              </button>
+            </mat-error>
+          </mat-form-field>
+        </ng-container>
+
+        <div class="kategoria">
+          <h1>Kategoria przepisu</h1>
+          <div formGroupName="kategoria" class="kategoria">
+            <mat-form-field>
+              <mat-label>Wybierz kategorię</mat-label>
+              <!-- Teraz możemy bezpośrednio odwołać się do kontrolki 'nazwa' -->
+              <mat-select
+                formControlName="nazwa"
+                (selectionChange)="onKategoriaChange($event)"
+              >
+                <mat-option
+                  *ngFor="let kat of kategorie; let i = index"
+                  [value]="kat.nazwa"
+                >
+                  {{ kat.nazwa }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <!-- Aby sprawdzić błąd, musisz zmienić sposób dostępu do błędu -->
+            <mat-error
+              *ngIf="
+                recipeForm.get('kategoria')?.get('nazwa')?.hasError('required')
+              "
+            >
+              Kategoria przepisu musi być wybrana
+            </mat-error>
+          </div>
+        </div>
+
+        <div formArrayName="skladniki" class="skladniki-content">
+          <h1>Składniki przepisu</h1>
+          <ng-container
+            *ngFor="let skladnik of skladniki.controls; let i = index"
+            [formGroupName]="i"
+          >
+            <div class="main">
+              <mat-form-field>
+                <mat-label>Wybierz produkt</mat-label>
+                <mat-select
+                  (selectionChange)="onProduktChange($event, i)"
+                  formControlName="nazwa"
+                >
+                  <mat-option
+                    *ngFor="let prod of produkty; let j = index"
+                    [value]="prod.nazwaProduktu"
+                  >
+                    {{ prod.nazwaProduktu }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="main">
+                <mat-label>Ilość[g]</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  placeholder="100"
+                  formControlName="ilosc"
+                  required
+                  min="0"
+                  (blur)="makecalculations(i)"
+                  (keydown)="onInputKeyDown($event)"
+                />
+                <mat-error
+                  *ngIf="skladniki.controls[i]?.get('iloscskladnika')?.errors?.['required']"
+                >
+                  Ilość składnika musi być określona
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="statistics">
+              <ng-container>
+                <mat-form-field class="per100">
+                  <mat-label>Kcal</mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('kcal')?.value"
+                  />
+                </mat-form-field>
+                <mat-form-field class="per100">
+                  <mat-label>Tłuszcze</mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('tluszcze')?.value"
+                  />
+                </mat-form-field>
+                <mat-form-field class="per100">
+                  <mat-label>Węglowodany</mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('weglowodany')?.value"
+                  />
+                </mat-form-field>
+                <mat-form-field class="per100">
+                  <mat-label>Białko</mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('bialko')?.value"
+                  />
+                </mat-form-field>
+              </ng-container>
+              <ng-container class="perportion">
+                <mat-form-field class="perp">
+                  <mat-label> Kcal w porcji</mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('kcalperw')?.value"
+                  />
+                </mat-form-field>
+                <mat-form-field class="perp">
+                  <mat-label> Tłuszcze w porcji </mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('tluszczeperw')?.value"
+                  />
+                </mat-form-field>
+                <mat-form-field class="perp">
+                  <mat-label> Węglowodany w porcji </mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('weglowodanyperw')?.value"
+                  />
+                </mat-form-field>
+                <mat-form-field class="perp">
+                  <mat-label> Białko w porcji </mat-label>
+                  <input
+                    matInput
+                    disabled
+                    [value]="skladnik.get('bialkoperw')?.value"
+                  />
+                </mat-form-field>
+              </ng-container>
+              <button
+                mat-raised-button
+                (click)="deleteSkladnik(i)"
+                class="delete-btn"
+                color="warn"
+              >
+                <mat-icon class="mat-18">delete</mat-icon>
+              </button>
+            </div>
+          </ng-container>
+
+          <button
+            mat-raised-button
+            type="button"
+            (click)="addSkladnik()"
+            class="addskladnik"
+            color="primary"
+          >
+            +
+          </button>
+        </div>
+
+        <div class="summary">
+          <ng-container>
+            <mat-form-field class="fin8">
+              <mat-label> Kcal całkowite</mat-label>
+              <input
+                matInput
+                disabled
+                [value]="recipeForm.get('kcal')?.value"
+              />
+            </mat-form-field>
+            <mat-form-field class="fin8">
+              <mat-label> Tłuszcze całkowite </mat-label>
+              <input
+                matInput
+                disabled
+                [value]="recipeForm.get('tluszcze')?.value"
+              />
+            </mat-form-field>
+            <mat-form-field class="fin8">
+              <mat-label> Węglowodany całkowite </mat-label>
+              <input
+                matInput
+                disabled
+                [value]="recipeForm.get('weglowodany')?.value"
+              />
+            </mat-form-field>
+            <mat-form-field class="fin8">
+              <mat-label> Białko całkowite </mat-label>
+              <input
+                matInput
+                disabled
+                [value]="recipeForm.get('bialko')?.value"
+              />
+            </mat-form-field>
+          </ng-container>
+        </div>
+
+        <div class="instructions" formArrayName="instrukcje">
+          <h1>Czynności:</h1>
+          <ng-container *ngFor="let instrukcja of instrukcje.controls; let i = index">
+            <mat-form-field>
+              <mat-label>{{ i + 1 }}.</mat-label>
+              <textarea
+                matInput
+                cdkTextareaAutosize
+                #autosize="cdkTextareaAutosize"
+                cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="5"
+                [formControlName]="i"
+                (input)="checkFields(i)"
+              ></textarea>
+              <mat-error *ngIf="instrukcja.hasError('required')">
+                Przynajmniej jedna instrukcja musi zostać dodana
+              </mat-error>
+            </mat-form-field>
+          </ng-container>
+        </div>
+        <button class="submit-btn" type="submit">Dodaj przepis</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+</div>

@@ -13,12 +13,14 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatListModule } from "@angular/material/list";
 import { MatInputModule } from "@angular/material/input";
 import { MatIconModule } from "@angular/material/icon";
+import { AppNaviComponent } from "../../../app-navi/app-navi.component";
 
 @Component({
   selector: "app-recipe-list",
   standalone: true,
   imports: [
     CommonModule,
+    AppNaviComponent,
     MatTableModule,
     RouterModule,
     MatPaginatorModule,

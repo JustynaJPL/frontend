@@ -59,3 +59,5 @@ $primary-color: mat.get-color-from-palette($frontend-primary, 500);
 $primary-hover-color: mat.get-color-from-palette($frontend-primary);
 $accent-color: mat.get-color-from-palette($frontend-accent);
 $warn-color: mat.get-color-from-palette($frontend-warn);
+$primary-text-color: mat.get-color-from-palette($frontend-primary, default-contrast);
+
