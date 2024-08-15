@@ -25,16 +25,16 @@
             id="fileInput"
             hidden
           />
-          <button mat-raised-button color="primary" (click)="triggerFileInput()" class="imgbut">
+          <button mat-raised-button type="button" color="primary" (click)="triggerFileInput()" class="imgbut">
             Wybierz zdjęcie
           </button>
           <mat-error *ngIf="hasError('image', 'required')">
-            <button mat-raised-button color="primary" class="error-btn">
+            <button type="button" mat-raised-button color="primary" class="error-btn">
               Zdjęcie jest wymagane
             </button>
           </mat-error>
           <img
-            [src]="recipeForm.get('image')!.value ? recipeForm.get('image')!.value : '../assets/placeholder.jpg'"
+            [src]="imageUrl ? imageUrl :  recipeForm.get('image')!.value"
             alt="Wybrane zdjęcie"
             class="image"
           />
@@ -53,7 +53,7 @@
               formControlName="nazwaPrzepisu"
             />
             <mat-error *ngIf="hasError('nazwaPrzepisu', 'required')">
-              <button mat-raised-button class="error-btn">
+              <button type="button" mat-raised-button class="error-btn">
                 Nazwa przepisu jest wymagana
               </button>
             </mat-error>
@@ -87,6 +87,25 @@
               Kategoria przepisu musi być wybrana
             </mat-error>
           </div>
+        </div>
+
+        <div class="liczba-porcji">
+          <ng-container>
+            <mat-form-field>
+              <mat-label>Liczba porcji w przepisie</mat-label>
+              <input
+                matInput
+                formControlName="liczbaporcji"
+                type="number"
+                (keydown)="onInputKeyDown($event)"
+              />
+              <mat-error *ngIf="hasError('nazwaPrzepisu', 'required')">
+                <button mat-raised-button class="error-btn">
+                  Liczba porcji jest wymagana
+                </button>
+              </mat-error>
+            </mat-form-field>
+          </ng-container>
         </div>
 
         <div formArrayName="skladniki" class="skladniki-content">
@@ -226,9 +245,10 @@
             <mat-form-field class="fin8">
               <mat-label> Kcal całkowite</mat-label>
               <input
+              [value]='recipeForm.get("kcal")?.value'
                 matInput
                 disabled
-                [value]="recipeForm.get('kcal')?.value"
+
               />
             </mat-form-field>
             <mat-form-field class="fin8">

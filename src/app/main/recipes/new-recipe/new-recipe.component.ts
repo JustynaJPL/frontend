@@ -107,6 +107,7 @@ export class NewRecipeComponent {
       weglowodany: [0],
       tluszcze: [0],
       searchTerm: [""],
+      liczbaporcji:[0]
     });
 
     this.dbservice.getKategorie().subscribe((_kategorie) => {
@@ -204,6 +205,7 @@ export class NewRecipeComponent {
           tluszcze: this.recipeForm.get("tluszcze")?.value,
           weglowodany: this.recipeForm.get("weglowodany")?.value,
         },
+        liczbaporcji:this.recipeForm.get("liczbaporcji")?.value
       };
 
       const skladniki = this.recipeForm.get("skladniki") as FormArray;

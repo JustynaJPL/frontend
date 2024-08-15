@@ -77,6 +77,7 @@ export class DatabaseConnectorService {
               tluszcze: data.data[i].attributes.gda.tluszcze,
               weglowodany: data.data[i].attributes.gda.weglowodany,
             },
+            liczbaporcji:data.data[i].attributes.liczbaPorcji
           };
           recipes.push(p);
         }
@@ -141,6 +142,7 @@ getRecipeWithId(id: number): Observable<Przepis> {
           imageurl: data.data[0].attributes.przepisimg.data
             ? data.data[0].attributes.przepisimg.data.attributes.url
             : undefined,
+          liczbaporcji:data.data[0].attributes.liczbaPorcji
         };
         observer.next(p); // przekazujemy wartość do obserwatora
         observer.complete(); // informujemy, że operacja się zakończyła
@@ -159,6 +161,7 @@ getSkladniksofRecipeWithId(id: number): Observable<Skladnik[]> {
     .pipe(
       map((response: any) => {
         let skladniki: Skladnik[] = [];
+        console.log(response.data);
         for (let item of response.data) {
           let skladnik: Skladnik = {
             id: item.id,
@@ -188,10 +191,18 @@ getSkladniksofRecipeWithId(id: number): Observable<Skladnik[]> {
           };
           skladniki.push(skladnik);
         }
-
+        console.log(skladniki);
         return skladniki;
       })
     );
+}
+
+deleteSkladniksofRecipeWithId(ids: number[]): Observable<any> {
+  const deleteRequests = ids.map(id =>
+    this.http.delete(this.APIURL + this.skladniksurl + '/' + id, this.authopts)
+  );
+
+  return forkJoin(deleteRequests);
 }
 
 createSkladniksofRecipe(skladniki: Skladnik[], recipeId: number): Observable<any> {
@@ -245,19 +256,19 @@ getAllProdukts(): Observable<Produkt[]> {
         };
         produkty.push(p);
       }
-      produkty.sort((a, b) => {
-        const nazwaA = a.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
-        const nazwaB = b.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
+      // produkty.sort((a, b) => {
+      //   const nazwaA = a.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
+      //   const nazwaB = b.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
 
-        if (nazwaA < nazwaB) {
-          return -1; // nazwaA jest przed nazwaB
-        }
-        if (nazwaA > nazwaB) {
-          return 1; // nazwaA jest po nazwaB
-        }
+      //   if (nazwaA < nazwaB) {
+      //     return -1; // nazwaA jest przed nazwaB
+      //   }
+      //   if (nazwaA > nazwaB) {
+      //     return 1; // nazwaA jest po nazwaB
+      //   }
 
-        return 0; // nazwy są identyczne
-      });
+      //   return 0; // nazwy są identyczne
+      // });
       return produkty;
     })
   );
@@ -323,7 +334,55 @@ addRecipetoDB(recipe: Przepis, imageId:number): Observable<any> {
               "bialka": recipe.gda.bialka,
               "tluszcze": recipe.gda.tluszcze,
               "weglowodany": recipe.gda.weglowodany,
-            }
+            },
+            "liczbaPorcji":recipe.liczbaporcji
+        }
+      },
+      this.authopts
+    )
+    .pipe(
+      map((response: any) => {
+        console.log(
+          "Przepis został pomyślnie przesłany na serwer Strapi.",
+          response
+        );
+        return response;
+      }),
+      catchError((error) => {
+        console.error(
+          "Wystąpił błąd podczas wysyłania przepisu na serwer Strapi.",
+          error
+        );
+        throw error;
+      })
+    );
+}
+
+updateRecipetoDB(recipe: Przepis, imageId:number, recipeno:number): Observable<any> {
+  return this.http
+    .put(
+      this.APIURL + this.przepisurl + '/' + recipeno ,
+      {
+        "data":
+        {
+
+            "nazwaPrzepisu": recipe.nazwaPrzepisu,
+            "instrukcja1": recipe.instrukcja1,
+            "instrukcja2": recipe.instrukcja2,
+            "instrukcja3": recipe.instrukcja3,
+            "instrukcja4": recipe.instrukcja4,
+            "instrukcja5": recipe.instrukcja5,
+            "instrukcja6": recipe.instrukcja6,
+            "kategoria": {
+              "connect":[recipe.kategoria.id]
+            },
+            "gda": {
+              "kcal": recipe.gda.kcal,
+              "bialka": recipe.gda.bialka,
+              "tluszcze": recipe.gda.tluszcze,
+              "weglowodany": recipe.gda.weglowodany,
+            },
+            "liczbaPorcji":recipe.liczbaporcji
         }
       },
       this.authopts
@@ -372,4 +431,31 @@ uploadImagetoRecipeWithNumber(id: number, imageId: number): Observable<any> {
     })
   );
 }
+
+// updateImagetoRecipeWithNumber(id: number, imageId: number): Observable<any> {
+//   // Assuming 'przepisimg' is the media field in your content type for the image
+//   // and 'imageId' is the ID of the already uploaded image you want to associate with the recipe
+//   const body = {
+//     data: {
+//       przepisimg: imageId
+//     }
+//   };
+
+//   return this.http.put(`${this.APIURL}${this.przepisurl}/${id}`, body, this.authopts).pipe(
+//     map((response: any) => {
+//       console.log(
+//         "Plik został pomyślnie przypisany do przepisu w Strapi.",
+//         response
+//       );
+//       return response;
+//     }),
+//     catchError((error) => {
+//       console.error(
+//         "Wystąpił błąd podczas przypisywania pliku do przepisu w Strapi.",
+//         error
+//       );
+//       throw error;
+//     })
+//   );
+// }
 }

@@ -88,6 +88,25 @@
           </div>
         </div>
 
+        <div class="liczba-porcji">
+          <ng-container>
+            <mat-form-field>
+              <mat-label>Liczba porcji w przepisie</mat-label>
+              <input
+                matInput
+                formControlName="liczbaporcji"
+                type="number"
+                (keydown)="onInputKeyDown($event)"
+              />
+              <mat-error *ngIf="hasError('nazwaPrzepisu', 'required')">
+                <button mat-raised-button class="error-btn">
+                  Liczba porcji jest wymagana
+                </button>
+              </mat-error>
+            </mat-form-field>
+          </ng-container>
+        </div>
+
         <div formArrayName="skladniki" class="skladniki-content">
           <h1>Składniki przepisu</h1>
           <ng-container

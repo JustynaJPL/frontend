@@ -1,54 +1,69 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { CommonModule } from "@angular/common";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { Kategoria } from '../../../models/Kategoria';
-import { Produkt } from '../../../models/Produkt';
-import { ActivatedRoute } from '@angular/router';
-import { DatabaseConnectorService } from '../../../database-services/database-connector.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Przepis } from '../../../models/Przepis';
-import { Skladnik } from '../../../models/Skladnik';
-import { switchMap } from 'rxjs/internal/operators/switchMap';
-import { MatError, MatOption, MatSelectChange, MatSelectModule } from '@angular/material/select';
-import { Location } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
-import { TextFieldModule } from '@angular/cdk/text-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Subscription } from 'rxjs';
-import { url } from 'inspector';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
+import { Kategoria } from "../../../models/Kategoria";
+import { Produkt } from "../../../models/Produkt";
+import { ActivatedRoute } from "@angular/router";
+import { DatabaseConnectorService } from "../../../database-services/database-connector.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { Przepis } from "../../../models/Przepis";
+import { Skladnik } from "../../../models/Skladnik";
+import { switchMap } from "rxjs/internal/operators/switchMap";
+import {
+  MatError,
+  MatOption,
+  MatSelectChange,
+  MatSelectModule,
+} from "@angular/material/select";
+import { Location } from "@angular/common";
+import { MatCardModule } from "@angular/material/card";
+import { MatIconModule } from "@angular/material/icon";
+import { MatFormFieldModule, MatLabel } from "@angular/material/form-field";
+import { TextFieldModule } from "@angular/cdk/text-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatButtonModule } from "@angular/material/button";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { of, Subscription } from "rxjs";
+import { url } from "inspector";
 
 @Component({
-    selector: 'app-edit-recipe',
-    standalone: true,
-    templateUrl: './edit-recipe.component.html',
-    styleUrl: './edit-recipe.component.sass',
-    imports: [
-      CommonModule,
-      AppNaviComponent,
-      MatCardModule,
-      MatIconModule,
-      ReactiveFormsModule,
-      MatError,
-      MatFormFieldModule,
-      MatLabel,
-      MatOption,
-      MatSelectModule,
-      TextFieldModule,
-      // BrowserAnimationsModule,
-      MatInputModule,
-      MatButtonModule]
+  selector: "app-edit-recipe",
+  standalone: true,
+  templateUrl: "./edit-recipe.component.html",
+  styleUrl: "./edit-recipe.component.sass",
+  imports: [
+    CommonModule,
+    AppNaviComponent,
+    MatCardModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    MatError,
+    MatFormFieldModule,
+    MatLabel,
+    MatOption,
+    MatSelectModule,
+    TextFieldModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
 })
 export class EditRecipeComponent {
   recipeForm!: FormGroup;
   formData = new FormData();
   kategorie: Kategoria[] = [];
   produkty: Produkt[] = [];
-  przepis!:Przepis;
+  przepis!: Przepis;
 
   imageUrl: string | ArrayBuffer | null = null;
 
@@ -57,6 +72,8 @@ export class EditRecipeComponent {
   filteredProdukty: Produkt[] = [];
   id: number | null = null;
   private routeSub: Subscription | null = null;
+  shouldUpdateImage: boolean = false;
+  oldskladniki: number[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -65,55 +82,53 @@ export class EditRecipeComponent {
     private dbservice: DatabaseConnectorService,
     private _snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
-  ) {
-
-
-  }
+  ) {}
 
   ngOnInit(): void {
-
     this.routeSub = this.route.paramMap.subscribe((paramMap) => {
-      const idParam = paramMap.get('id');
+      const idParam = paramMap.get("id");
       this.id = idParam !== null ? Number(idParam) : null;
       if (this.id !== null && isNaN(this.id)) {
-        console.error('Invalid id parameter:', idParam);
+        console.error("Invalid id parameter:", idParam);
       } else {
         console.log(this.id); // Check if the id is correctly retrieved and converted
       }
     });
 
-    this.dbservice.getRecipeWithId(this.id!).subscribe((recipe:Przepis) =>{
+    this.dbservice.getRecipeWithId(this.id!).subscribe((recipe: Przepis) => {
       this.przepis = recipe;
-      console.log(recipe);
+      // console.log(recipe);
       console.log(this.przepis);
+
+      this.imageUrl = this.dbservice.APIURL + this.przepis.imageurl;
 
       this.recipeForm = this.formBuilder.group({
         nazwaPrzepisu: [this.przepis.nazwaPrzepisu, Validators.required],
-        image: [this.dbservice.APIURL + this.przepis.imageurl, Validators.required], // Zakładamy, że "obraz" to będzie plik, więc początkowo null
+        image: [
+          this.dbservice.APIURL + this.przepis.imageurl,
+          Validators.required,
+        ], // Zakładamy, że "obraz" to będzie plik, więc początkowo null
         kategoria: this.formBuilder.group({
           id: this.przepis.kategoria.id,
           nazwa: [this.przepis.kategoria.nazwa, Validators.required],
         }),
         skladniki: this.formBuilder.array([]), // Początkowo pusta lista skladników
-        instrukcje: this.formBuilder.array(
-        [this.przepis.instrukcja1,
-          this.przepis.instrukcja2 ? this.przepis.instrukcja2 : '',
-          this.przepis.instrukcja3 ? this.przepis.instrukcja3 : '',
-          this.przepis.instrukcja4 ? this.przepis.instrukcja4 : '',
-          this.przepis.instrukcja5 ? this.przepis.instrukcja5 : '',
-          this.przepis.instrukcja6 ? this.przepis.instrukcja6 : ''
+        instrukcje: this.formBuilder.array([
+          this.przepis.instrukcja1,
+          this.przepis.instrukcja2 ? this.przepis.instrukcja2 : "",
+          this.przepis.instrukcja3 ? this.przepis.instrukcja3 : "",
+          this.przepis.instrukcja4 ? this.przepis.instrukcja4 : "",
+          this.przepis.instrukcja5 ? this.przepis.instrukcja5 : "",
+          this.przepis.instrukcja6 ? this.przepis.instrukcja6 : "",
         ]),
-        kcal: [0],
-        bialko: [0],
-        weglowodany: [0],
-        tluszcze: [0],
+        kcal: [this.przepis.gda.kcal],
+        bialko: [this.przepis.gda.bialka],
+        weglowodany: [this.przepis.gda.weglowodany],
+        tluszcze: [this.przepis.gda.tluszcze],
         searchTerm: [""],
+        liczbaporcji:this.przepis.liczbaporcji
       });
-
     });
-
-
-
 
     this.dbservice.getKategorie().subscribe((_kategorie) => {
       this.kategorie = _kategorie;
@@ -136,15 +151,37 @@ export class EditRecipeComponent {
         console.log("Wystąpił błąd podczas pobierania produktów", error);
       }
     );
+
+    this.dbservice
+      .getSkladniksofRecipeWithId(this.id!)
+      .subscribe((skladniki: Skladnik[]) => {
+        const skladnikiFormArray = this.recipeForm.get(
+          "skladniki"
+        ) as FormArray;
+
+        console.log(skladniki);
+
+        skladniki.forEach((skladnik) => {
+          const skladnikGroup = this.formBuilder.group({
+            id: [skladnik.id],
+            ilosc: [skladnik.ilosc, Validators.required],
+            nazwa: [skladnik.nazwaProduktu, Validators.required],
+            kcal: [skladnik.kcal],
+            tluszcze: [skladnik.tluszcze],
+            weglowodany: [skladnik.weglowodany],
+            bialko: [skladnik.bialko],
+            kcalperw: [skladnik.kcalperw],
+            tluszczeperw: [skladnik.tluszczeperw],
+            weglowodanyperw: [skladnik.weglowodanyperw],
+            bialkoperw: [skladnik.bialkoperw],
+          });
+          skladnikiFormArray.push(skladnikGroup);
+          this.oldskladniki.push(skladnik.id);
+        });
+      });
+
+    this.wyliczmakrodlaprzepisu();
   }
-
-  // initializeInstrukcje(values: string[]): FormControl[] {
-  //   return values.map(value => this.formBuilder.control(value, Validators.required));
-  // }
-
-
-
-
 
   get searchTermControl(): FormControl {
     return this.recipeForm.get("searchTerm") as FormControl;
@@ -185,11 +222,13 @@ export class EditRecipeComponent {
       Object.keys(this.recipeForm.controls).forEach((key) => {
         const control = this.recipeForm.get(key);
         if (control?.invalid) {
-          console.error(`Kontrolka ${key} jest niepoprawna. Błąd:`, control.errors);
+          console.error(
+            `Kontrolka ${key} jest niepoprawna. Błąd:`,
+            control.errors
+          );
         }
       });
     } else {
-
       console.log("Formularz poprawny", this.recipeForm.value);
 
       const inst = this.getInstrukcjeFromForm();
@@ -212,6 +251,7 @@ export class EditRecipeComponent {
           tluszcze: this.recipeForm.get("tluszcze")?.value,
           weglowodany: this.recipeForm.get("weglowodany")?.value,
         },
+        liczbaporcji:this.recipeForm.get("liczbaporcji")?.value
       };
 
       const skladniki = this.recipeForm.get("skladniki") as FormArray;
@@ -235,150 +275,49 @@ export class EditRecipeComponent {
 
       console.log(skladnikiDoBazy);
 
-      this.dbservice.uploadFileToDB(this.formData)
-        .pipe(
+      if (this.shouldUpdateImage) {
+        this.dbservice.uploadFileToDB(this.formData).pipe(
           switchMap((data) => {
             przepis.imageId = data[0].id;
-            return this.dbservice.addRecipetoDB(przepis, przepis.imageId!);
-          }),
-          switchMap((resp) => {
-            przepis.id = resp.data.id;
-            return this.dbservice.uploadImagetoRecipeWithNumber(przepis.id, przepis.imageId!);
+            return this.dbservice.updateRecipetoDB(przepis, przepis.imageId!, this.id!);
           }),
           switchMap(() => {
-            return this.dbservice.createSkladniksofRecipe(skladnikiDoBazy, przepis.id);
+            // Delete old skladniki
+            return this.dbservice.deleteSkladniksofRecipeWithId(this.oldskladniki);
+          }),
+          switchMap(() => {
+            // Create new skladniki
+            return this.dbservice.createSkladniksofRecipe(skladnikiDoBazy, this.id!);
           })
-        )
-        .subscribe({
+        ).subscribe({
           next: () => {
-            this.submitedMessage("Przepis został dodany do bazy!");
+            this.submitedMessage("Recipe updated successfully!");
           },
           error: (error) => {
-            console.error("Wystąpił błąd podczas przetwarzania formularza", error);
-          },
+            console.error("Error processing the form:", error);
+          }
         });
+      } else {
+        this.dbservice.updateRecipetoDB(przepis, przepis.imageId!, this.id!).pipe(
+          switchMap(() => {
+            return this.dbservice.deleteSkladniksofRecipeWithId(this.oldskladniki);
+          }),
+          switchMap(() => {
+            return this.dbservice.createSkladniksofRecipe(skladnikiDoBazy, this.id!);
+          })
+        ).subscribe({
+          next: () => {
+            this.submitedMessage("Recipe updated successfully!");
+          },
+          error: (error) => {
+            console.error("Error processing the form:", error);
+          }
+        });
+      }
+
       this.goBack();
     }
   }
-
-
-  // submitForm() {
-  //   const instrukcje = this.recipeForm.get("instrukcje") as FormArray;
-  //   // Usuń puste pola przed wysłaniem, jeśli potrzebujesz
-
-  //   // Sprawdź, czy formularz jest niepoprawny
-  //   if (this.recipeForm.invalid) {
-  //     console.log("Formularz zawiera błędy!");
-
-  //     // Iteracja przez wszystkie kontrolki formularza
-  //     Object.keys(this.recipeForm.controls).forEach((key) => {
-  //       const control = this.recipeForm.get(key);
-
-  //       // Sprawdź, czy kontrolka jest niepoprawna
-  //       if (control?.invalid) {
-  //         // Logowanie nazwy kontrolki i błędu
-  //         console.log(
-  //           `Kontrolka ${key} jest niepoprawna. Błąd:`,
-  //           control.errors
-  //         );
-  //       }
-  //     });
-  //   } else {
-  //     // for (let i = instrukcje.length - 1; i >= 0; i--) {
-  //     //   if (!instrukcje.at(i).value) {
-  //     //     instrukcje.removeAt(i);
-  //     //   }
-  //     // }
-  //     console.log("Formularz poprawny", this.recipeForm.value);
-
-  //     let inst = this.getInstrukcjeFromForm();
-
-  //     let przepis: Przepis = {
-  //       id: 0,
-  //       nazwaPrzepisu: this.recipeForm.get("nazwaPrzepisu")?.value,
-  //       instrukcja1: inst.length > 0 ? inst[0] : "",
-  //       instrukcja2: inst.length > 1 ? inst[1] : undefined,
-  //       instrukcja3: inst.length > 2 ? inst[2] : undefined,
-  //       instrukcja4: inst.length > 3 ? inst[3] : undefined,
-  //       instrukcja5: inst.length > 4 ? inst[4] : undefined,
-  //       instrukcja6: inst.length > 5 ? inst[5] : undefined,
-  //       kategoria: {
-  //         id: this.recipeForm.get("kategoria.id")?.value,
-  //         nazwa: this.recipeForm.get("kategoria.nazwa")?.value,
-  //       },
-  //       gda: {
-  //         kcal: this.recipeForm.get("kcal")?.value,
-  //         bialka: this.recipeForm.get("bialko")?.value,
-  //         tluszcze: this.recipeForm.get("tluszcze")?.value,
-  //         weglowodany: this.recipeForm.get("weglowodany")?.value,
-  //       },
-  //     };
-
-  //     const sklad = this.recipeForm.get("skladniki") as FormArray;
-
-  //     const skladnikiDoBazy: Skladnik[] = sklad.controls.map((control) => {
-  //       // Zakładam, że kontrolki w FormArray są FormGroup, co pozwala na łatwe odwołanie się do wartości
-  //       const formGroup = control as FormGroup;
-
-  //       // Teraz możesz utworzyć obiekt Skladnik korzystając z wartości z formGroup
-  //       const s: Skladnik = {
-  //         id: formGroup.get("id")?.value,
-  //         ilosc: formGroup.get("ilosc")?.value,
-  //         nazwaProduktu: formGroup.get("nazwa")?.value, // Zakładam, że pole nazywa się "nazwa"
-  //         kcal: formGroup.get("kcal")?.value,
-  //         tluszcze: formGroup.get("tluszcze")?.value,
-  //         weglowodany: formGroup.get("weglowodany")?.value,
-  //         bialko: formGroup.get("bialko")?.value,
-  //         kcalperw: formGroup.get("kcalperw")?.value,
-  //         tluszczeperw: formGroup.get("tluszczeperw")?.value,
-  //         weglowodanyperw: formGroup.get("weglowodanyperw")?.value,
-  //         bialkoperw: formGroup.get("bialkoperw")?.value,
-  //       };
-
-  //       return s;
-  //     });
-
-  //     console.log(skladnikiDoBazy);
-
-  //     this.dbservice
-  //       .uploadFileToDB(this.formData)
-  //       .pipe(
-  //         switchMap((data) => {
-  //           przepis.imageId = data[0].id;
-  //           return this.dbservice.addRecipetoDB(przepis, przepis.imageId!);
-  //         }),
-  //         switchMap((resp) => {
-  //           przepis.id = resp.data.id;
-  //           return this.dbservice.uploadImagetoRecipeWithNumber(
-  //             przepis.id,
-  //             przepis.imageId!
-  //           );
-  //         }),
-  //         switchMap((finalResp) => {
-  //           // Tutaj dodajemy składniki do przepisu, używając przepisid jako ID przepisu
-  //           return this.dbservice.createSkladniksofRecipe(
-  //             skladnikiDoBazy,
-  //             przepis.id
-  //           );
-  //         })
-  //       )
-  //       .subscribe({
-  //         next: (finalResp) => {
-  //           console.log(finalResp);
-  //           console.log(przepis);
-  //           this.submitedMessage("Przepis został dodany do bazy!");
-  //           // Możesz dodać tutaj dodatkową logikę po pomyślnym dodaniu wszystkich elementów
-  //         },
-  //         error: (error) => {
-  //           console.error(
-  //             "Wystąpił błąd podczas przetwarzania formularza",
-  //             error
-  //           );
-  //         },
-  //       });
-  //     this.goBack();
-  //   }
-  // }
 
   getInstrukcjeFromForm(): string[] {
     const instrukcjeArray = this.recipeForm.get("instrukcje") as FormArray;
@@ -402,6 +341,7 @@ export class EditRecipeComponent {
         this.imageUrl = e.target.result;
       };
       reader.readAsDataURL(file);
+      this.shouldUpdateImage = true;
     }
   }
 
@@ -599,5 +539,4 @@ export class EditRecipeComponent {
       this.routeSub.unsubscribe();
     }
   }
-
 }

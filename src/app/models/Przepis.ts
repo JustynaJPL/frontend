@@ -20,4 +20,5 @@ export interface Przepis {
   };
   imageurl?:string;
   imageId?:number;
+  liczbaporcji:number;
 }
