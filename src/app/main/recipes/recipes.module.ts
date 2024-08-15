@@ -12,7 +12,7 @@ export const routes: Routes = [
   {path:'list', component:RecipeListComponent},
   {path:'edit/:id', component:EditRecipeComponent},
   {path:'new', component:NewRecipeComponent},
-  {path:'view', component:ViewRecipeComponent},
+  {path:'view/:id', component:ViewRecipeComponent},
   {
     path: '',
     redirectTo:'list',
