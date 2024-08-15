@@ -1,6 +1,6 @@
 import { HttpClient, HttpClientModule } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { catchError, forkJoin, map, Observable } from "rxjs";
+import { catchError, forkJoin, from, map, mergeMap, Observable, switchMap, toArray } from "rxjs";
 import { Przepis } from "../models/Przepis";
 import { Skladnik } from "../models/Skladnik";
 import { Produkt } from "../models/Produkt";
@@ -164,7 +164,7 @@ getSkladniksofRecipeWithId(id: number): Observable<Skladnik[]> {
         console.log(response.data);
         for (let item of response.data) {
           let skladnik: Skladnik = {
-            id: item.id,
+            id: item.attributes.produkt.data.id,
             ilosc: item.attributes.ilosc,
             nazwaProduktu:
               item.attributes.produkt.data.attributes.nazwaProduktu,
@@ -197,13 +197,27 @@ getSkladniksofRecipeWithId(id: number): Observable<Skladnik[]> {
     );
 }
 
-deleteSkladniksofRecipeWithId(ids: number[]): Observable<any> {
-  const deleteRequests = ids.map(id =>
-    this.http.delete(this.APIURL + this.skladniksurl + '/' + id, this.authopts)
-  );
-
-  return forkJoin(deleteRequests);
+deleteSkladniksofRecipeWithId(id: number): Observable<any> {
+  return this.http.get(this.APIURL + this.skladniksurl + "?filters[przepis][id][$eq]=" + id, this.authopts)
+    .pipe(
+      switchMap((response: any) => {
+        const items = response.data;
+        return from(items).pipe(
+          mergeMap((element: any) =>
+            this.http.delete(this.APIURL + this.skladniksurl + "/" + element.id).pipe(
+              catchError(err => {
+                console.error(`Failed to delete item with ID ${element.id}:`, err);
+                throw err;
+              })
+            )
+          ),
+          // Ensure that all deletes are processed before completing
+          toArray() // This will wait until all deletes are done before continuing
+        );
+      })
+    );
 }
+
 
 createSkladniksofRecipe(skladniki: Skladnik[], recipeId: number): Observable<any> {
   const requests = skladniki.map(skladnik => {
@@ -256,19 +270,19 @@ getAllProdukts(): Observable<Produkt[]> {
         };
         produkty.push(p);
       }
-      // produkty.sort((a, b) => {
-      //   const nazwaA = a.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
-      //   const nazwaB = b.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
+      produkty.sort((a, b) => {
+        const nazwaA = a.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
+        const nazwaB = b.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
 
-      //   if (nazwaA < nazwaB) {
-      //     return -1; // nazwaA jest przed nazwaB
-      //   }
-      //   if (nazwaA > nazwaB) {
-      //     return 1; // nazwaA jest po nazwaB
-      //   }
+        if (nazwaA < nazwaB) {
+          return -1; // nazwaA jest przed nazwaB
+        }
+        if (nazwaA > nazwaB) {
+          return 1; // nazwaA jest po nazwaB
+        }
 
-      //   return 0; // nazwy są identyczne
-      // });
+        return 0; // nazwy są identyczne
+      });
       return produkty;
     })
   );

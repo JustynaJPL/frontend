@@ -34,7 +34,7 @@ import { TextFieldModule } from "@angular/cdk/text-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { of, Subscription } from "rxjs";
+import { concatMap, of, Subscription } from "rxjs";
 import { url } from "inspector";
 
 @Component({
@@ -277,16 +277,14 @@ export class EditRecipeComponent {
 
       if (this.shouldUpdateImage) {
         this.dbservice.uploadFileToDB(this.formData).pipe(
-          switchMap((data) => {
+          concatMap((data) => {
             przepis.imageId = data[0].id;
             return this.dbservice.updateRecipetoDB(przepis, przepis.imageId!, this.id!);
           }),
-          switchMap(() => {
-            // Delete old skladniki
-            return this.dbservice.deleteSkladniksofRecipeWithId(this.oldskladniki);
+          concatMap(() => {
+            return this.dbservice.deleteSkladniksofRecipeWithId(this.id!);
           }),
-          switchMap(() => {
-            // Create new skladniki
+          concatMap(() => {
             return this.dbservice.createSkladniksofRecipe(skladnikiDoBazy, this.id!);
           })
         ).subscribe({
@@ -299,10 +297,10 @@ export class EditRecipeComponent {
         });
       } else {
         this.dbservice.updateRecipetoDB(przepis, przepis.imageId!, this.id!).pipe(
-          switchMap(() => {
-            return this.dbservice.deleteSkladniksofRecipeWithId(this.oldskladniki);
+          concatMap(() => {
+            return this.dbservice.deleteSkladniksofRecipeWithId(this.id!);
           }),
-          switchMap(() => {
+          concatMap(() => {
             return this.dbservice.createSkladniksofRecipe(skladnikiDoBazy, this.id!);
           })
         ).subscribe({
@@ -314,6 +312,7 @@ export class EditRecipeComponent {
           }
         });
       }
+
 
       this.goBack();
     }
