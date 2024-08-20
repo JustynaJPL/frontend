@@ -1,1 +1,95 @@
-<p>my-data works!</p>
+<app-app-navi></app-app-navi>
+<div class="card-container">
+  <mat-card class="card-1" appearance="outlined">
+    <form [formGroup]="userData" (ngSubmit)="onSubmit()">
+      <img
+        mat-card-image
+        [src]="userData.get('avatar')?.value"
+        alt="avatar not added"
+      />
+      <mat-form-field class="name-input">
+        <mat-label>Imię</mat-label>
+        <input matInput type="text" formControlName="name" />
+      </mat-form-field>
+      <mat-form-field class="email-input">
+        <mat-label>Email</mat-label>
+        <input matInput type="text" formControlName="email" />
+      </mat-form-field>
+      <mat-form-field class="name-input">
+        <mat-label>Płeć</mat-label>
+        <input matInput type="text" formControlName="gender" />
+      </mat-form-field>
+      <mat-form-field class="name-input">
+        <mat-label>Wzrost</mat-label>
+        <input matInput type="text" formControlName="height" />
+      </mat-form-field>
+      <mat-form-field class="name-input">
+        <mat-label>Data urodzenia:</mat-label>
+        <input matInput type="date" formControlName="birth" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Twoja aktywność</mat-label>
+        <input matInput type="text" formControlName="sport" />
+        <!-- <mat-select>
+          <mat-option *ngFor="let s of sport" [value]="s">{{ s }}</mat-option>
+        </mat-select> -->
+      </mat-form-field>
+      <ng-container>
+        <button
+          mat-button
+          type="button"
+          *ngIf="!mydataisedited"
+          (click)="toggleEditing()"
+        >
+          <mat-icon class="mat-18">edit</mat-icon>
+          Edytuj dane
+        </button>
+        <button
+          mat-button
+          type="button"
+          *ngIf="mydataisedited"
+          (click)="toggleEditing()"
+        >
+          <mat-icon class="mat-18">arrow_back</mat-icon>
+          Cofnij
+        </button>
+        <button
+          mat-button
+          type="button"
+          *ngIf="mydataisedited"
+          (click)="onSubmit()"
+        >
+          <mat-icon class="mat-18">edit</mat-icon>
+          Zapisz ustawienia
+        </button>
+      </ng-container>
+    </form>
+  </mat-card>
+
+  <mat-card class="card-2">
+    <mat-card-header>
+      <mat-card-title>Ustawienia domyślne przy generowaniu planu</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-default-settings></app-default-settings>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="card-3">
+    <mat-card-header>
+      <mat-card-title>Twoja waga</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-weight-data></app-weight-data>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="card-4">
+    <mat-card-header>
+      <mat-card-title>Card 4</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Content for card 4.</p>
+    </mat-card-content>
+  </mat-card>
+</div>

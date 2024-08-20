@@ -1,0 +1,40 @@
+@use '../../../../custom-theme.scss' as custom
+
+.card-container
+  margin-left: 200px
+  display: grid
+  grid-template-columns: 0.3fr 1fr // First column takes 0.3 of the width, second takes the remaining 0.7
+  grid-template-rows: repeat(3, 1fr) // Create 3 rows of equal height
+  gap: 10px
+  padding: 16px
+  height: 89vh
+
+
+.card-1
+    grid-column: 1 / 2 // Occupies the first column
+    grid-row: 1 / 2    // Spans all three rows
+
+
+.card-2
+    grid-column: 1 / 2 // Occupies the second column
+    grid-row: 2 / 2    // First row
+
+
+.card-3
+    grid-column: 2 / 2 // Occupies the second column
+    grid-row: 1 / 2    // Second row
+
+
+.card-4
+    grid-column: 2 / 2 // Occupies the second column
+    grid-row: 2 / 2   // Third row
+
+
+
+.mat-card
+  height: 100%
+
+@media (max-width: 768px)
+  .card
+    flex: 1 1 100%
+    margin-bottom: 16px
