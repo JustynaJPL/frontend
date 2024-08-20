@@ -39,6 +39,7 @@ export class MyDataComponent {
   userData!: FormGroup;
   mydataisedited: boolean = false;
   myGDA!:FormGroup;
+  id!:number;
 
   constructor(
     private dbservice: DatabaseConnectorService,
@@ -66,8 +67,9 @@ export class MyDataComponent {
 
   ngOnInit() {
     this.loger.getMyData().subscribe((response: any) => {
-      this.loger.getMyData().subscribe((response: any) => {
+      // this.loger.getMyData().subscribe((response: any) => {
         // Convert the Date object to a string format 'yyyy-MM-dd'
+        this.id = response.id;
         const formattedBirthDate = this.formatDate(response.birth);
 
         // Enable the 'birth' control if it was initially disabled
@@ -83,15 +85,20 @@ export class MyDataComponent {
           sport: response.sport,
           avatar: this.loger.api + response.avatar
         });
-
-
-
         // Disable the 'birth' control after patching
         this.userData.get('birth')?.disable();
 
         console.log(this.userData.value);
       });
-    });
+
+    this.loger.getGda(this.id).subscribe((response) => {
+     this.myGDA.patchValue({
+      kcal:response.kcal,
+      bialka:response.bialka,
+      weglowodany:response.weglowodany,
+      tluszcze:response.tluszcze,
+     })
+    })
 
     this.loger.getgenders().subscribe((response: string[]) => {
       this.genders = response;

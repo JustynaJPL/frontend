@@ -7,6 +7,8 @@ import {
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { MyData } from "../models/MyData";
+import { GDA } from "../models/GDA";
+import { response } from "express";
 
 @Injectable({
   providedIn: "root",
@@ -66,5 +68,19 @@ export class LoggerService {
   }
   getsport(): Observable<string[]> {
     return this.http.get<string[]>(this.api + "/api/user/sport");
+  }
+
+  getGda(userId: number): Observable<GDA> {
+    return this.http.get<GDA>(this.api+this.urlme+this.univpopulateall,this.authopts).pipe(
+      map((response:any) => {
+        let g:GDA = {
+          kcal:response.gda.kcal,
+          bialka:response.gda.bialka,
+          weglowodany:response.gda.weglowodany,
+          tluszcze:response.gda.tluszcze
+        };
+        return g;
+      })
+    )
   }
 }

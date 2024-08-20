@@ -5,6 +5,7 @@ import { Przepis } from "../models/Przepis";
 import { Skladnik } from "../models/Skladnik";
 import { Produkt } from "../models/Produkt";
 import { Kategoria } from "../models/Kategoria";
+import { GDA } from "../models/GDA";
 // import axios from 'axios';
 // import {AxiosResponse} from 'axios';
 
@@ -446,30 +447,8 @@ uploadImagetoRecipeWithNumber(id: number, imageId: number): Observable<any> {
   );
 }
 
-// updateImagetoRecipeWithNumber(id: number, imageId: number): Observable<any> {
-//   // Assuming 'przepisimg' is the media field in your content type for the image
-//   // and 'imageId' is the ID of the already uploaded image you want to associate with the recipe
-//   const body = {
-//     data: {
-//       przepisimg: imageId
-//     }
-//   };
 
-//   return this.http.put(`${this.APIURL}${this.przepisurl}/${id}`, body, this.authopts).pipe(
-//     map((response: any) => {
-//       console.log(
-//         "Plik został pomyślnie przypisany do przepisu w Strapi.",
-//         response
-//       );
-//       return response;
-//     }),
-//     catchError((error) => {
-//       console.error(
-//         "Wystąpił błąd podczas przypisywania pliku do przepisu w Strapi.",
-//         error
-//       );
-//       throw error;
-//     })
-//   );
-// }
+
+
 }
+
