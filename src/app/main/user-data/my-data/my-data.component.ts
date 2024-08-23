@@ -14,6 +14,8 @@ import { DefaultSettingsComponent } from "../default-settings/default-settings.c
 import { WeightDataComponent } from "../weight-data/weight-data.component";
 import { MatSelectModule } from "@angular/material/select";
 import { GDA } from "../../../models/GDA";
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartDataset, ChartOptions } from "chart.js";
 
 @Component({
   selector: "app-my-data",
@@ -30,7 +32,7 @@ import { GDA } from "../../../models/GDA";
     DefaultSettingsComponent,
     WeightDataComponent,
     MatFormFieldModule,
-    MatSelectModule,
+    MatSelectModule
   ],
 })
 export class MyDataComponent {
@@ -38,8 +40,6 @@ export class MyDataComponent {
   sport: string[] = [];
   userData!: FormGroup;
   mydataisedited: boolean = false;
-  myGDA!:FormGroup;
-  id!:number;
 
   constructor(
     private dbservice: DatabaseConnectorService,
@@ -55,12 +55,7 @@ export class MyDataComponent {
       avatar: new FormControl({ value: "", disabled: true }),
     });
 
-    this.myGDA = new FormGroup({
-      kcal: new FormControl(0),
-      bialka: new FormControl(0),
-      tluszcze:new FormControl(0),
-      weglowodany: new FormControl(0)
-    });
+
 
 
   }
@@ -69,7 +64,6 @@ export class MyDataComponent {
     this.loger.getMyData().subscribe((response: any) => {
       // this.loger.getMyData().subscribe((response: any) => {
         // Convert the Date object to a string format 'yyyy-MM-dd'
-        this.id = response.id;
         const formattedBirthDate = this.formatDate(response.birth);
 
         // Enable the 'birth' control if it was initially disabled
@@ -91,14 +85,6 @@ export class MyDataComponent {
         console.log(this.userData.value);
       });
 
-    this.loger.getGda(this.id).subscribe((response) => {
-     this.myGDA.patchValue({
-      kcal:response.kcal,
-      bialka:response.bialka,
-      weglowodany:response.weglowodany,
-      tluszcze:response.tluszcze,
-     })
-    })
 
     this.loger.getgenders().subscribe((response: string[]) => {
       this.genders = response;
@@ -127,5 +113,26 @@ export class MyDataComponent {
     if (day.length < 2) day = "0" + day;
 
     return [year, month, day].join("-");
+  }
+
+  getAge(): number {
+    var age = 0;
+    if (this.userData.get('birth')?.value) {
+      const today = new Date();
+      const birth = new Date(this.userData.get('birth')?.value);
+      const diff = today.getFullYear() - birth.getFullYear();
+
+      // Check if the birthday has occurred this year
+      if (
+        today.getMonth() < birth.getMonth() ||
+        (today.getMonth() === birth.getMonth() &&
+          today.getDate() < birth.getDate())
+      ) {
+        age = diff - 1;
+      } else {
+        age = diff;
+      }
+    }
+    return age;
   }
 }

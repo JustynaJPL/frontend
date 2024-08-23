@@ -23,6 +23,7 @@ export class LoggerService {
     this._api = value;
   }
   private readonly urlme = "/api/users/me";
+  private urlusers = '/api/users/';
   private univpopulateall = "?populate=*";
 
   private authopts = {
@@ -70,7 +71,7 @@ export class LoggerService {
     return this.http.get<string[]>(this.api + "/api/user/sport");
   }
 
-  getGda(userId: number): Observable<GDA> {
+  getGda(): Observable<GDA> {
     return this.http.get<GDA>(this.api+this.urlme+this.univpopulateall,this.authopts).pipe(
       map((response:any) => {
         let g:GDA = {
@@ -83,4 +84,27 @@ export class LoggerService {
       })
     )
   }
+
+  updateGDA(newGda:GDA, uID:number):Observable<any>{
+    return this.http.put(this.api + this.urlusers + uID ,
+      {
+        gda:{
+          kcal:newGda.kcal,
+          bialka:newGda.bialka,
+          tluszcze: newGda.tluszcze,
+          weglowodany:newGda.weglowodany
+        }
+      },
+      this.authopts
+    );
+  }
+
+  getUserDBID(): Observable<any> {
+    return this.http.get<any>(this.api + this.urlme, this.authopts).pipe(
+      map((response: any) => {
+        return response.id;
+      })
+    );
+  }
+
 }
