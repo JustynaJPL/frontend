@@ -31,11 +31,13 @@ import { GDA } from "../../../models/GDA";
 })
 export class DefaultSettingsComponent {
   myGDA!: FormGroup;
+  oldGDA!: FormGroup;
   id!: number;
   chartOptions: any;
   chart: any;
   editingdata: boolean = false;
   gdaerror: boolean = false;
+  editing:boolean = false;
 
   constructor(private loger: LoggerService) {
     this.myGDA = new FormGroup({
@@ -77,6 +79,7 @@ export class DefaultSettingsComponent {
         weglowodany: response.weglowodany,
         tluszcze: response.tluszcze,
       });
+      this.oldGDA = { ...this.myGDA.value }
 
       // Tworzenie nowej tablicy danych do wykresu
       let noweDane = [
@@ -163,6 +166,12 @@ export class DefaultSettingsComponent {
   startedit() {
     this.editingdata = !this.editingdata;
   }
+  endedit(){
+    this.editingdata = !this.editingdata;
+    this.myGDA.patchValue(this.oldGDA);
+  }
+
+
 
   onInputKeyDown(event: KeyboardEvent) {
     const allowedKeys = [

@@ -29,7 +29,8 @@ import { routes } from './app.routes';
     MatIconModule,
     MatListModule,
     MatToolbarModule,
-    ScrollingModule
+    ScrollingModule,
+    AppNaviComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA,

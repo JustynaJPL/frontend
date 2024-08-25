@@ -6,73 +6,92 @@
         mat-card-image
         [src]="userData.get('avatar')?.value"
         alt="avatar not added"
+        class="avatar-img"
       />
-      <mat-form-field class="name-input">
+      <input
+        *ngIf="mydataisedited"
+        type="file"
+        (change)="onFileSelected($event)"
+        accept="image/*"
+      />
+      <mat-form-field class="form-field">
         <mat-label>Imię</mat-label>
         <input matInput type="text" formControlName="name" />
       </mat-form-field>
-      <mat-form-field class="email-input">
+      <mat-form-field class="form-field">
         <mat-label>Email</mat-label>
         <input matInput type="text" formControlName="email" />
       </mat-form-field>
-      <mat-form-field class="name-input">
+
+      <!-- Pole Płeć z mat-select -->
+      <mat-form-field class="form-field">
         <mat-label>Płeć</mat-label>
-        <input matInput type="text" formControlName="gender" />
+        <mat-select formControlName="gender">
+          <mat-option *ngFor="let g of genders" [value]="g">
+            {{ g }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
-      <mat-form-field class="name-input">
+
+      <!-- Pole Sport z mat-select -->
+      <mat-form-field class="form-field">
+        <mat-label>Twoja aktywność</mat-label>
+        <mat-select formControlName="sport">
+          <mat-option *ngFor="let s of sport" [value]="s">
+            {{ s }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="form-field">
         <mat-label>Wzrost</mat-label>
         <input matInput type="text" formControlName="height" />
       </mat-form-field>
-      <mat-form-field class="name-input">
-        <mat-label>Data urodzenia:</mat-label>
+      <mat-form-field class="form-field">
+        <mat-label>Data urodzenia</mat-label>
         <input matInput type="date" formControlName="birth" />
       </mat-form-field>
-      <mat-form-field>
-        <mat-label>Twoja aktywność</mat-label>
-        <input matInput type="text" formControlName="sport" />
-        <!-- <mat-select>
-          <mat-option *ngFor="let s of sport" [value]="s">{{ s }}</mat-option>
-        </mat-select> -->
-      </mat-form-field>
-      <ng-container>
+
+      <div class="form-actions">
         <button
           mat-button
           type="button"
           *ngIf="!mydataisedited"
-          (click)="toggleEditing()"
+          (click)="toggleEditing('edit')"
+          color="accent"
         >
-          <mat-icon class="mat-18">edit</mat-icon>
-          Edytuj dane
+          <mat-icon class="mat-18">edit</mat-icon> Edytuj dane
         </button>
         <button
           mat-button
           type="button"
           *ngIf="mydataisedited"
-          (click)="toggleEditing()"
+          (click)="toggleEditing('back')"
+          color="primary"
         >
-          <mat-icon class="mat-18">arrow_back</mat-icon>
-          Cofnij
+          <mat-icon class="mat-18">arrow_back</mat-icon> Cofnij
         </button>
         <button
           mat-button
-          type="button"
+          type="submit"
           *ngIf="mydataisedited"
-          (click)="onSubmit()"
+          color="accent"
         >
-          <mat-icon class="mat-18">edit</mat-icon>
-          Zapisz ustawienia
+          <mat-icon class="mat-18">save</mat-icon> Zapisz ustawienia
         </button>
-      </ng-container>
+      </div>
     </form>
   </mat-card>
 
-  <mat-card class="card-2">
+  <div class="card-2">
     <app-default-settings></app-default-settings>
-  </mat-card>
+  </div>
 
-  <mat-card class="card-3">
+  <div class="card-3">
+
+  </div>
+
+  <div class="card-4">
     <app-weight-data></app-weight-data>
-  </mat-card>
-
-  <mat-card class="card-4"> </mat-card>
+  </div>
 </div>

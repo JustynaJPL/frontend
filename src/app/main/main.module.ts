@@ -22,7 +22,8 @@ const routes: Routes = [
   declarations: [],
   imports: [
     CommonModule, RouterModule.forChild(routes), ReactiveFormsModule, RouterModule, RouterOutlet
-  ]
+  ],
+  exports:[RouterModule]
 })
 export class MainModule { }
 

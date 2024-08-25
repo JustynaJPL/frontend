@@ -1,3 +1,4 @@
+import { MyData } from "./../../../models/MyData";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { OnInit } from "@angular/core";
 import { Component } from "@angular/core";
@@ -14,8 +15,9 @@ import { DefaultSettingsComponent } from "../default-settings/default-settings.c
 import { WeightDataComponent } from "../weight-data/weight-data.component";
 import { MatSelectModule } from "@angular/material/select";
 import { GDA } from "../../../models/GDA";
-import { BaseChartDirective } from 'ng2-charts';
+import { BaseChartDirective } from "ng2-charts";
 import { ChartDataset, ChartOptions } from "chart.js";
+import { MatButtonModule } from "@angular/material/button";
 
 @Component({
   selector: "app-my-data",
@@ -32,7 +34,8 @@ import { ChartDataset, ChartOptions } from "chart.js";
     DefaultSettingsComponent,
     WeightDataComponent,
     MatFormFieldModule,
-    MatSelectModule
+    MatSelectModule,
+    MatButtonModule,
   ],
 })
 export class MyDataComponent {
@@ -40,12 +43,17 @@ export class MyDataComponent {
   sport: string[] = [];
   userData!: FormGroup;
   mydataisedited: boolean = false;
+  avatarPreview: string | ArrayBuffer | null = null;
+  originalUserData: any;
+  formData = new FormData();
+  avatarchanged: boolean = false;
 
   constructor(
     private dbservice: DatabaseConnectorService,
     private loger: LoggerService
   ) {
     this.userData = new FormGroup({
+      id: new FormControl({ value: 0, disabled: true }),
       name: new FormControl({ value: "", disabled: true }),
       email: new FormControl({ value: "", disabled: true }),
       gender: new FormControl({ value: "", disabled: true }),
@@ -53,54 +61,85 @@ export class MyDataComponent {
       birth: new FormControl({ value: "", disabled: true }),
       sport: new FormControl({ value: "", disabled: true }),
       avatar: new FormControl({ value: "", disabled: true }),
+      age: new FormControl({ value: 0, disabled: true }),
+      avatarid: new FormControl({ value: 0, disabled: true }),
     });
-
-
-
-
   }
 
   ngOnInit() {
     this.loger.getMyData().subscribe((response: any) => {
-      // this.loger.getMyData().subscribe((response: any) => {
-        // Convert the Date object to a string format 'yyyy-MM-dd'
-        const formattedBirthDate = this.formatDate(response.birth);
+      const formattedBirthDate = this.formatDate(response.birth);
 
-        // Enable the 'birth' control if it was initially disabled
-        this.userData.get('birth')?.enable();
-
-        // Patch the values including the formatted birth date
-        this.userData.patchValue({
-          name: response.name,
-          email: response.email,
-          gender: response.gender,
-          height: response.height,
-          birth: formattedBirthDate, // Use the formatted date
-          sport: response.sport,
-          avatar: this.loger.api + response.avatar
-        });
-        // Disable the 'birth' control after patching
-        this.userData.get('birth')?.disable();
-
-        console.log(this.userData.value);
+      this.userData.patchValue({
+        id: response.id,
+        name: response.name,
+        email: response.email,
+        gender: response.gender,
+        height: response.height,
+        birth: formattedBirthDate,
+        sport: response.sport,
+        avatar: this.loger.api + response.avatar,
+        avatarid: response.avatarid,
       });
+      this.originalUserData = { ...this.userData.value };
 
-
-    this.loger.getgenders().subscribe((response: string[]) => {
-      this.genders = response;
+      this.userData.disable();
+      console.log(response);
     });
 
-    this.loger.getsport().subscribe((response: string[]) => {
-      this.sport = response;
+    this.loger.getgenders().subscribe((response: any) => {
+      this.genders = response.gender;
+      // console.log(this.genders);
+    });
+
+    this.loger.getsport().subscribe((response: any) => {
+      this.sport = response.sport;
+      // console.log(response);
     });
   }
 
   onSubmit() {
-    this.toggleEditing();
+    const newuserdata: MyData = {
+      id: this.userData.get("id")?.value,
+      name: this.userData.get("name")?.value,
+      email: this.userData.get("email")?.value,
+      gender: this.userData.get("gender")?.value,
+      height: this.userData.get("height")?.value,
+      birth: this.userData.get("birth")?.value,
+      sport: this.userData.get("sport")?.value,
+      avatar: "",
+      avatarid: this.userData.get("avatarid")?.value,
+    };
+    this.toggleEditing("done");
+
+    if (this.avatarchanged) {
+      this.dbservice
+        .uploadFileToDB(this.formData)
+        .subscribe((response: any) => {
+          console.log(response[0].id);
+          newuserdata.avatarid =  response[0].id;
+          console.log(newuserdata);
+
+          this.loger.updateMyData(newuserdata).subscribe((response) => {
+            console.log(response);
+          });
+        });
+    } else {
+      this.loger.updateMyData(newuserdata).subscribe((response) => {
+        console.log(response);
+      });
+    }
   }
 
-  toggleEditing() {
+  toggleEditing(call: string) {
     this.mydataisedited = !this.mydataisedited;
+    if (call == "edit") this.userData.enable();
+    if (call == "back") {
+      this.userData.disable();
+      this.userData.patchValue(this.originalUserData);
+      this.avatarchanged = false;
+    }
+    if (call == "done") this.userData.disable();
   }
 
   formatDate(date: Date): string {
@@ -117,9 +156,9 @@ export class MyDataComponent {
 
   getAge(): number {
     var age = 0;
-    if (this.userData.get('birth')?.value) {
+    if (this.userData.get("birth")?.value) {
       const today = new Date();
-      const birth = new Date(this.userData.get('birth')?.value);
+      const birth = new Date(this.userData.get("birth")?.value);
       const diff = today.getFullYear() - birth.getFullYear();
 
       // Check if the birthday has occurred this year
@@ -134,5 +173,20 @@ export class MyDataComponent {
       }
     }
     return age;
+  }
+
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      this.formData.append("files", file);
+      this.avatarchanged = true;
+      reader.onload = () => {
+        this.avatarPreview = reader.result;
+        // Możesz tutaj ustawić nową wartość avatara, aby była przesłana na serwer
+        this.userData.patchValue({ avatar: this.avatarPreview });
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }

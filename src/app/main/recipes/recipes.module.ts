@@ -24,6 +24,7 @@ export const routes: Routes = [
   declarations: [],
   imports: [
     CommonModule, RouterModule.forChild(routes), ReactiveFormsModule
-  ]
+  ],
+  exports:[RouterModule]
 })
 export class RecipesModule { }

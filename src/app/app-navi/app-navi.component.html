@@ -1,28 +1,70 @@
 <mat-sidenav-container class="sidenav-container">
-<mat-sidenav #drawer class="sidenav" fixedInViewport
-      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-      [mode]="(isHandset$ | async) ? 'over' : 'side'"
-      [opened]="(isHandset$ | async) === false">
-    <mat-toolbar>Menu</mat-toolbar>
-    <mat-nav-list>
-      <a mat-list-item href="#">Link 1</a>
-      <a mat-list-item href="#">Link 2</a>
-      <a mat-list-item href="#">Link 3</a>
-    </mat-nav-list>
-  </mat-sidenav>
+  <mat-sidenav
+  #drawer
+  class="sidenav"
+  fixedInViewport
+  [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+  [mode]="(isHandset$ | async) ? 'over' : 'side'"
+  [opened]="(isHandset$ | async) === false"
+>
+  <mat-toolbar>
+    <button mat-button (click)="onClick()">
+      <mat-icon class="mat-18">menu</mat-icon>
+      Menu
+    </button>
+  </mat-toolbar>
+
+  <mat-nav-list>
+    <mat-list-item [routerLink]="['/logged/dashboard']">
+      <a matLine>
+        <mat-icon class="mat-18">today</mat-icon>
+        <span class="list-item-text">Dzisiaj</span>
+      </a>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="['/logged/recipes']">
+      <a matLine>
+        <mat-icon class="mat-18">local_dining</mat-icon>
+        <span class="list-item-text">Przepisy</span>
+      </a>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="['/logged/plan']">
+      <a matLine>
+        <mat-icon class="mat-18">splitscreen</mat-icon>
+        <span class="list-item-text">Bieżący plan</span>
+      </a>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="['/logged/generate']">
+      <a matLine>
+        <mat-icon class="mat-18">view_timeline</mat-icon>
+        <span class="list-item-text">Generuj nowy plan</span>
+      </a>
+    </mat-list-item>
+  </mat-nav-list>
+
+  <div class="user-profile">
+    <a [routerLink]="['/logged/my-data']" class="user-link">
+      <img matListAvatar [src]="shortData.avatar" alt="Avatar" class="avatar" />
+      <h3 matLine>{{ shortData.name }}</h3>
+    </a>
+  </div>
+</mat-sidenav>
+
   <mat-sidenav-content>
     <mat-toolbar color="primary">
       @if (isHandset$ | async) {
-        <button
-      type="button"
-      aria-label="Toggle sidenav"
-      mat-icon-button
-      (click)="drawer.toggle()">
-          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-    </button>
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+      >
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
       }
-    <span>frontend</span>
-  </mat-toolbar>
-    <!-- Add Content Here -->
+      <span>frontend</span>
+    </mat-toolbar>
   </mat-sidenav-content>
 </mat-sidenav-container>

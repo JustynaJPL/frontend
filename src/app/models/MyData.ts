@@ -1,4 +1,5 @@
 export interface MyData{
+  id:number;
   name:string;
   email:string;
   gender:string;
@@ -6,4 +7,5 @@ export interface MyData{
   birth:Date;
   sport:string;
   avatar:string;
+  avatarid:number;
 }
