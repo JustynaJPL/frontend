@@ -1,1 +1,56 @@
-<p>weight-data works!</p>
+<mat-card>
+  <div class="no-data" *ngIf="noWdata == 'no-data'">
+    <button mat-button (click)="onClick()">
+      <mat-card-header>
+        <mat-card-title>Twoje odczyty wagi!</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <h3>Jeszcze nie masz żadnych wpisów - dodaj wartości!</h3>
+        <mat-icon class="mat-18">add</mat-icon>
+      </mat-card-content>
+    </button>
+  </div>
+  <div class="data" *ngIf="noWdata == 'data'">
+    <mat-card-header>
+      <mat-card-title>Twoje odczyty wagi!</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <canvasjs-chart
+        (chartInstance)="getChartInstance($event)"
+        [options]="chartOptions"
+      >
+      </canvasjs-chart>
+      <button mat-button class="add-btn" (click)="onClickadd()" color="accent">
+        <mat-icon class="mat-18">add</mat-icon>
+      </button>
+    </mat-card-content>
+  </div>
+  <div class="add" *ngIf="noWdata == 'add'">
+    <mat-card-header>Dodaj odczyt</mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="weightData" action="onSubmit()">
+        <mat-form-field>
+          <mat-label>Wartość</mat-label>
+          <input
+            matInput
+            type="number"
+            (keydown)="onInputKeyDown($event)"
+            formControlName="weight"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Data odczytu</mat-label>
+          <input matInput type="date" formControlName="wdata" />
+        </mat-form-field>
+        <ng-container>
+          <button mat-button (click)="onClickcancel()" color="primary">
+            <mat-icon class="mat-18">undo</mat-icon>
+            Anuluj</button>
+          <button mat-button (click)="onSubmit()" color="accent">
+            <mat-icon class="mat-18">add_diamond</mat-icon>
+            Dodaj</button>
+        </ng-container>
+      </form>
+    </mat-card-content>
+  </div>
+</mat-card>

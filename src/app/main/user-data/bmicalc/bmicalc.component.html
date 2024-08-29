@@ -1,1 +1,42 @@
-<p>bmicalc works!</p>
+<mat-card>
+  <mat-card-header color="primary">
+    <mat-card-title>Twoje BMI</mat-card-title>
+    <mat-card-subtitle>Body Mass Index</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="bmi" *ngIf="!noweightvalues">
+      <p>BMI = masa ciała(kg) / [wysokość ciała]<sup>2</sup></p>
+      <p class="bmi-value">{{ getBMI() | number : ".02" }}</p>
+      <mat-progress-bar
+        mode="determinate"
+        value="{{ getprogressvalue() }}"
+      ></mat-progress-bar>
+      <h3 class="bla-bla">Stopień otyłości:</h3>
+      <h3 class="obesity-scale">{{ getObese() }}</h3>
+      <h6 class="bla-bla">Interpretacja wskaźnika BMI według kryteriów WHO</h6>
+      <h6 class="bla-bla">
+        0-16 III stopień szczupłości, 16-16,9 - II stopień szczupłości, 17 -
+        18,4 - I stopień szczupłości, 18,5 - 24,9 - norma, 25 - 29,9 - nadwaga,
+      </h6>
+      <h6 class="bla-bla">
+        30-34,9 - I stopień otyłości, 35 - 39,9 - II stopień otyłości, ponad 40
+        - III stopień otyłości
+      </h6>
+    </div>
+    <div class="bmi" *ngIf="noweightvalues">
+      <p>BMI = masa ciała(kg) / [wysokość ciała]<sup>2</sup></p>
+      <p class="bmi-value">Nie mamy wystarczających danych</p>
+      <h3 class="bla-bla">Stopień otyłości:</h3>
+      <h3 class="obesity-scale">Brak danych</h3>
+      <h6 class="bla-bla">Interpretacja wskaźnika BMI według kryteriów WHO</h6>
+      <h6 class="bla-bla">
+        0-16 III stopień szczupłości, 16-16,9 - II stopień szczupłości, 17 -
+        18,4 - I stopień szczupłości, 18,5 - 24,9 - norma, 25 - 29,9 - nadwaga,
+      </h6>
+      <h6 class="bla-bla">
+        30-34,9 - I stopień otyłości, 35 - 39,9 - II stopień otyłości, ponad 40
+        - III stopień otyłości
+      </h6>
+    </div>
+  </mat-card-content>
+</mat-card>

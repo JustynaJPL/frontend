@@ -18,25 +18,29 @@ import { GDA } from "../../../models/GDA";
 import { BaseChartDirective } from "ng2-charts";
 import { ChartDataset, ChartOptions } from "chart.js";
 import { MatButtonModule } from "@angular/material/button";
+import { BmicalcComponent } from "../bmicalc/bmicalc.component";
+import { BmrcalcComponent } from "../bmrcalc/bmrcalc.component";
 
 @Component({
-  selector: "app-my-data",
-  standalone: true,
-  templateUrl: "./my-data.component.html",
-  styleUrl: "./my-data.component.sass",
-  imports: [
-    CommonModule,
-    AppNaviComponent,
-    MatCardModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatIconModule,
-    DefaultSettingsComponent,
-    WeightDataComponent,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-  ],
+    selector: "app-my-data",
+    standalone: true,
+    templateUrl: "./my-data.component.html",
+    styleUrl: "./my-data.component.sass",
+    imports: [
+        CommonModule,
+        AppNaviComponent,
+        MatCardModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatIconModule,
+        DefaultSettingsComponent,
+        WeightDataComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatButtonModule,
+        BmicalcComponent,
+        BmrcalcComponent
+    ]
 })
 export class MyDataComponent {
   genders: string[] = [];
