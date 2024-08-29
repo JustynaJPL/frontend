@@ -193,4 +193,5 @@ export class MyDataComponent {
       reader.readAsDataURL(file);
     }
   }
+
 }

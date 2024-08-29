@@ -53,24 +53,22 @@ export class LogUserComponent implements OnInit {
     this.isPassVisible = !this.isPassVisible;
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.loginForm.valid) {
-      console.log("Form is valid, submitting..."); // Dodane logowanie
-      this.loggerService.login(this.loginForm.value).subscribe(
-        (response) => {
-          localStorage.setItem('token', response.jwt);
-            // console.log(localStorage.getItem('token'));
-          localStorage.setItem('userId', response.user.id);
-            // console.log(localStorage.getItem('userId'));
+      console.log("Form is valid, submitting...");
 
+      this.loggerService.login(this.loginForm.value).subscribe(
+        () => {
+          console.log('Login successful');
           this.router.navigate(["/logged"]);
+          // Tutaj możemy dodać dodatkowe działania po zalogowaniu
         },
         (error) => {
-          console.error("Login failed:", error); // Dodane logowanie błędu
+          console.error("Login failed:", error);
         }
       );
     } else {
-      console.warn("Form is invalid"); // Dodane logowanie w przypadku nieprawidłowego formularza
+      console.warn("Form is invalid");
     }
   }
 }

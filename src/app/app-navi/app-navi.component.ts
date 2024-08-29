@@ -1,4 +1,4 @@
-import { Component, HostBinding, Output, inject, EventEmitter} from '@angular/core';
+import { Component, inject} from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,10 +8,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RouterModule, RouterOutlet } from '@angular/router';
-import { routes } from '../app.routes';
-import { Router } from 'express';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { RouterModule} from '@angular/router';
+import { Router } from '@angular/router';
 import { LoggerService } from '../login/logger.service';
 import { MyData } from '../models/MyData';
 import { NaviUserData } from '../models/naviUserData';
@@ -19,7 +18,7 @@ import { NaviUserData } from '../models/naviUserData';
 @Component({
   selector: 'app-app-navi',
   templateUrl: './app-navi.component.html',
-  styleUrl: './app-navi.component.css',
+  styleUrl: './app-navi.component.sass',
   standalone: true,
   imports: [
     CommonModule,
@@ -39,7 +38,7 @@ export class AppNaviComponent {
 
 
 
-  constructor(private loger:LoggerService){
+  constructor(private loger:LoggerService, private router: Router){
     this.shortData = {
       name:'',
       avatar:''
@@ -64,6 +63,14 @@ export class AppNaviComponent {
     onClick(){
       // this.router.link('../recipes');
     }
+
+    logout() {
+      this.loger.logout();  // Wywołanie metody wylogowania
+      this.router.navigate(['login']).then(() => {
+        window.location.reload();
+      });
+    }
+
 
 
 

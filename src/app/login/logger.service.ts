@@ -5,7 +5,7 @@ import {
   HttpHeaders,
 } from "@angular/common/http";
 import { forkJoin, Observable, of, throwError } from "rxjs";
-import { catchError, map } from "rxjs/operators";
+import { catchError, map, tap } from "rxjs/operators";
 import { MyData } from "../models/MyData";
 import { GDA } from "../models/GDA";
 import { response } from "express";
@@ -38,14 +38,28 @@ export class LoggerService {
 
   login(credentials: { login: string; pass: string }): Observable<any> {
     const cred = { identifier: credentials.login, password: credentials.pass };
-    return this.http.post<any>(this.api + this.authapi, cred);
+    return this.http.post<any>(this._api + this.authapi, cred).pipe(
+      tap(response => {
+        // Po udanym logowaniu, zapisujemy token i inne dane użytkownika
+        localStorage.setItem('token', response.jwt);
+        localStorage.setItem('userId', response.user.id);
+
+      }),
+      catchError(error => {
+        console.error('Login failed:', error);
+        return throwError(error);
+      })
+    );
   }
 
   logout(): void {
-    localStorage.removeItem("token");
+    // Usuwanie danych autoryzacyjnych
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+
   }
 
-  isLoggedIn(): boolean {
+   isLoggedIn(): boolean {
     return localStorage.getItem("token") !== null;
   }
 

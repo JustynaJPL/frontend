@@ -37,5 +37,5 @@ import { routes } from './app.routes';
     NO_ERRORS_SCHEMA]
 })
 export class AppComponent {
-  title = 'frontend';
+  title = 'Planer Diety';
 }

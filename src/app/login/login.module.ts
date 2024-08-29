@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { LogUserComponent } from './log-user/log-user.component';
-import { AuthGuardService } from '../auth-guard.service';
+import { AuthGuard } from '../auth-guard.service';
 import { AuthService } from '../auth.service';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -16,6 +16,6 @@ const routes: Routes = [
   imports: [
     CommonModule, RouterModule.forChild(routes), ReactiveFormsModule, RouterModule
   ],
-  providers:[LoggerService, AuthGuardService, AuthService]
+  providers:[LoggerService, AuthGuard, AuthService]
 })
 export class LoginModule { }

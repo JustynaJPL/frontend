@@ -1,16 +1,19 @@
 <mat-card>
-    <mat-card-header>
-        <mat-card-title>Title</mat-card-title>
-        <mat-card-subtitle>Subtitle</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-        Text content
-    </mat-card-content>
-    <mat-card-actions align="start">
-        <button mat-button>Action1</button>
-
-    </mat-card-actions>
-    <mat-card-footer>
-        Footer
-    </mat-card-footer>
+  <mat-card-header>
+    <mat-card-title>Podstawowa przemiana materii</mat-card-title>
+    <mat-card-subtitle>Basal Metabolic rate</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <h3 *ngIf="dataavailable">{{getBMR()}} kcal</h3>
+    <h3 *ngIf="!dataavailable">BRAK WYSTARCZAJĄCYCH DANYCH</h3>
+    <p>
+      PPM mężczyzny = SWE (spoczynkowy wydatek energetyczny kcal) = 66,5 +
+      (13,75 x masa ciała w kg) + (5,003 x wzrost w cm) – (6,775 x wiek w
+      latach)
+    </p>
+    <p>
+      PPM dla kobiety = SWE (spoczynkowy wydatek energetyczny kcal) = 655,1 +
+      (9,563 x masa ciała w kg) + (1,85 x wzrost w cm) – (4,676 x wiek w latach)
+    </p>
+  </mat-card-content>
 </mat-card>

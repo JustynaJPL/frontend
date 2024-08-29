@@ -6,7 +6,7 @@
   <mat-card-content>
     <div class="bmi" *ngIf="!noweightvalues">
       <p>BMI = masa ciała(kg) / [wysokość ciała]<sup>2</sup></p>
-      <p class="bmi-value">{{ getBMI() | number : ".02" }}</p>
+      <h3 class="bmi-value">{{ getBMI() | number : ".02" }}</h3>
       <mat-progress-bar
         mode="determinate"
         value="{{ getprogressvalue() }}"

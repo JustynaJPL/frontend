@@ -1,13 +1,34 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
-@Injectable()
-
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
-  constructor() {} // ...
+  private isAuthenticated = false;
 
-  public isAuthenticated(): boolean {
-    const token = localStorage.getItem("token"); // Check whether the token is expired and return
-    // true or false
-    return !!token;
+  constructor() {
+    this.checkToken(); // Sprawdzenie tokenu przy inicjalizacji serwisu
+  }
+
+  // Ustawianie statusu uwierzytelnienia
+  setAuthenticated(value: boolean): void {
+    this.isAuthenticated = value;
+  }
+
+  // Pobieranie statusu uwierzytelnienia
+  getAuthenticated(): boolean {
+    return this.isAuthenticated;
+  }
+
+  // Sprawdzenie obecności tokenu w localStorage
+  checkToken(): void {
+    const token = localStorage.getItem('token');
+    this.isAuthenticated = !!token; // Jeśli token istnieje, użytkownik jest zalogowany
+  }
+
+  // Wylogowanie użytkownika
+  logout(): void {
+    localStorage.removeItem('token');
+    this.setAuthenticated(false);
   }
 }
