@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { LoggerService } from '../../../login/logger.service';
 import { WeightData } from '../../../models/OdczytWagi';
 import { response } from 'express';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, delay, switchMap, throwError } from 'rxjs';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -66,23 +66,26 @@ export class WeightDataComponent {
         return this.loger.getWeightDataOfUserWithID(this.uid);
       })
     ).subscribe((response) => {
-      if(response.length == 0 ) this.noWdata = 'no-data';
-      else{
-      this.measures = response;
-      console.log('Measures = ', response);
+      if (response.length === 0) {
+        this.noWdata = 'no-data';
+      } else {
+        this.measures = response;
+        console.log('Measures = ', response);
 
-      // Sortowanie rekordów według daty (wdate)
-      this.measures.sort((a, b) => a.wdate.getTime() - b.wdate.getTime());
+        // Sortowanie rekordów według daty (wdate)
+        this.measures.sort((a, b) => a.wdate.getTime() - b.wdate.getTime());
 
-      // Tworzenie tablicy ndata po sortowaniu
-      let ndata: { x: Date; y: number; }[] = [];
-      this.measures.forEach(element => {
-        ndata.push({ x: element.wdate, y: element.wv });
-      });
+        // Tworzenie tablicy ndata po sortowaniu
+        let ndata: { x: Date; y: number; }[] = [];
+        this.measures.forEach(element => {
+          ndata.push({ x: element.wdate, y: element.wv });
+        });
 
-      // Aktualizacja danych wykresu
-      this.updateChartData(ndata);
-    }
+        // Aktualizacja danych wykresu
+        this.updateChartData(ndata);
+      }
+    }, error => {
+      console.error('Error fetching data', error);
     });
   }
 

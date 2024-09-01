@@ -1,11 +1,13 @@
 import { HttpClient, HttpClientModule } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { catchError, forkJoin, from, map, mergeMap, Observable, switchMap, toArray } from "rxjs";
+import { catchError, forkJoin, from, map, mergeMap, Observable, switchMap, throwError, toArray } from "rxjs";
 import { Przepis } from "../models/Przepis";
 import { Skladnik } from "../models/Skladnik";
 import { Produkt } from "../models/Produkt";
 import { Kategoria } from "../models/Kategoria";
 import { GDA } from "../models/GDA";
+import { response } from "express";
+import { Posilek } from "../models/Posilek";
 // import axios from 'axios';
 // import {AxiosResponse} from 'axios';
 
@@ -13,28 +15,34 @@ import { GDA } from "../models/GDA";
   providedIn: "root",
 })
 export class DatabaseConnectorService {
-  private _APIURL: string = "http://localhost:1337";
-  private przepisurl: string = "/api/przepisy";
-  private kategoriaurl: string = "/api/kategories";
-  private posilekurl: string = "/api/posilki";
-  private skladnikurl: string = "/api/skladniks";
-  private wagaurl: string = "/api/wagas";
-  private uploadurl: string = "/api/upload/files";
-  private DBuploadURL: string = "/api/upload";
-  private skladniksurl: string = '/api/skladniks';
-  private geturlprodukts: string = "/api/produkts?populate=*";
-  private getkategoriesurl: string = "/api/kategories";
+  private readonly _APIURL: string = "http://localhost:1337";
+  private readonly przepisurl: string = "/api/przepisy";
+  private readonly kategoriaurl: string = "/api/kategories";
+  private readonly posilekurl: string = "/api/posilki";
+  private readonly skladnikurl: string = "/api/skladniks";
+  private readonly wagaurl: string = "/api/wagas";
+  private readonly uploadurl: string = "/api/upload/files";
+  private readonly DBuploadURL: string = "/api/upload";
+  private readonly skladniksurl: string = '/api/skladniks';
+  private readonly geturlprodukts: string = "/api/produkts?populate=*";
+  private readonly getkategoriesurl: string = "/api/kategories";
+  private readonly urlme = "/api/users/me";
 
   public get APIURL(): string {
     return this._APIURL;
-  }
-  public set APIURL(value: string) {
-    this._APIURL = value;
   }
 
   private authopts = {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   };
+
+  getUserDBID(): Observable<any> {
+    return this.http.get<any>(this.APIURL + this.urlme, this.authopts).pipe(
+      map((response: any) => {
+        return response.id;
+      })
+    );
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -446,6 +454,66 @@ uploadImagetoRecipeWithNumber(id: number, imageId: number): Observable<any> {
     })
   );
 }
+
+
+getAllUserGDAofPosilkiofDay(uid: number, date: string): Observable<GDA[]> {
+  return this.http.get(
+    this.APIURL + this.posilekurl +
+    '?filters[user][id][$eq]=' + uid +
+    '&filters[data_posilku][$eq]=' + date +
+    '&populate[posilekGDA][fields][0]=kcal' +
+    '&populate[posilekGDA][fields][1]=bialka' +
+    '&populate[posilekGDA][fields][2]=weglowodany' +
+    '&populate[posilekGDA][fields][3]=tluszcze',
+    this.authopts
+  ).pipe(
+    map((response: any) => {
+      return response.data.map((item: any) => {
+        const posilekGDA = item.attributes.posilekGDA;
+        return {
+          kcal: posilekGDA.kcal,
+          bialka: posilekGDA.bialka,
+          tluszcze: posilekGDA.tluszcze,
+          weglowodany: posilekGDA.weglowodany
+        } as GDA;
+      });
+    }),
+    catchError(error => {
+      console.error('Błąd podczas pobierania danych posiłków:', error);
+      // Możesz tutaj obsłużyć błąd w sposób adekwatny do Twojej aplikacji
+      return throwError(() => new Error('Nie udało się pobrać danych. Spróbuj ponownie później.'));
+    })
+  );
+}
+
+getAllUserPosilkiofKategoria(uid: number, date: string, kat:number): Observable<Posilek[]> {
+  return this.http.get(
+    this.APIURL + this.posilekurl +
+    '?filters[user][id][$eq]=' + uid +
+    '&filters[data_posilku][$eq]=' + date +
+    '&filters[kategoria][id][$eq]=' + kat +
+    '&populate=*',
+    this.authopts
+  ).pipe(
+    map((response: any) => {
+      return response.data.map((item: any) => {
+        const posilekGDA = item.attributes.posilekGDA;
+        return {
+          kcal: posilekGDA.kcal,
+          bialka: posilekGDA.bialka,
+          tluszcze: posilekGDA.tluszcze,
+          weglowodany: posilekGDA.weglowodany
+        } as GDA;
+      });
+    }),
+    catchError(error => {
+      console.error('Błąd podczas pobierania danych posiłków:', error);
+      // Możesz tutaj obsłużyć błąd w sposób adekwatny do Twojej aplikacji
+      return throwError(() => new Error('Nie udało się pobrać danych. Spróbuj ponownie później.'));
+    })
+  );
+}
+
 
 
 

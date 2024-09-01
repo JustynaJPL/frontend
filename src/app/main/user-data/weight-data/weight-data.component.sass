@@ -1,5 +1,31 @@
 @use '../../../../custom-theme.scss' as custom
 
+.no-data, .data, .add
+  display: none
+
+
+.active
+ display: block
+
+.no-data, .data, .add
+  position: relative
+  z-index: 1
+
+.no-data.active
+  z-index: 2
+
+
+.data.active
+  z-index: 2
+
+
+.add.active
+  z-index: 2
+
+
+
+
+
 mat-card
   min-height: 35vh
 

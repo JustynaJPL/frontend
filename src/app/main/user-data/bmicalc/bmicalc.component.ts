@@ -87,6 +87,7 @@ export class BmicalcComponent {
   }
 
   getBMI(): number {
+    if(this.pomiary.length>0){
     this.pomiary
       .sort((a, b) => {
         return a.wdate.getTime() - b.wdate.getTime();
@@ -96,6 +97,9 @@ export class BmicalcComponent {
       this.pomiary.slice(-1)[0].wv /
       (((this.uheight / 100) * this.uheight) / 100);
     return bmi;
+  }else{
+    return 0;
+  }
   }
 
   getprogressvalue(): number {

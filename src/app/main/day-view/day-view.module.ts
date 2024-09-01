@@ -5,9 +5,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { TodayComponent } from './today/today.component';
 import { AddMealComponent } from './add-meal/add-meal.component';
 import { ChangeMealComponent } from './change-meal/change-meal.component';
+import { DashComponent } from './dash/dash.component';
 
 export const routes: Routes = [
-  {path:'today', component:TodayComponent},
+  {path:'today', component:DashComponent},
   {path:'add-meal', component:AddMealComponent},
   {path:'change-meal', component: ChangeMealComponent},
   {

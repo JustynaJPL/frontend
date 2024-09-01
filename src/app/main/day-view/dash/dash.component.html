@@ -1,28 +1,53 @@
+<app-app-navi></app-app-navi>
 <div class="grid-container">
-  <h1 class="mat-h1">
-
-  </h1>
-  <mat-grid-list cols="2" rowHeight="250px">
-    @for (card of cards | async; track card) {
-      <mat-grid-tile [colspan]="card.cols" [rowspan]="card.rows">
-        <mat-card class="dashboard-card">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title> Dzisiaj </mat-card-title>
+      <mat-card-subtitle>
+        <mat-icon class="mat-18">today</mat-icon>
+        {{ dayToday() }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <div>
+      <app-breakfast></app-breakfast>
+    </div>
+    <div class="">
+      <app-lunch></app-lunch>
+    </div>
+    <div class="">
+      <app-dinner></app-dinner>
+    </div>
+    <div class="">
+      <app-supper></app-supper>
+    </div>
+    <mat-card class="summary">
+      <mat-card-header>
+        <mat-card-header>
+          <mat-card-title> Podsumowanie dnia </mat-card-title>
+        </mat-card-header>
+      </mat-card-header>
+      <mat-card-content class="summary-content">
+        <mat-card>
           <mat-card-header>
-            <mat-card-title>
-              {{card.title}}
-              <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #menu="matMenu" xPosition="before">
-                <button mat-menu-item>Expand</button>
-                <button mat-menu-item>Remove</button>
-              </mat-menu>
-            </mat-card-title>
+            <mat-card-title>Wartości sumaryczne makroskładników</mat-card-title>
           </mat-card-header>
-          <mat-card-content class="dashboard-card-content">
-            {{card.comp}}
+          <mat-card-content>
+            <h3>Kcal: {{ sumGDA.kcal }}</h3>
+            <h3>Białka: {{ sumGDA.bialka }}</h3>
+            <h3>Tłuszcze: {{ sumGDA.tluszcze }}</h3>
+            <h3>Węglowodany: {{ sumGDA.weglowodany }}</h3>
           </mat-card-content>
         </mat-card>
-      </mat-grid-tile>
-    }
-  </mat-grid-list>
+        <div class="chart">
+          <mat-card>
+            <canvasjs-chart
+              [options]="chartOptions"
+              (chartInstance)="getChartInstance($event)"
+            >
+            </canvasjs-chart>
+          </mat-card>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-card>
 </div>

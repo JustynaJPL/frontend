@@ -1,0 +1,26 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>Śniadanie</mat-card-title>
+        <button mat-button (click)="onClick()">
+          <mat-icon class="mat-18">add</mat-icon>
+        </button>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="columnName">
+          <mat-header-cell *matHeaderCellDef> columnHeaderLabel
+          </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.propertyName}} </mat-cell>
+        </ng-container>
+
+        a-md-data-table-column
+        <!-- press ctrl + space to add more column snippet or delete this line -->
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </mat-card-content>
+    <mat-card-footer>
+        Footer
+    </mat-card-footer>
+</mat-card>
