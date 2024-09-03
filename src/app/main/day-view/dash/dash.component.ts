@@ -75,33 +75,6 @@ export class DashComponent {
 
   ngOnInit(): void {
     const todayDate = this.dayToday(); // Możesz ustawić tutaj dynamiczną datę, np. dzisiejszą
-
-    this.db
-      .getUserDBID()
-      .pipe(
-        switchMap((userId: number) => {
-          return this.db.getAllUserGDAofPosilkiofDay(userId, todayDate);
-        })
-      )
-      .subscribe({
-        next: (gdaData: GDA[]) => {
-          console.log(gdaData);
-          this.GDAvalues = gdaData;
-          this.sumGDA = this.sumValues(this.GDAvalues);
-          let GDAtoChart = this.normalizeToChart(this.sumGDA);
-          let datapoints: any = [
-            { y: GDAtoChart.bialka, name: "Białka" },
-            { y: GDAtoChart.weglowodany, name: "Węglowodany" },
-            { y: GDAtoChart.tluszcze, name: "Tłuszcze" },
-          ];
-          this.updateChartData(datapoints);
-        },
-        error: (error) => {
-          console.error("Błąd podczas pobierania danych GDA:", error);
-          this.errorMessage =
-            "Nie udało się pobrać danych GDA. Spróbuj ponownie później.";
-        },
-      });
   }
 
   dayToday(): string {

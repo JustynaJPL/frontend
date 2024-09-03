@@ -43,7 +43,6 @@ export class LoggerService {
         // Po udanym logowaniu, zapisujemy token i inne dane użytkownika
         localStorage.setItem('token', response.jwt);
         localStorage.setItem('userId', response.user.id);
-
       }),
       catchError(error => {
         console.error('Login failed:', error);

@@ -3,12 +3,12 @@ export interface Posilek{
   nazwa:string;
   data_posilku:string;
   userid:number;
-  idkategoria:string;
+  idkategoria:number;
   idprzepis?:number;
   idprodukt?:number;
   ilosc_produktu?:number;
   liczba_porcji_przepisu?:number;
-  posiłekGDA:{
+  posilekGDA:{
     kcal:number;
     bialka:number;
     tluszcze:number;

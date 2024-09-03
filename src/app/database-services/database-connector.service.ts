@@ -486,36 +486,6 @@ getAllUserGDAofPosilkiofDay(uid: number, date: string): Observable<GDA[]> {
   );
 }
 
-getAllUserPosilkiofKategoria(uid: number, date: string, kat:number): Observable<Posilek[]> {
-  return this.http.get(
-    this.APIURL + this.posilekurl +
-    '?filters[user][id][$eq]=' + uid +
-    '&filters[data_posilku][$eq]=' + date +
-    '&filters[kategoria][id][$eq]=' + kat +
-    '&populate=*',
-    this.authopts
-  ).pipe(
-    map((response: any) => {
-      return response.data.map((item: any) => {
-        const posilekGDA = item.attributes.posilekGDA;
-        return {
-          kcal: posilekGDA.kcal,
-          bialka: posilekGDA.bialka,
-          tluszcze: posilekGDA.tluszcze,
-          weglowodany: posilekGDA.weglowodany
-        } as GDA;
-      });
-    }),
-    catchError(error => {
-      console.error('Błąd podczas pobierania danych posiłków:', error);
-      // Możesz tutaj obsłużyć błąd w sposób adekwatny do Twojej aplikacji
-      return throwError(() => new Error('Nie udało się pobrać danych. Spróbuj ponownie później.'));
-    })
-  );
-}
-
-
-
 
 
 }
