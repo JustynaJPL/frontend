@@ -1,7 +1,7 @@
 import { Component, inject } from "@angular/core";
 import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
 import { map, switchMap } from "rxjs/operators";
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, CommonModule } from "@angular/common";
 import { MatGridListModule } from "@angular/material/grid-list";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatIconModule } from "@angular/material/icon";
@@ -15,6 +15,13 @@ import { DinnerComponent } from "../dinner/dinner.component";
 import { SupperComponent } from "../supper/supper.component";
 import { GDA } from "../../../models/GDA";
 import { CanvasJSAngularChartsModule } from "@canvasjs/angular-charts";
+import { MatNativeDateModule } from "@angular/material/core";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MealsService } from "../meals.service";
+import { CommonEngine } from "@angular/ssr";
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: "app-dash",
@@ -22,6 +29,8 @@ import { CanvasJSAngularChartsModule } from "@canvasjs/angular-charts";
   styleUrl: "./dash.component.sass",
   standalone: true,
   imports: [
+    CommonModule,
+    FormsModule,
     AsyncPipe,
     MatGridListModule,
     MatMenuModule,
@@ -34,6 +43,10 @@ import { CanvasJSAngularChartsModule } from "@canvasjs/angular-charts";
     DinnerComponent,
     SupperComponent,
     CanvasJSAngularChartsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
 })
 export class DashComponent {
@@ -42,8 +55,9 @@ export class DashComponent {
   chartOptions: any;
   chart: any;
   errorMessage: string;
+  selectedDateValue: string;
 
-  constructor(private db: DatabaseConnectorService) {
+  constructor(private meals: MealsService) {
     this.chartOptions = {
       animationEnabled: true,
       theme: "dark2",
@@ -71,10 +85,54 @@ export class DashComponent {
     };
 
     this.errorMessage = "";
+
+    this.selectedDateValue = this.dayToday();
+    this.meals.updateSelectedDate(this.selectedDateValue);
   }
 
   ngOnInit(): void {
-    const todayDate = this.dayToday(); // Możesz ustawić tutaj dynamiczną datę, np. dzisiejszą
+    // Subskrybujemy zmiany daty
+    this.meals.selectedDate$.subscribe((date: string) => {
+      this.selectedDateValue = date;
+    });
+
+    // Subskrybujemy dane GDA i aktualizujemy wartości
+    this.meals.gdaData$.subscribe(
+      (gdaValues: GDA[]) => {
+        this.GDAvalues = gdaValues; // Przypisujemy zwrócone dane do zmiennej
+
+        // Sumujemy wartości
+        this.sumGDA = this.sumValues(this.GDAvalues);
+
+        // Zaktualizuj dane na wykresie
+        const chartDataPoints = [
+          { y: this.sumGDA.bialka, name: "Białka" },
+          { y: this.sumGDA.tluszcze, name: "Tłuszcze" },
+          { y: this.sumGDA.weglowodany, name: "Węglowodany" },
+        ];
+        this.updateChartData(chartDataPoints); // Aktualizujemy dane na wykresie
+      },
+      (error) => {
+        console.error('Błąd podczas pobierania danych GDA:', error);
+        this.errorMessage = 'Nie udało się pobrać danych. Spróbuj ponownie później.';
+      }
+    );
+  }
+
+
+
+  onDateChange(event: any): void {
+    const selectedDate = event.value; // Pobierz nową datę z eventu
+    const formattedDate = this.formatDate(selectedDate); // Sformatuj datę do "YYYY-MM-DD"
+    this.meals.updateSelectedDate(formattedDate); // Przekaż sformatowaną datę do serwisu
+    this.sumValues(this.GDAvalues);
+  }
+
+  formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Miesiące są indeksowane od 0
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   }
 
   dayToday(): string {
@@ -108,25 +166,38 @@ export class DashComponent {
       tluszcze: 0,
       weglowodany: 0,
     };
-    GDAvalues.forEach((item: GDA) => {
-      summary = {
-        kcal: summary.kcal + item.kcal,
-        weglowodany: summary.weglowodany + item.weglowodany,
-        bialka: summary.bialka + item.bialka,
-        tluszcze: summary.tluszcze + item.tluszcze,
-      };
-    });
+
+    if (!GDAvalues || GDAvalues.length === 0) {
+      console.log('Brak danych do sumowania.');
+      return summary; // Zwracamy pustą sumę, jeśli brak danych
+    }
+
+    for (let i = 0; i < GDAvalues.length; i++) {
+      const gda = GDAvalues[i];
+      if (gda) { // Sprawdzenie, czy element istnieje
+        console.log('Dodawanie pozycji:', gda);
+        summary.kcal += gda.kcal;
+        summary.weglowodany += gda.weglowodany;
+        summary.bialka += gda.bialka;
+        summary.tluszcze += gda.tluszcze;
+      }
+    }
+
+    console.log('Suma po dodaniu:', summary); // Loguj wynik sumowania
     return summary;
   }
 
-  normalizeToChart(sumValues:GDA):GDA{
-    let on100percent:number = sumValues.bialka + sumValues.tluszcze + sumValues.weglowodany;
 
-    return sumValues = {
-      kcal:sumValues.kcal,
-      tluszcze:sumValues.tluszcze/on100percent*100,
-      weglowodany:sumValues.weglowodany/on100percent*100,
-      bialka:sumValues.bialka/on100percent*100
-    };
+
+  normalizeToChart(sumValues: GDA): GDA {
+    let on100percent: number =
+      sumValues.bialka + sumValues.tluszcze + sumValues.weglowodany;
+
+    return (sumValues = {
+      kcal: sumValues.kcal,
+      tluszcze: (sumValues.tluszcze / on100percent) * 100,
+      weglowodany: (sumValues.weglowodany / on100percent) * 100,
+      bialka: (sumValues.bialka / on100percent) * 100,
+    });
   }
 }

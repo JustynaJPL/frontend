@@ -2,7 +2,8 @@ import { connect } from "http2";
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Posilek } from "../../models/Posilek";
-import { BehaviorSubject, catchError, map, Observable } from "rxjs";
+import { BehaviorSubject, catchError, map, Observable, throwError } from "rxjs";
+import { GDA } from "../../models/GDA";
 
 @Injectable({
   providedIn: "root",
@@ -10,10 +11,20 @@ import { BehaviorSubject, catchError, map, Observable } from "rxjs";
 export class MealsService {
   private readonly APIURL: string = "http://localhost:1337";
   private readonly posilkiurl: string = "/api/posilki";
-  private authopts = {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  };
   private uid: number;
+
+  getAuthOptions() {
+    return {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    };
+  }
+
+  private selectedDate: BehaviorSubject<string> = new BehaviorSubject<string>(this.dayToday());
+  public selectedDate$: Observable<string> = this.selectedDate.asObservable();
+
+  private gdaDataSubject: BehaviorSubject<GDA[]> = new BehaviorSubject<GDA[]>([]);
+  public gdaData$: Observable<GDA[]> = this.gdaDataSubject.asObservable();
+
 
   // observable zmiennych dla modułu day-view
   private breakfastToday: BehaviorSubject<Posilek[]>; //datasubject
@@ -32,59 +43,113 @@ export class MealsService {
     this.breakfast$ = this.breakfastToday.asObservable();
 
     this.lunchToday = new BehaviorSubject<Posilek[]>([]);
-    this.lunch$ = this.breakfastToday.asObservable();
+    this.lunch$ = this.lunchToday.asObservable();
 
     this.dinnerToday = new BehaviorSubject<Posilek[]>([]);
-    this.dinner$ = this.breakfastToday.asObservable();
+    this.dinner$ = this.dinnerToday.asObservable();
 
     this.supperToday = new BehaviorSubject<Posilek[]>([]);
-    this.supper$ = this.breakfastToday.asObservable();
+    this.supper$ = this.supperToday.asObservable();
 
-    this.getAllUserPosilkiofKategoria(this.uid, this.dayToday(), 1);
-    this.getAllUserPosilkiofKategoria(this.uid, this.dayToday(), 2);
-    this.getAllUserPosilkiofKategoria(this.uid, this.dayToday(), 3);
-    this.getAllUserPosilkiofKategoria(this.uid, this.dayToday(), 4);
+    this.getAllUserPosilki(this.uid, this.selectedDate.value);
+
   }
 
+  public updateSelectedDate(newDate: string): void {
+    this.selectedDate.next(newDate);
+    this.refreshPosilki();
+    this.getAllUserGDAofPosilkiofDay();
+  }
+
+  public get selectedDateValue(): string {
+    return this.selectedDate.value;
+  }
+
+  public set selectedDateValue(newDate: string) {
+    this.selectedDate.next(newDate);
+    this.refreshPosilki(); // automatyczne odświeżenie danych po zmianie daty
+  }
+
+
+  // Funkcja formatowania daty
+  formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Miesiące są indeksowane od 0
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+
+
+
   addPosilek(posilek: Posilek) {
-    let body:any;
+    let body: any;
     body = this.posilektoDBPosilek(posilek);
 
-    this.http.post(this.APIURL + this.posilkiurl,body,this.authopts)
-    .subscribe(
-      (addedData: any) => {
-        if(posilek.idkategoria==1){
-        const currentData = this.breakfastToday.value;
-        this.breakfastToday.next([...currentData, this.transformToPosilek(addedData)]);
+    this.http.post(this.APIURL + this.posilkiurl, body, this.getAuthOptions())
+      .pipe(
+        catchError(error => {
+          console.error('Błąd podczas dodawania posilku:', error);
+          return throwError(() => new Error('Nie udało się dodać posiłku. Spróbuj ponownie później.'));
+        })
+      )
+      .subscribe(
+        (addedData: any) => {
+          const currentData = this.getBehaviorSubjectForCategory(posilek.idkategoria).value;
+          this.getBehaviorSubjectForCategory(posilek.idkategoria).next([...currentData, this.transformToPosilek(addedData)]);
         }
-        if(posilek.idkategoria==2){
-          const currentData = this.lunchToday.value;
-          this.lunchToday.next([...currentData, this.transformToPosilek(addedData)]);
-        }
-        if(posilek.idkategoria==3){
-          const currentData = this.dinnerToday.value;
-          this.dinnerToday.next([...currentData, this.transformToPosilek(addedData)]);
-        }
-        if(posilek.idkategoria==4){
-          const currentData = this.supperToday.value;
-          this.supperToday.next([...currentData, this.transformToPosilek(addedData)]);
-        }
-        else{
-          console.log("Problem z kategoria id");
-        }
-      },
-      (error) => console.error('Błąd podczas dodawania posilku w komponencie' + posilek.idkategoria, error)
-    );
+      );
+  }
+
+
+  private getBehaviorSubjectForCategory(kategoriaId: number): BehaviorSubject<Posilek[]> {
+    switch (kategoriaId) {
+      case 1: return this.breakfastToday;
+      case 2: return this.lunchToday;
+      case 3: return this.dinnerToday;
+      case 4: return this.supperToday;
+      default: throw new Error("Niepoprawne ID kategorii");
+    }
+  }
+
+  private refreshPosilki(): void {
+    const uid = this.uid;
+    const date = this.selectedDate.value;
+    this.getAllUserPosilki(uid, this.selectedDate.value);
   }
 
   updatePosilki(posilek:Posilek){
-    this.http.put(this.APIURL + this.posilkiurl , this.posilektoDBPosilek(posilek),this.authopts)
+    this.http.put(this.APIURL + this.posilkiurl , this.posilektoDBPosilek(posilek),this.getAuthOptions())
     .subscribe(
       (updatedDataResponse: any) => {
-          const currentData = this.dataSubject.value.map(item =>
-          item.id === updatedDataResponse.id ? updatedDataResponse : item
-        );
-        this.dataSubject.next(currentData);
+        if(posilek.idkategoria==1){
+          const currentData = this.breakfastToday.value.map(item =>
+            item.id === updatedDataResponse.id ? updatedDataResponse : item
+          );
+          this.breakfastToday.next(currentData);
+        }
+        if(posilek.idkategoria==2){
+          const currentData = this.lunchToday.value.map(item =>
+            item.id === updatedDataResponse.id ? updatedDataResponse : item
+          );
+          this.lunchToday.next(currentData);
+        }
+        if(posilek.idkategoria==3){
+          const currentData = this.dinnerToday.value.map(item =>
+            item.id === updatedDataResponse.id ? updatedDataResponse : item
+          );
+          this.dinnerToday.next(currentData);
+        }
+        if(posilek.idkategoria==4){
+          const currentData = this.supperToday.value.map(item =>
+            item.id === updatedDataResponse.id ? updatedDataResponse : item
+          );
+          this.supperToday.next(currentData);
+        }
+        else{
+          console.error('Błąd z kategorią')
+        }
+
       },
       (error) => console.error('Błąd podczas aktualizacji danych', error)
     );
@@ -97,8 +162,9 @@ export class MealsService {
         data: {
           data_posilku: posilek.data_posilku,
           user: {
-            connect: [posilek.userid],
-          },
+            id:{
+              connect: [posilek.userid]
+          }},
           kategoria: {
             connect: [posilek.idkategoria],
           },
@@ -141,29 +207,26 @@ export class MealsService {
     return body;
   }
 
-  getAllUserPosilkiofKategoria(uid: number, date: string, kat: number) {
+  getAllUserPosilki(uid: number, date: string) {
     this.http
       .get(
-        this.APIURL +
-          this.posilkiurl +
-          "?filters[user][id][$eq]=" +
-          uid +
-          "&filters[data_posilku][$eq]=" +
-          date +
-          "&filters[kategoria][id][$eq]=" +
-          kat +
-          "&populate=*",
-        this.authopts
+        `${this.APIURL}${this.posilkiurl}?filters[user][id][$eq]=${uid}&filters[data_posilku][$eq]=${date}&populate=*`,
+        this.getAuthOptions()
       )
       .subscribe(
         (response: any) => {
-          const posilki: Posilek[] = response.data.map((item: any) =>
-            this.transformToPosilek(item)
-          );
-          if (kat == 1) this.breakfastToday.next(posilki);
-          if (kat == 2) this.lunchToday.next(posilki);
-          if (kat == 3) this.dinnerToday.next(posilki);
-          if (kat == 4) this.supperToday.next(posilki);
+          const posilki: Posilek[] = response.data.map((item: any) => this.transformToPosilek(item));
+
+          // Rozdzielenie danych na poszczególne kategorie
+          const breakfast = posilki.filter(p => p.idkategoria == 1);
+          const lunch = posilki.filter(p => p.idkategoria == 2);
+          const dinner = posilki.filter(p => p.idkategoria == 3);
+          const supper = posilki.filter(p => p.idkategoria == 4);
+
+          this.breakfastToday.next(breakfast);
+          this.lunchToday.next(lunch);
+          this.dinnerToday.next(dinner);
+          this.supperToday.next(supper);
         },
         (error) => console.error("Błąd podczas pobierania danych", error)
       );
@@ -174,6 +237,7 @@ export class MealsService {
       id: item.id,
       nazwa:
         item.attributes.przepis?.data?.attributes?.nazwaPrzepisu ||
+        item.attributes.produkt?.data?.attributes?.nazwaProduktu ||
         "Brak nazwy", // Przypisanie nazwy przepisu lub wartości domyślnej
       data_posilku: item.attributes.data_posilku,
       userid: item.attributes.user.data.id,
@@ -200,5 +264,40 @@ export class MealsService {
 
     return `${year}-${month}-${day}`;
   }
+
+  getAllUserGDAofPosilkiofDay(): void {
+    const date = this.selectedDate.value; // Pobieramy aktualną wartość daty z BehaviorSubject
+
+    this.http.get(
+      this.APIURL + this.posilkiurl +
+      '?filters[user][id][$eq]=' + this.uid +
+      '&filters[data_posilku][$eq]=' + date +
+      '&populate[posilekGDA][fields][0]=kcal' +
+      '&populate[posilekGDA][fields][1]=bialka' +
+      '&populate[posilekGDA][fields][2]=weglowodany' +
+      '&populate[posilekGDA][fields][3]=tluszcze',
+      this.getAuthOptions()
+    ).pipe(
+      map((response: any) => {
+        return response.data.map((item: any) => {
+          const posilekGDA = item.attributes.posilekGDA;
+          return {
+            kcal: posilekGDA.kcal,
+            bialka: posilekGDA.bialka,
+            tluszcze: posilekGDA.tluszcze,
+            weglowodany: posilekGDA.weglowodany
+          } as GDA;
+        });
+      }),
+      catchError(error => {
+        console.error('Błąd podczas pobierania danych posiłków:', error);
+        return throwError(() => new Error('Nie udało się pobrać danych. Spróbuj ponownie później.'));
+      })
+    ).subscribe((gdaValues: GDA[]) => {
+      // Zaktualizuj BehaviorSubject
+      this.gdaDataSubject.next(gdaValues);
+    });
+  }
+
 }
 
