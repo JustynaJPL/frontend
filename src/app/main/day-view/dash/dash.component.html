@@ -2,7 +2,6 @@
 <div class="grid-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title> Data </mat-card-title>
       <mat-form-field appearance="fill">
         <mat-label>Wybierz datę</mat-label>
         <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDateValue" (dateChange)="onDateChange($event)" />

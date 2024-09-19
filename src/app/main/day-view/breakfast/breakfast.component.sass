@@ -1,0 +1,26 @@
+@use '../../../../../src/custom-theme.scss' as custom
+
+mat-card-header
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: space-between
+  align-items: center
+  align-content: stretch
+  padding: 10px
+  margin: 10px
+  background-color: custom.$primary-color
+  color: custom.$primary-text-color
+  .add-btn
+    background-color: custom.$accent-color
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: center
+    align-items: center
+    align-content: center
+    .mat-18
+      font-size: 20px
+
+mat-header-row
+  background-color: custom.$accent-color

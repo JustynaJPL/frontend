@@ -1,7 +1,7 @@
 <mat-card>
   <mat-card-header>
     <mat-card-title>Kolacja</mat-card-title>
-    <button mat-button (click)="onClick()">
+    <button mat-button [routerLink]="['../add-meal']" class="add-btn">
       <mat-icon class="mat-18">add</mat-icon>
     </button>
   </mat-card-header>
@@ -41,15 +41,19 @@
         <mat-cell *matCellDef="let element"> {{element.posilekGDA.weglowodany}} </mat-cell>
       </ng-container>
 
+      <ng-container matColumnDef="akcje">
+        <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-button (click)="onClick"><mat-icon class="mat-18">edit</mat-icon>Edytuj</button>
+          <button mat-button (click)="onClick"><mat-icon class="mat-18">delete</mat-icon>Usuń</button>
+        </mat-cell>
+      </ng-container>
+
       <!-- Wiersze nagłówka i wiersze z danymi -->
       <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
       <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 
     </mat-table>
   </mat-card-content>
-
-  <mat-card-footer>
-    Footer
-  </mat-card-footer>
 </mat-card>
 

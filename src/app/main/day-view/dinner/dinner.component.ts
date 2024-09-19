@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Posilek } from '../../../models/Posilek';
 import { MealsService } from '../meals.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-dinner',
@@ -14,7 +15,9 @@ import { MealsService } from '../meals.service';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatTableModule],
+    MatTableModule,
+    RouterModule
+  ],
   templateUrl: './dinner.component.html',
   styleUrl: './dinner.component.sass'
 })
@@ -25,6 +28,7 @@ export class DinnerComponent {
     "bialka",
     "tluszcze",
     "weglowodany",
+    "akcje"
   ]; // Kolumny, które będą wyświetlane
   dataSource!: MatTableDataSource<Posilek>; // Dane dla tabeli
 

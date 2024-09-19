@@ -8,6 +8,7 @@ import { DatabaseConnectorService } from "../../../database-services/database-co
 import { CdkTableDataSourceInput } from "@angular/cdk/table";
 import { Posilek } from "../../../models/Posilek";
 import { MealsService } from "../meals.service";
+import { Router, RouterModule } from "@angular/router";
 
 @Component({
   selector: "app-breakfast",
@@ -18,6 +19,7 @@ import { MealsService } from "../meals.service";
     MatButtonModule,
     MatIconModule,
     MatTableModule,
+    RouterModule
   ],
   templateUrl: "./breakfast.component.html",
   styleUrl: "./breakfast.component.sass",
@@ -29,10 +31,11 @@ export class BreakfastComponent {
     "bialka",
     "tluszcze",
     "weglowodany",
+    "akcje"
   ]; // Kolumny, które będą wyświetlane
   dataSource!: MatTableDataSource<Posilek>; // Dane dla tabeli
 
-  constructor(private mealsService: MealsService) {}
+  constructor(private mealsService: MealsService, private router:Router) {}
 
   ngOnInit(): void {
     // Pobranie danych z serwisu i przypisanie ich do dataSource

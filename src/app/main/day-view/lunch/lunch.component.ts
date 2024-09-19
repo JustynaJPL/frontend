@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-lunch',
@@ -14,7 +15,9 @@ import { MatIconModule } from '@angular/material/icon';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatTableModule,],
+    MatTableModule,
+    RouterModule
+  ],
   templateUrl: './lunch.component.html',
   styleUrl: './lunch.component.sass'
 })
@@ -25,6 +28,7 @@ export class LunchComponent {
     "bialka",
     "tluszcze",
     "weglowodany",
+    "akcje"
   ]; // Kolumny, które będą wyświetlane
   dataSource!: MatTableDataSource<Posilek>; // Dane dla tabeli
 
