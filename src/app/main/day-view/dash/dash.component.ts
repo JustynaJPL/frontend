@@ -9,16 +9,13 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
 import { DatabaseConnectorService } from "../../../database-services/database-connector.service";
-import { BreakfastComponent } from "../breakfast/breakfast.component";
-import { LunchComponent } from "../lunch/lunch.component";
-import { DinnerComponent } from "../dinner/dinner.component";
-import { SupperComponent } from "../supper/supper.component";
+
 import { GDA } from "../../../models/GDA";
 import { CanvasJSAngularChartsModule } from "@canvasjs/angular-charts";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatDatepickerInputEvent, MatDatepickerModule } from "@angular/material/datepicker";
 import { MealsService } from "../meals.service";
 import { CommonEngine } from "@angular/ssr";
 import { FormsModule } from "@angular/forms";
@@ -38,10 +35,6 @@ import { FormsModule } from "@angular/forms";
     MatButtonModule,
     MatCardModule,
     AppNaviComponent,
-    BreakfastComponent,
-    LunchComponent,
-    DinnerComponent,
-    SupperComponent,
     CanvasJSAngularChartsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -50,6 +43,7 @@ import { FormsModule } from "@angular/forms";
   ],
 })
 export class DashComponent {
+
   GDAvalues: GDA[] = [];
   sumGDA: GDA;
   chartOptions: any;
@@ -87,47 +81,13 @@ export class DashComponent {
     this.errorMessage = "";
 
     this.selectedDateValue = this.dayToday();
-    this.meals.updateSelectedDate(this.selectedDateValue);
   }
 
-  ngOnInit(): void {
-    // Subskrybujemy zmiany daty
-    this.meals.selectedDate$.subscribe((date: string) => {
-      this.selectedDateValue = date;
-    });
+  onDateChange($event: MatDatepickerInputEvent<any,any>) {
 
-    // Subskrybujemy dane GDA i aktualizujemy wartości
-    this.meals.gdaData$.subscribe(
-      (gdaValues: GDA[]) => {
-        this.GDAvalues = gdaValues; // Przypisujemy zwrócone dane do zmiennej
-
-        // Sumujemy wartości
-        this.sumGDA = this.sumValues(this.GDAvalues);
-
-        // Zaktualizuj dane na wykresie
-        const chartDataPoints = [
-          { y: this.sumGDA.bialka, name: "Białka" },
-          { y: this.sumGDA.tluszcze, name: "Tłuszcze" },
-          { y: this.sumGDA.weglowodany, name: "Węglowodany" },
-        ];
-        this.updateChartData(chartDataPoints); // Aktualizujemy dane na wykresie
-      },
-      (error) => {
-        console.error('Błąd podczas pobierania danych GDA:', error);
-        this.errorMessage = 'Nie udało się pobrać danych. Spróbuj ponownie później.';
-      }
-    );
-  }
+    }
 
 
-
-  onDateChange(event: any): void {
-    const selectedDate = event.value; // Get the new date from the event
-    const formattedDate = this.formatDate(selectedDate); // Format the date to "YYYY-MM-DD"
-    this.meals.updateSelectedDate(formattedDate); // Pass the formatted date to the service
-    localStorage.setItem('selectedDate', formattedDate); // Persist the date in localStorage
-    this.sumValues(this.GDAvalues); // Perform additional logic if needed
-}
 
 
   formatDate(date: Date): string {
@@ -161,33 +121,7 @@ export class DashComponent {
     }
   }
 
-  sumValues(GDAvalues: GDA[]): GDA {
-    let summary: GDA = {
-      kcal: 0,
-      bialka: 0,
-      tluszcze: 0,
-      weglowodany: 0,
-    };
 
-    if (!GDAvalues || GDAvalues.length === 0) {
-      console.log('Brak danych do sumowania.');
-      return summary; // Zwracamy pustą sumę, jeśli brak danych
-    }
-
-    for (let i = 0; i < GDAvalues.length; i++) {
-      const gda = GDAvalues[i];
-      if (gda) { // Sprawdzenie, czy element istnieje
-        console.log('Dodawanie pozycji:', gda);
-        summary.kcal += gda.kcal;
-        summary.weglowodany += gda.weglowodany;
-        summary.bialka += gda.bialka;
-        summary.tluszcze += gda.tluszcze;
-      }
-    }
-
-    console.log('Suma po dodaniu:', summary); // Loguj wynik sumowania
-    return summary;
-  }
 
 
 
