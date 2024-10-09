@@ -44,7 +44,7 @@
       <ng-container matColumnDef="akcje">
         <mat-header-cell *matHeaderCellDef> </mat-header-cell>
         <mat-cell *matCellDef="let element">
-          <button mat-button (click)="onClick"><mat-icon class="mat-18">edit</mat-icon>Edytuj</button>
+          <button mat-button routerLink="../change-meal/{{ element.id }}"><mat-icon class="mat-18">edit</mat-icon>Edytuj</button>
           <button mat-button (click)="onClick"><mat-icon class="mat-18">delete</mat-icon>Usuń</button>
         </mat-cell>
       </ng-container>

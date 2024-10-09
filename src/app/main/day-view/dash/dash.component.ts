@@ -122,11 +122,13 @@ export class DashComponent {
 
 
   onDateChange(event: any): void {
-    const selectedDate = event.value; // Pobierz nową datę z eventu
-    const formattedDate = this.formatDate(selectedDate); // Sformatuj datę do "YYYY-MM-DD"
-    this.meals.updateSelectedDate(formattedDate); // Przekaż sformatowaną datę do serwisu
-    this.sumValues(this.GDAvalues);
-  }
+    const selectedDate = event.value; // Get the new date from the event
+    const formattedDate = this.formatDate(selectedDate); // Format the date to "YYYY-MM-DD"
+    this.meals.updateSelectedDate(formattedDate); // Pass the formatted date to the service
+    localStorage.setItem('selectedDate', formattedDate); // Persist the date in localStorage
+    this.sumValues(this.GDAvalues); // Perform additional logic if needed
+}
+
 
   formatDate(date: Date): string {
     const year = date.getFullYear();

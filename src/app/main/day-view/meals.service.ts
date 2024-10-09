@@ -19,8 +19,11 @@ export class MealsService {
     };
   }
 
-  private selectedDate: BehaviorSubject<string> = new BehaviorSubject<string>(this.dayToday());
-  public selectedDate$: Observable<string> = this.selectedDate.asObservable();
+  private selectedDate: BehaviorSubject<string> = new BehaviorSubject<string>(
+    localStorage.getItem('selectedDate') || this.dayToday()
+);
+public selectedDate$: Observable<string> = this.selectedDate.asObservable();
+
 
   private gdaDataSubject: BehaviorSubject<GDA[]> = new BehaviorSubject<GDA[]>([]);
   public gdaData$: Observable<GDA[]> = this.gdaDataSubject.asObservable();
@@ -51,7 +54,7 @@ export class MealsService {
     this.supperToday = new BehaviorSubject<Posilek[]>([]);
     this.supper$ = this.supperToday.asObservable();
 
-    this.getAllUserPosilki(this.uid, this.selectedDate.value);
+    this.getAllUserPosilki(this.uid, this.selectedDate.getValue());
 
   }
 
