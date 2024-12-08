@@ -1,3 +1,4 @@
+import { Kategoria } from './../../../models/Kategoria';
 import { Component, inject } from "@angular/core";
 import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
 import { map, switchMap } from "rxjs/operators";
@@ -19,6 +20,9 @@ import { MatDatepickerInputEvent, MatDatepickerModule } from "@angular/material/
 import { MealsService } from "../meals.service";
 import { CommonEngine } from "@angular/ssr";
 import { FormsModule } from "@angular/forms";
+import { MatTableModule } from "@angular/material/table";
+import { Observable } from 'rxjs';
+import { Posilek } from '../../../models/Posilek';
 
 @Component({
   selector: "app-dash",
@@ -40,6 +44,7 @@ import { FormsModule } from "@angular/forms";
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTableModule
   ],
 })
 export class DashComponent {
@@ -49,7 +54,12 @@ export class DashComponent {
   chartOptions: any;
   chart: any;
   errorMessage: string;
-  selectedDateValue: string;
+
+  displayedColumns: string[] = [ 'name', 'weightOrPortions', 'macros', 'actions'];
+
+  public kategorie$: Observable<Kategoria[]>;
+  public selectedDateValue$: Observable<string>;
+  public posilki$: Observable<Posilek[]>;
 
   constructor(private meals: MealsService) {
     this.chartOptions = {
@@ -80,7 +90,15 @@ export class DashComponent {
 
     this.errorMessage = "";
 
-    this.selectedDateValue = this.dayToday();
+    this.selectedDateValue$ = this.meals.currentDate$;
+    this.kategorie$ = this.meals.kategorie$;
+    this.posilki$ = this.meals.posilki$;
+  }
+
+  ngOnInit(){
+    this.meals.getKategorie();
+    this.meals.getCurrData();
+    this.meals.loadPosilki();
   }
 
   onDateChange($event: MatDatepickerInputEvent<any,any>) {
@@ -88,7 +106,7 @@ export class DashComponent {
     }
 
 
-
+  // {funkcje dotyczące formatowania wykresu w zależnosci od danych
 
   formatDate(date: Date): string {
     const year = date.getFullYear();
@@ -121,10 +139,6 @@ export class DashComponent {
     }
   }
 
-
-
-
-
   normalizeToChart(sumValues: GDA): GDA {
     let on100percent: number =
       sumValues.bialka + sumValues.tluszcze + sumValues.weglowodany;
@@ -136,4 +150,28 @@ export class DashComponent {
       bialka: (sumValues.bialka / on100percent) * 100,
     });
   }
+
+  // funkcje dotyczące formatowania wykresu w zależnosci od danych}
+
+  deleteMeal(_t79: any) {
+
+    }
+    editMeal(_t79: any) {
+
+    }
+    viewMeal(_t79: any) {
+
+    }
+
+    groupByCategory(posilki: Posilek[]): { [key: number]: Posilek[] } {
+      return posilki.reduce((acc, posilek) => {
+        const categoryId = posilek.idkategoria;
+        if (!acc[categoryId]) {
+          acc[categoryId] = [];
+        }
+        acc[categoryId].push(posilek);
+        return acc;
+      }, {} as { [key: number]: Posilek[] });
+    }
+
 }
