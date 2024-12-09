@@ -88,6 +88,7 @@ export class MealsService {
    */
   public setDate(newDate: string): void {
     this.currentDateSubject.next(newDate);
+    this.loadPosilki();
   }
 
   public resetToToday(): void {
@@ -115,17 +116,15 @@ export class MealsService {
   private posilkiSubject = new BehaviorSubject<Posilek[]>([]); // BehaviorSubject przechowujący posiłki
   public posilki$ = this.posilkiSubject.asObservable(); // Observable eksponujący dane
 
-  public loadPosilki(): void {
+  public loadPosilki(): Observable<Posilek[]> {
     const userId = this.getUserId();
 
     if (!userId) {
       console.error("Nie można pobrać posiłków - brak userId");
-      this.posilkiSubject.next([]);
-      return;
+      return of([]); // Zamiast nextować puste posiłki, zwracamy Observable z pustą tablicą
     }
 
-    // Połączenie strumieni userId oraz currentDate$ przy użyciu combineLatest
-    combineLatest([of(userId), this.currentDate$])
+    return combineLatest([of(userId), this.currentDate$])
       .pipe(
         take(1), // Używamy take(1), aby uniknąć wycieków pamięci
         switchMap(([userId, date]) =>
@@ -142,11 +141,7 @@ export class MealsService {
         finalize(() => {
           console.log("Zakończono ładowanie posiłków.");
         })
-      )
-      .subscribe({
-        next: (posilki: Posilek[]) => this.posilkiSubject.next(posilki),
-        error: () => this.posilkiSubject.next([]),
-      });
+      );
   }
 
   private getUserId(): number | null {

@@ -1,7 +1,7 @@
-import { Kategoria } from './../../../models/Kategoria';
+import { Kategoria } from "./../../../models/Kategoria";
 import { Component, inject } from "@angular/core";
 import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
-import { map, switchMap } from "rxjs/operators";
+import { catchError, map, switchMap, takeUntil } from "rxjs/operators";
 import { AsyncPipe, CommonModule } from "@angular/common";
 import { MatGridListModule } from "@angular/material/grid-list";
 import { MatMenuModule } from "@angular/material/menu";
@@ -16,13 +16,17 @@ import { CanvasJSAngularChartsModule } from "@canvasjs/angular-charts";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatDatepickerInputEvent, MatDatepickerModule } from "@angular/material/datepicker";
+import {
+  MatDatepickerInputEvent,
+  MatDatepickerModule,
+} from "@angular/material/datepicker";
 import { MealsService } from "../meals.service";
 import { CommonEngine } from "@angular/ssr";
 import { FormsModule } from "@angular/forms";
 import { MatTableModule } from "@angular/material/table";
-import { Observable } from 'rxjs';
-import { Posilek } from '../../../models/Posilek';
+import { combineLatest, Observable, Subject } from "rxjs";
+import { Posilek } from "../../../models/Posilek";
+import { DefaultDataPoint, PieDataPoint } from "chart.js";
 
 @Component({
   selector: "app-dash",
@@ -44,22 +48,30 @@ import { Posilek } from '../../../models/Posilek';
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTableModule
+    MatTableModule,
   ],
 })
 export class DashComponent {
-
   GDAvalues: GDA[] = [];
   sumGDA: GDA;
   chartOptions: any;
   chart: any;
   errorMessage: string;
 
-  displayedColumns: string[] = [ 'name', 'weightOrPortions', 'macros', 'actions'];
+  private destroy$ = new Subject<void>();
+
+  displayedColumns: string[] = [
+    "name",
+    "weightOrPortions",
+    "macros",
+    "actions",
+  ];
 
   public kategorie$: Observable<Kategoria[]>;
   public selectedDateValue$: Observable<string>;
   public posilki$: Observable<Posilek[]>;
+
+  public groupedPosilki: { [key: number]: Posilek[] } = {};
 
   constructor(private meals: MealsService) {
     this.chartOptions = {
@@ -95,16 +107,42 @@ export class DashComponent {
     this.posilki$ = this.meals.posilki$;
   }
 
-  ngOnInit(){
-    this.meals.getKategorie();
-    this.meals.getCurrData();
-    this.meals.loadPosilki();
+  ngOnInit() {
+    combineLatest([
+      this.meals.getKategorie(),
+      this.meals.getCurrData()
+    ])
+    .pipe(
+      switchMap(([kategorie, currData]) => {
+        console.log('Kategorie i data załadowane:', kategorie, currData);
+        // Zwracamy observable
+        return this.meals.loadPosilki();
+      }),
+      takeUntil(this.destroy$),
+      catchError((error) => {
+        console.error('Błąd podczas pobierania danych:', error);
+        return [];
+      })
+    )
+    .subscribe((posilki) => {
+      console.log('Pobrane posiłki:', posilki);
+      this.groupedPosilki = this.groupByCategory(posilki);
+      this.sumGDAValues(posilki);
+      this.updateChartData(this.createdatapointsforchart(this.sumGDA));
+
+    });
   }
 
-  onDateChange($event: MatDatepickerInputEvent<any,any>) {
+  ngOnDestroy() {
+    // Zakończ subskrypcję, gdy komponent zostanie zniszczony
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    }
-
+  onDateChange($event: MatDatepickerInputEvent<any, any>) {
+    const date:string = this.formatDate($event.target.value);
+    this.meals.setDate(date);
+  }
 
   // {funkcje dotyczące formatowania wykresu w zależnosci od danych
 
@@ -139,6 +177,13 @@ export class DashComponent {
     }
   }
 
+  createdatapointsforchart(gda:GDA):any{
+    gda = this.normalizeToChart(gda);
+    return [{ y: gda.bialka, name: "Białka" },
+            { y: gda.weglowodany, name: "Węglowodany" },
+            { y: gda.tluszcze, name: "Tłuszcze" } ] ;
+  }
+
   normalizeToChart(sumValues: GDA): GDA {
     let on100percent: number =
       sumValues.bialka + sumValues.tluszcze + sumValues.weglowodany;
@@ -153,25 +198,43 @@ export class DashComponent {
 
   // funkcje dotyczące formatowania wykresu w zależnosci od danych}
 
-  deleteMeal(_t79: any) {
+  deleteMeal(_t79: any) {}
+  editMeal(_t79: any) {}
+  viewMeal(_t79: any) {}
 
+  /* funkcja ta grupuje dane z posilki w kategorie poprzez
+  // dodanie do nich klucza wcześniej
+  // polega ona na tym że najpierw sprawdzana jest czy trzeba
+  // dodać kategorie, potem jeśli trzeba to tworzy nową i
+  // przechodzi do posiłku który analizuje pod względem przynależności
+  // i wpycha go do obiektu
+  // przykład {
+  //   1: [ { id: 1, nazwa: 'Jabłko', idkategoria: 1 },
+  //        { id: 2, nazwa: 'Gruszka', idkategoria: 1 },
+  //        { id: 5, nazwa: 'Banany', idkategoria: 1 }
+  //      ],
+  //   2: [ { id: 3, nazwa: 'Kurczak', idkategoria: 2 } ],
+  //   3: [ { id: 4, nazwa: 'Ryż', idkategoria: 3 } ]
+  // } */
+  groupByCategory(posilki: Posilek[]): { [key: number]: Posilek[] } {
+    return posilki.reduce((acc, posilek) => {
+      const categoryId = posilek.idkategoria;
+      if (!acc[categoryId]) {
+        acc[categoryId] = [];
+      }
+      acc[categoryId].push(posilek);
+      return acc;
+    }, {} as { [key: number]: Posilek[] });
+  }
+
+  sumGDAValues(p:Posilek[]){
+    if(p.length===0) console.log(p);
+    for (let i = 0; i < p.length; i++) {
+      this.sumGDA.kcal = this.sumGDA.kcal + p[i].posilekGDA.kcal;
+      this.sumGDA.bialka = this.sumGDA.bialka + p[i].posilekGDA.bialka;
+      this.sumGDA.tluszcze = this.sumGDA.tluszcze + p[i].posilekGDA.tluszcze;
+      this.sumGDA.weglowodany = this.sumGDA.weglowodany + p[i].posilekGDA.weglowodany;
     }
-    editMeal(_t79: any) {
-
-    }
-    viewMeal(_t79: any) {
-
-    }
-
-    groupByCategory(posilki: Posilek[]): { [key: number]: Posilek[] } {
-      return posilki.reduce((acc, posilek) => {
-        const categoryId = posilek.idkategoria;
-        if (!acc[categoryId]) {
-          acc[categoryId] = [];
-        }
-        acc[categoryId].push(posilek);
-        return acc;
-      }, {} as { [key: number]: Posilek[] });
-    }
-
+    console.log(this.sumGDA);
+  }
 }
