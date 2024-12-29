@@ -1,0 +1,37 @@
+@use '../../../../../src/custom-theme.scss' as custom
+
+.grid-container
+  margin: 20px
+  margin-left: 210px
+
+.dashboard-card
+  position: absolute
+  top: 15px
+  left: 15px
+  right: 15px
+  bottom: 15px
+
+.more-button
+  position: absolute
+  top: 5px
+  right: 10px
+
+.dashboard-card-content
+  text-align: center
+
+.summary
+  color: custom.$primary-text-color
+
+  .summary-content
+    width: 80%
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: center
+    align-items: stretch
+    align-content: stretch
+
+  mat-card-header
+    background-color: custom.$primary-color
+    margin-bottom: 10px
+    padding-bottom: 5px

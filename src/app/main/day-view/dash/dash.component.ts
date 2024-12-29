@@ -27,6 +27,7 @@ import { MatTableModule } from "@angular/material/table";
 import { combineLatest, Observable, Subject } from "rxjs";
 import { Posilek } from "../../../models/Posilek";
 import { DefaultDataPoint, PieDataPoint } from "chart.js";
+import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
   selector: "app-dash",
@@ -65,6 +66,7 @@ export class DashComponent {
     "weightOrPortions",
     "macros",
     "actions",
+    "add"
   ];
 
   public kategorie$: Observable<Kategoria[]>;
@@ -73,7 +75,9 @@ export class DashComponent {
 
   public groupedPosilki: { [key: number]: Posilek[] } = {};
 
-  constructor(private meals: MealsService) {
+  constructor(private meals: MealsService ,
+    private router: Router,
+    private route: ActivatedRoute) {
     this.chartOptions = {
       animationEnabled: true,
       theme: "dark2",
@@ -198,9 +202,15 @@ export class DashComponent {
 
   // funkcje dotyczące formatowania wykresu w zależnosci od danych}
 
-  deleteMeal(_t79: any) {}
-  editMeal(_t79: any) {}
-  viewMeal(_t79: any) {}
+  deleteMeal(id:number) {
+
+  }
+  editMeal(id:number) {
+    this.router.navigate(['../change-meal/',id], { relativeTo: this.route });
+  }
+  viewMeal(id:number, mode:string) {
+    this.router.navigate(['../change-meal/', id, mode], { relativeTo: this.route });
+  }
 
   /* funkcja ta grupuje dane z posilki w kategorie poprzez
   // dodanie do nich klucza wcześniej
@@ -236,5 +246,10 @@ export class DashComponent {
       this.sumGDA.weglowodany = this.sumGDA.weglowodany + p[i].posilekGDA.weglowodany;
     }
     console.log(this.sumGDA);
+  }
+
+  addNew(id:number){
+    this.router.navigate(['../add-meal/',id], { relativeTo: this.route });
+
   }
 }

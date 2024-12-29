@@ -9,8 +9,9 @@ import { DashComponent } from './dash/dash.component';
 
 export const routes: Routes = [
   {path:'today', component:DashComponent},
-  {path:'add-meal', component:AddMealComponent},
+  {path:'add-meal/:id', component:AddMealComponent},
   {path:'change-meal/:id', component: ChangeMealComponent},
+  {path:'change-meal/:id/:mode', component: ChangeMealComponent},
   {
     path: '',
     redirectTo:'today',
