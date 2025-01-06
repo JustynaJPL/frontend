@@ -121,28 +121,24 @@ export class MealsService {
 
     if (!userId) {
       console.error("Nie można pobrać posiłków - brak userId");
-      return of([]); // Zamiast nextować puste posiłki, zwracamy Observable z pustą tablicą
+      return of([]);
     }
 
     return combineLatest([of(userId), this.currentDate$])
       .pipe(
-        take(1), // Używamy take(1), aby uniknąć wycieków pamięci
+        take(1),
         switchMap(([userId, date]) =>
-          this.http.get(
-            this.createPosilekOfUserOfDataRequest(userId, date),
-            this.getAuthOptions()
-          )
+          this.http.get(this.createPosilekOfUserOfDataRequest(userId, date), this.getAuthOptions())
         ),
         map((apiResponse: any) => this.transformApiResponse(apiResponse)),
+        tap((posilki) => this.posilkiSubject.next(posilki)), // Emituj nowe dane
         catchError((error) => {
           console.error("Błąd podczas pobierania posiłków:", error);
-          return of([]); // Zwracamy pustą tablicę, aby strumień mógł się zakończyć
-        }),
-        finalize(() => {
-          console.log("Zakończono ładowanie posiłków.");
+          return of([]);
         })
       );
   }
+
 
   private getUserId(): number | null {
     const userIdString = localStorage.getItem("userId");
@@ -193,4 +189,55 @@ export class MealsService {
   createPosilekOfUserOfDataRequest(useridno: number, data: string): string {
     return `${this.APIURL}${this.posilkiUrl}?filters[user][id][$eq]=${useridno}&filters[data_posilku][$eq]=${data}&fields[0]=id&fields[1]=ilosc_produktu&fields[2]=liczba_porcji_przepisu&populate[user][fields][0]=id&populate[kategoria][fields][0]=id&populate[przepis][fields][0]=id&populate[przepis][fields][1]=nazwaPrzepisu&populate[produkt][fields][0]=id&populate[produkt][fields][1]=nazwaProduktu&populate[posilekGDA]=*`;
   }
+
+  deletePosilekofId(id: number): void {
+    this.http.delete(this.APIURL + this.posilkiUrl + '/' + id, this.getAuthOptions())
+      .subscribe({
+        next: () => {
+          console.log('Element został usunięty:', id);
+          // Automatyczne odświeżenie danych po usunięciu
+          this.loadPosilki().subscribe((posilki) => {
+            this.posilkiSubject.next(posilki); // Emituj nowe dane
+          });
+        },
+        error: (error) => {
+          console.error('Błąd podczas usuwania elementu:', error);
+        }
+      });
+  }
+
+   //pobranie konkretnego posiłku z bazy zakładając że uzytkownik ma do niego dostęp - jest to
+   //zaopiekowane w ten sposób że zapytanie w poprzednim oknie wypisuje tylko te które dotyczą już tego uzytkownika
+    //posilekid - to numer tego posiłku w tablicy posiłki w bazie danych unikalny dla każdego rekordu
+   getPosilekofIdofUser(posilekid: number): Observable<any> {
+    const url = `${this.APIURL}${this.posilkiUrl}?filters[id][$eq]=${posilekid}&fields[0]=id&fields[1]=ilosc_produktu&fields[2]=liczba_porcji_przepisu&populate[user][fields][0]=id&populate[kategoria][fields][0]=nazwakategori&populate[przepis][fields][0]=id&populate[przepis][fields][1]=nazwaPrzepisu&populate[produkt][fields][0]=id&populate[produkt][fields][1]=nazwaProduktu&populate[posilekGDA]=*`;
+
+    return this.http.get(url).pipe(
+      map((response: any) => {
+        // Możesz dodatkowo przetworzyć odpowiedź, jeśli jest to wymagane
+        return response.data[0] || null; // Załóżmy, że API zwraca dane w `data`
+      }),
+      catchError((error) => {
+        console.error('Błąd podczas pobierania posiłku:', error);
+
+        // Możesz dodać logikę w zależności od statusu błędu
+        if (error.status === 404) {
+          console.error('Nie znaleziono posiłku o podanym ID.');
+        } else if (error.status === 401) {
+          console.error('Brak autoryzacji do wykonania tego zapytania.');
+        } else {
+          console.error('Nieznany błąd.');
+        }
+
+        // Zwróć bardziej opisowy błąd lub rzuć go dalej
+        return throwError(
+          () =>
+            new Error(
+              'Nie udało się pobrać posiłku. Spróbuj ponownie później.'
+            )
+        );
+      })
+    );
+  }
+
 }

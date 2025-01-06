@@ -1,5 +1,74 @@
 @use '../../../../../src/custom-theme.scss' as custom
 
 .grid-container
-  margin: 20px
-  margin-left: 210px
+  display: flex
+  justify-content: center
+  align-items: center
+  padding: 16px
+  min-height: 100vh
+
+mat-card
+  width: 100%
+  max-width: 800px
+  padding: 24px
+  border-radius: 8px
+  display: flex
+  flex-direction: column
+  gap: 24px
+
+.meal-form
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: flex-start
+  align-items: flex-start
+  align-content: flex-start
+  grid-template-columns: 1fr
+  gap: 24px
+
+.imgcontainer
+  display: flex
+  justify-content: center
+
+.meal-img
+  width: 100%
+  max-width: 40vw
+  height: auto
+  border-radius: 8px
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1)
+
+.meal-content
+  display: flex
+  flex-direction: column
+  gap: 16px
+
+.meal-data
+  display: flex
+  flex-direction: column
+
+mat-form-field
+  width: 100%
+
+.action-buttons
+  display: flex
+  justify-content: space-between
+  gap: 16px
+
+  button
+    flex: 1
+
+.flex-container
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: flex-start
+  align-items: flex-start
+  align-content: flex-start
+  .flex-item
+    display: flex
+    flex-direction: column
+    flex-wrap: wrap
+    justify-content: flex-start
+    align-items: flex-start
+    align-content: flex-start
+    flex: 1

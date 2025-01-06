@@ -111,7 +111,14 @@ export class DashComponent {
     this.posilki$ = this.meals.posilki$;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.posilki$.subscribe((posilki) => {
+      console.log('Posiłki załadowane:', posilki);
+      this.groupedPosilki = this.groupByCategory(posilki);
+      this.sumGDAValues(posilki);
+      this.updateChartData(this.createdatapointsforchart(this.sumGDA));
+    });
+
     combineLatest([
       this.meals.getKategorie(),
       this.meals.getCurrData()
@@ -119,7 +126,6 @@ export class DashComponent {
     .pipe(
       switchMap(([kategorie, currData]) => {
         console.log('Kategorie i data załadowane:', kategorie, currData);
-        // Zwracamy observable
         return this.meals.loadPosilki();
       }),
       takeUntil(this.destroy$),
@@ -128,14 +134,9 @@ export class DashComponent {
         return [];
       })
     )
-    .subscribe((posilki) => {
-      console.log('Pobrane posiłki:', posilki);
-      this.groupedPosilki = this.groupByCategory(posilki);
-      this.sumGDAValues(posilki);
-      this.updateChartData(this.createdatapointsforchart(this.sumGDA));
-
-    });
+    .subscribe();
   }
+
 
   ngOnDestroy() {
     // Zakończ subskrypcję, gdy komponent zostanie zniszczony
@@ -202,13 +203,20 @@ export class DashComponent {
 
   // funkcje dotyczące formatowania wykresu w zależnosci od danych}
 
-  deleteMeal(id:number) {
+  deleteMeal(id: number): void {
+    this.meals.deletePosilekofId(id);
+    console.log('Usunięto element', id);
 
+    // Odświeżanie danych po usunięciu
+    this.meals.loadPosilki().subscribe((posilki) => {
+      console.log('Dane zaktualizowane po usunięciu:', posilki);
+      this.groupedPosilki = this.groupByCategory(posilki);
+      this.sumGDAValues(posilki);
+      this.updateChartData(this.createdatapointsforchart(this.sumGDA));
+    });
   }
-  editMeal(id:number) {
-    this.router.navigate(['../change-meal/',id], { relativeTo: this.route });
-  }
-  viewMeal(id:number, mode:string) {
+
+  checkMeal(id:number, mode:string) {
     this.router.navigate(['../change-meal/', id, mode], { relativeTo: this.route });
   }
 
