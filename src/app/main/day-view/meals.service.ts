@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Posilek } from "../../models/Posilek";
 import {
@@ -238,6 +238,34 @@ export class MealsService {
         );
       })
     );
+  }
+
+
+  // Aktualizacja posiłku w zakresie jaki jest edytowany w
+  // sekcji edit-meal - w tym miejscu zmianiana jest tylko
+  //ilosc składnika lub porcji i edytowane są wartości gda tylko!
+  patchPosilekofID(id: number, data: any): Observable<any> {
+    return this.http.put(this.APIURL + this.posilkiUrl + '/' + id, data, this.getAuthOptions()).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obsługa błędów HTTP
+   * @param error - Błąd typu HttpErrorResponse
+   * @returns Observable z błędem
+   */
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Wystąpił nieoczekiwany błąd';
+    if (error.error instanceof ErrorEvent) {
+      // Błąd po stronie klienta
+      errorMessage = `Błąd klienta: ${error.error.message}`;
+    } else {
+      // Błąd po stronie serwera
+      errorMessage = `Błąd serwera: ${error.status} - ${error.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 
 }

@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
 import { CommonModule } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
-import { ActivatedRoute, Data } from "@angular/router";
+import { ActivatedRoute, Data, Router } from "@angular/router";
 import { MealsService } from "../meals.service";
 import { Posilek } from "../../../models/Posilek";
 import { combineLatest, Observable, Subject } from "rxjs";
@@ -47,10 +47,9 @@ export class ChangeMealComponent {
   mode: string = "edit";
   id: number = 0;
   @Input() form!: FormGroup;
-  public posilki$: Observable<Posilek[]>;
+  przepisid:number = 0;
+
   private destroy$ = new Subject<void>();
-  public kategorie$: Observable<Kategoria[]>;
-  public selectedDateValue$: Observable<string>;
 
   constructor(
     private route: ActivatedRoute,
@@ -58,16 +57,14 @@ export class ChangeMealComponent {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private dbConnect: DatabaseConnectorService,
-    private location: Location
+    private location: Location,
+    private router: Router
   ) {
     this.route.params.subscribe((params) => {
       console.log(params);
       this.id = params["id"];
       this.mode = params["mode"];
     });
-    this.selectedDateValue$ = this.meals.currentDate$;
-    this.kategorie$ = this.meals.kategorie$;
-    this.posilki$ = this.meals.posilki$;
 
     this.form = this.fb.group({
       nazwa: [""],
@@ -108,8 +105,8 @@ export class ChangeMealComponent {
           weglowodany: posilek.attributes.posilekGDA.weglowodany,
           tluszcze: posilek.attributes.posilekGDA.tluszcze,
           resetilosc:
-          posilek.attributes.ilosc_produktu ||
-          posilek.attributes.liczba_porcji_przepisu,
+            posilek.attributes.ilosc_produktu ||
+            posilek.attributes.liczba_porcji_przepisu,
         });
 
         console.log("Ustawiono wartości:", this.form.value);
@@ -121,6 +118,7 @@ export class ChangeMealComponent {
           posilek.attributes.przepis?.data?.id ||
           posilek.attributes.produkt?.data?.id;
         console.log("ID:", id);
+        this.przepisid = id;
 
         if (typ == "Posiłek" && id) {
           this.dbConnect.getPrzepisMinimal(id).subscribe({
@@ -151,7 +149,7 @@ export class ChangeMealComponent {
                 kcal100: skladnikMinimal.kcal,
                 bialka100: skladnikMinimal.bialko,
                 weglowodany100: skladnikMinimal.weglowodany,
-                tluszcze100: skladnikMinimal.tluszcze
+                tluszcze100: skladnikMinimal.tluszcze,
               }); // Patchowanie formularza
               console.log("Ustawiono wartości:", this.form.value);
             },
@@ -176,10 +174,22 @@ export class ChangeMealComponent {
     }
 
     this.form.patchValue({
-      kcal: +((this.form.value.kcal100 / this.form.value.liczbamaxporcji) * lp).toFixed(2),
-      bialka: +((this.form.value.bialka100 / this.form.value.liczbamaxporcji) * lp).toFixed(2),
-      weglowodany: +((this.form.value.weglowodany100 / this.form.value.liczbamaxporcji) * lp).toFixed(2),
-      tluszcze: +((this.form.value.tluszcze100 / this.form.value.liczbamaxporcji) * lp).toFixed(2),
+      kcal: +(
+        (this.form.value.kcal100 / this.form.value.liczbamaxporcji) *
+        lp
+      ).toFixed(2),
+      bialka: +(
+        (this.form.value.bialka100 / this.form.value.liczbamaxporcji) *
+        lp
+      ).toFixed(2),
+      weglowodany: +(
+        (this.form.value.weglowodany100 / this.form.value.liczbamaxporcji) *
+        lp
+      ).toFixed(2),
+      tluszcze: +(
+        (this.form.value.tluszcze100 / this.form.value.liczbamaxporcji) *
+        lp
+      ).toFixed(2),
     });
     this.cdr.markForCheck();
   }
@@ -193,11 +203,10 @@ export class ChangeMealComponent {
       kcal: +((this.form.value.kcal100 / 100) * wagag).toFixed(2),
       bialka: +((this.form.value.bialka100 / 100) * wagag).toFixed(2),
       weglowodany: +((this.form.value.weglowodany100 / 100) * wagag).toFixed(2),
-      tluszcze: +((this.form.value.tluszcze100 / 100) * wagag).toFixed(2)
+      tluszcze: +((this.form.value.tluszcze100 / 100) * wagag).toFixed(2),
     });
     this.cdr.markForCheck();
   }
-
 
   ngOnDestroy() {
     // Zakończ subskrypcję, gdy komponent zostanie zniszczony
@@ -218,30 +227,70 @@ export class ChangeMealComponent {
   }
 
   zmianaIlosci() {
-    const typ = this.form.get('typ')?.value;
-    const ilosc = this.form.get('ilosc')?.value;
+    const typ = this.form.get("typ")?.value;
+    const ilosc = this.form.get("ilosc")?.value;
 
     if (ilosc == null || isNaN(ilosc)) {
       return; // Jeśli ilosc jest null lub NaN, zakończ funkcję
     }
 
-    if (typ === 'Posiłek') {
+    if (typ === "Posiłek") {
       this.przepisWyliczMakro(ilosc);
     } else {
       this.produktWyliczMakro(ilosc);
     }
   }
 
-
-
-  getKategoriaDisplayName(kategoria: any): string {
-    // Tu można rozszerzyć logikę na wyświetlanie nazw kategorii na podstawie ID
-    return kategoria ? kategoria : "Nieznana kategoria";
-  }
-
   saveMeal() {
+    const typ = this.form.get("typ")?.value;
+    const ilosc = this.form.get("ilosc")?.value;
 
+    if (ilosc == null || isNaN(ilosc)) {
+      console.error("Nieprawidłowa wartość ilości:", ilosc);
+    }
 
+    //tutaj w zalezności od typu posiłku ustalam wartość jaka powinna
+    //być przekazana do elementu data w putdata
+    let putdata: any;
+    if (typ === "Posiłek") {
+     putdata = {
+        data: {
+          liczba_porcji_przepisu: ilosc.toFixed(2),
+          posilekGDA: {
+            kcal: this.form.value.kcal.toFixed(2),
+            bialka: this.form.value.bialka.toFixed(2),
+            weglowodany: this.form.value.weglowodany.toFixed(2),
+            tluszcze: this.form.value.tluszcze.toFixed(2),
+          },
+        },
+      };
+    } else {
+      putdata = {
+        data: {
+          ilosc_produktu: ilosc.toFixed(2),
+          posilekGDA: {
+            kcal: this.form.value.kcal.toFixed(2),
+            bialka: this.form.value.bialka.toFixed(2),
+            weglowodany: this.form.value.weglowodany.toFixed(2),
+            tluszcze: this.form.value.tluszcze.toFixed(2),
+          },
+        },
+      };
+    }
+    console.log("Wysyłanie:", putdata);
+
+    this.meals.patchPosilekofID(this.id, putdata).subscribe({
+      next: (posilek) => {
+        console.log("Zaktualizowano posiłek:", posilek);
+        this.location.back();
+      },
+      error: (err) => {
+        console.error(
+          "Wystąpił błąd podczas aktualizacji posiłku:",
+          err.message
+        );
+      },
+    });
   }
 
   resetForm() {
@@ -254,9 +303,12 @@ export class ChangeMealComponent {
   getImage() {
     if (this.form.value.url === "") {
       return "../../../assets/place-add-meal.jpg";
+    } else {
+      return this.dbConnect.APIURL + this.form.value.url;
     }
-    else{
-    return this.dbConnect.APIURL + this.form.value.url;
   }
+
+  navigateToRecipe(){
+    this.router.navigate(['/logged/recipes/view', this.przepisid]);
   }
 }

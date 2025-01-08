@@ -103,6 +103,9 @@ export class DatabaseConnectorService {
                 weglowodany: data.data[i].attributes.gda.weglowodany,
               },
               liczbaporcji: data.data[i].attributes.liczbaPorcji,
+              imageurl: data.data[i].attributes.przepisimg.data
+                ? data.data[i].attributes.przepisimg.data.attributes.url
+                : ''
             };
             recipes.push(p);
           }

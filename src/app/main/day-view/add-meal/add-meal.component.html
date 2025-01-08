@@ -3,60 +3,144 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>Dodaj nowy</mat-card-title>
-      <mat-card-subtitle>Posiłek lub składnik</mat-card-subtitle>
+      <mat-card-subtitle>Posiłek lub produkt</mat-card-subtitle>
     </mat-card-header>
-    <img matCardImage src="../../../../assets/place-add-meal.jpg" />
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="save()">
-        <!-- Nazwa -->
-        <mat-form-field appearance="fill">
-          <mat-label>Nazwa</mat-label>
-          <input matInput formControlName="name" />
-          <mat-error *ngIf="form.get('name')?.invalid"
-            >Podaj poprawną nazwę</mat-error
-          >
-        </mat-form-field>
+      <form [formGroup]="form" (ngSubmit)="saveMeal()">
+        <ng-container class="imgcontainer">
+          <img [src]="getImage()" alt="Brak zasobu" class="meal-img" />
+        </ng-container>
+        <ng-container class="meal-content">
+          <ng-container class="meal-data">
 
-        <!-- Typ: Posiłek lub Składnik -->
-        <mat-radio-group formControlName="type">
-          <mat-radio-button value="meal">Posiłek</mat-radio-button>
-          <mat-radio-button value="ingredient">Składnik</mat-radio-button>
-        </mat-radio-group>
+            <div class="flex-container">
+              <mat-label>Wybierz</mat-label>
+              <mat-radio-group formControlName="typ">
+                <mat-radio-button value="meal">Przepis</mat-radio-button>
+                <mat-radio-button value="ingredient">Produkt</mat-radio-button>
+              </mat-radio-group>
+            </div>
 
-        <!-- Kategoria -->
-        <mat-form-field appearance="fill">
-          <mat-label>Kategoria</mat-label>
-          <mat-select formControlName="category">
-            <mat-option
-              *ngFor="let category of categories"
-              [value]="category.id"
-            >
-              {{ category.nazwa }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="form.get('category')?.invalid"
-            >Wybierz kategorię</mat-error
-          >
-        </mat-form-field>
+            <mat-form-field appearance="fill">
+              <mat-label>Kategoria</mat-label>
+              <mat-select formControlName="kategoria" required>
+                <mat-option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.nazwa }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.get('kategoria')?.invalid">Wybierz kategorię</mat-error>
+            </mat-form-field>
+
+            <!-- Nowe pole wyboru: Przepis lub Produkt -->
+            <mat-form-field appearance="fill">
+              <mat-label *ngIf="isMeal">Wybierz przepis</mat-label>
+              <mat-label *ngIf="!isMeal">Wybierz produkt</mat-label>
+              <mat-select formControlName="nazwa" required (selectionChange)="onSelectChange($event)">
+                <mat-option *ngFor="let item of items" [value]="item.id">
+                  {{ item.nazwa }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.get('nazwa')?.invalid">Wybierz nazwę</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Liczba porcji / Ilość produktu</mat-label>
+              <input matInput type="number" (keypress)="allowOnlyNumbers($event)" formControlName="ilosc"
+              color="accent" (input)="zmianaIlosci()" />
+            </mat-form-field>
 
         <!-- GDA -->
-        <h3>Makroskładniki</h3>
-        <mat-form-field appearance="fill">
-          <mat-label>Kalorie (kcal)</mat-label>
-          <input matInput type="number" formControlName="kcal" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Białka (g)</mat-label>
-          <input matInput type="number" formControlName="bialka" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Węglowodany (g)</mat-label>
-          <input matInput type="number" formControlName="weglowodany" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Tłuszcze (g)</mat-label>
-          <input matInput type="number" formControlName="tluszcze" />
-        </mat-form-field>
+        <div class="flex-container">
+          <div class="flex-item">
+            <ng-container class="macro-values">
+              <mat-form-field appearance="fill">
+                <mat-label>Kcal</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="kcal"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Białka (g)</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="bialka"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Węglowodany (g)</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="weglowodany"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Tłuszcze (g)</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="tluszcze"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+            </ng-container>
+          </div>
+
+          <div class="flex-item">
+            <ng-container class="pervalue">
+              <mat-form-field appearance="fill">
+                <mat-label>Kcal/100g/całość przepisu</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="kcal100"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Białka (g)/100g/całość przepisu</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="bialka100"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Węglowodany (g)/100g/całość przepisu</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="weglowodany100"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Tłuszcze (g)/100g/całość przepisu</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="tluszcze100"
+                  [readonly]="true"
+                />
+              </mat-form-field>
+            </ng-container>
+          </div>
+        </div>
+        </ng-container>
+        </ng-container>
       </form>
     </mat-card-content>
     <mat-card-actions align="start">
