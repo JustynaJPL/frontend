@@ -13,6 +13,7 @@ import {
 import { GDA } from "../../models/GDA";
 import { Kategoria, KategorieResponse } from "../../models/Kategoria";
 import { switchMap, take, tap, finalize } from "rxjs/operators";
+import { connect } from "http2";
 
 @Injectable({
   providedIn: "root",
@@ -104,7 +105,7 @@ export class MealsService {
    * @param date - obiekt Date
    * @returns - data w formacie 'yyyy-MM-dd'
    */
-  private formatDate(date: Date): string {
+  public formatDate(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -124,21 +125,22 @@ export class MealsService {
       return of([]);
     }
 
-    return combineLatest([of(userId), this.currentDate$])
-      .pipe(
-        take(1),
-        switchMap(([userId, date]) =>
-          this.http.get(this.createPosilekOfUserOfDataRequest(userId, date), this.getAuthOptions())
-        ),
-        map((apiResponse: any) => this.transformApiResponse(apiResponse)),
-        tap((posilki) => this.posilkiSubject.next(posilki)), // Emituj nowe dane
-        catchError((error) => {
-          console.error("Błąd podczas pobierania posiłków:", error);
-          return of([]);
-        })
-      );
+    return combineLatest([of(userId), this.currentDate$]).pipe(
+      take(1),
+      switchMap(([userId, date]) =>
+        this.http.get(
+          this.createPosilekOfUserOfDataRequest(userId, date),
+          this.getAuthOptions()
+        )
+      ),
+      map((apiResponse: any) => this.transformApiResponse(apiResponse)),
+      tap((posilki) => this.posilkiSubject.next(posilki)), // Emituj nowe dane
+      catchError((error) => {
+        console.error("Błąd podczas pobierania posiłków:", error);
+        return of([]);
+      })
+    );
   }
-
 
   private getUserId(): number | null {
     const userIdString = localStorage.getItem("userId");
@@ -191,25 +193,26 @@ export class MealsService {
   }
 
   deletePosilekofId(id: number): void {
-    this.http.delete(this.APIURL + this.posilkiUrl + '/' + id, this.getAuthOptions())
+    this.http
+      .delete(this.APIURL + this.posilkiUrl + "/" + id, this.getAuthOptions())
       .subscribe({
         next: () => {
-          console.log('Element został usunięty:', id);
+          console.log("Element został usunięty:", id);
           // Automatyczne odświeżenie danych po usunięciu
           this.loadPosilki().subscribe((posilki) => {
             this.posilkiSubject.next(posilki); // Emituj nowe dane
           });
         },
         error: (error) => {
-          console.error('Błąd podczas usuwania elementu:', error);
-        }
+          console.error("Błąd podczas usuwania elementu:", error);
+        },
       });
   }
 
-   //pobranie konkretnego posiłku z bazy zakładając że uzytkownik ma do niego dostęp - jest to
-   //zaopiekowane w ten sposób że zapytanie w poprzednim oknie wypisuje tylko te które dotyczą już tego uzytkownika
-    //posilekid - to numer tego posiłku w tablicy posiłki w bazie danych unikalny dla każdego rekordu
-   getPosilekofIdofUser(posilekid: number): Observable<any> {
+  //pobranie konkretnego posiłku z bazy zakładając że uzytkownik ma do niego dostęp - jest to
+  //zaopiekowane w ten sposób że zapytanie w poprzednim oknie wypisuje tylko te które dotyczą już tego uzytkownika
+  //posilekid - to numer tego posiłku w tablicy posiłki w bazie danych unikalny dla każdego rekordu
+  getPosilekofIdofUser(posilekid: number): Observable<any> {
     const url = `${this.APIURL}${this.posilkiUrl}?filters[id][$eq]=${posilekid}&fields[0]=id&fields[1]=ilosc_produktu&fields[2]=liczba_porcji_przepisu&populate[user][fields][0]=id&populate[kategoria][fields][0]=nazwakategori&populate[przepis][fields][0]=id&populate[przepis][fields][1]=nazwaPrzepisu&populate[produkt][fields][0]=id&populate[produkt][fields][1]=nazwaProduktu&populate[posilekGDA]=*`;
 
     return this.http.get(url).pipe(
@@ -218,36 +221,37 @@ export class MealsService {
         return response.data[0] || null; // Załóżmy, że API zwraca dane w `data`
       }),
       catchError((error) => {
-        console.error('Błąd podczas pobierania posiłku:', error);
+        console.error("Błąd podczas pobierania posiłku:", error);
 
         // Możesz dodać logikę w zależności od statusu błędu
         if (error.status === 404) {
-          console.error('Nie znaleziono posiłku o podanym ID.');
+          console.error("Nie znaleziono posiłku o podanym ID.");
         } else if (error.status === 401) {
-          console.error('Brak autoryzacji do wykonania tego zapytania.');
+          console.error("Brak autoryzacji do wykonania tego zapytania.");
         } else {
-          console.error('Nieznany błąd.');
+          console.error("Nieznany błąd.");
         }
 
         // Zwróć bardziej opisowy błąd lub rzuć go dalej
         return throwError(
           () =>
-            new Error(
-              'Nie udało się pobrać posiłku. Spróbuj ponownie później.'
-            )
+            new Error("Nie udało się pobrać posiłku. Spróbuj ponownie później.")
         );
       })
     );
   }
 
-
   // Aktualizacja posiłku w zakresie jaki jest edytowany w
   // sekcji edit-meal - w tym miejscu zmianiana jest tylko
   //ilosc składnika lub porcji i edytowane są wartości gda tylko!
   patchPosilekofID(id: number, data: any): Observable<any> {
-    return this.http.put(this.APIURL + this.posilkiUrl + '/' + id, data, this.getAuthOptions()).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .put(
+        this.APIURL + this.posilkiUrl + "/" + id,
+        data,
+        this.getAuthOptions()
+      )
+      .pipe(catchError(this.handleError));
   }
 
   /**
@@ -256,7 +260,7 @@ export class MealsService {
    * @returns Observable z błędem
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'Wystąpił nieoczekiwany błąd';
+    let errorMessage = "Wystąpił nieoczekiwany błąd";
     if (error.error instanceof ErrorEvent) {
       // Błąd po stronie klienta
       errorMessage = `Błąd klienta: ${error.error.message}`;
@@ -268,4 +272,63 @@ export class MealsService {
     return throwError(() => new Error(errorMessage));
   }
 
+  // Dodanie nowego posiłku do bazy danych
+
+  addMealPosilek(meal: any, userid: number): Observable<any> {
+    console.log("Dodawanie posiłku:", meal);
+    const data = {
+      data: {
+        data_posilku: meal.dataposilku,
+        liczba_porcji_przepisu: meal.ilosc,
+        user: {
+          connect: [userid],
+        },
+        kategoria: {
+          connect: [meal.kategoria],
+        },
+        przepis: {
+          connect: [meal.nazwa],
+        },
+        produkt: null,
+        posilekGDA: {
+          kcal: meal.kcal,
+          bialka: meal.bialka,
+          tluszcze: meal.tluszcze,
+          weglowodany: meal.weglowodany,
+        }
+      }
+    };
+    return this.http
+      .post(this.APIURL + this.posilkiUrl, data, this.getAuthOptions())
+      .pipe(catchError(this.handleError));
+  }
+
+  addMealProdukt(meal: any, userid:number): Observable<any> {
+    console.log("Dodawanie posiłku:", meal);
+    const data = {
+      data: {
+        data_posilku: meal.dataposilku,
+        ilosc_produktu: meal.ilosc,
+        user: {
+          connect: [userid],
+        },
+        kategoria: {
+          connect: [meal.kategoria],
+        },
+        produkt: {
+          connect: [meal.nazwa],
+        },
+        przepis: null,
+        posilekGDA: {
+          kcal: meal.kcal,
+          bialka: meal.bialka,
+          tluszcze: meal.tluszcze,
+          weglowodany: meal.weglowodany,
+        }
+      }
+    };
+    return this.http
+      .post(this.APIURL + this.posilkiUrl, data, this.getAuthOptions())
+      .pipe(catchError(this.handleError));
+  }
 }

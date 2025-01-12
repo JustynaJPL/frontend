@@ -21,6 +21,11 @@ const routes: Routes = [
     canActivate: [AuthGuard] // Zabezpieczenie trasy
   },
   {
+    path: 'products',
+    loadChildren: () => import('./products/products.module').then(m => m.ProductsModule),
+    canActivate: [AuthGuard] // Zabezpieczenie trasy
+  },
+  {
     path: 'plan',
     loadChildren: () => import('./current-plan/current-plan.module').then(m => m.CurrentPlanModule),
     canActivate: [AuthGuard] // Zabezpieczenie trasy

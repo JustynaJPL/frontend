@@ -21,6 +21,8 @@ import { DatabaseConnectorService } from "../../../database-services/database-co
 import { ChangeDetectorRef } from "@angular/core";
 import { Przepis } from "../../../models/Przepis";
 import { Produkt } from "../../../models/Produkt";
+import { takeUntil } from "rxjs/operators";
+import { Subject } from "rxjs";
 
 @Component({
   selector: "app-add-meal",
@@ -37,7 +39,7 @@ import { Produkt } from "../../../models/Produkt";
     MatButtonModule,
     MatRadioModule,
     MatSelectModule,
-    AppNaviComponent
+    AppNaviComponent,
   ],
 })
 export class AddMealComponent {
@@ -45,10 +47,13 @@ export class AddMealComponent {
   form: FormGroup; // Formularz dodawania posiłku/składnika
   isMeal: boolean = true; // Flaga: czy dodajemy posiłek czy składnik
   katId: number = 1;
-  recipes:Przepis[] = [];
-  produkt:Produkt[] = [];
+  recipes: Przepis[] = [];
+  produkt: Produkt[] = [];
   items: { id: number; nazwa: string }[] = []; // Lista przepisów lub
   // //produktów które są wyświetlane w select po wybraniu radiobuttona
+
+  private destroy$ = new Subject<void>();
+  userid: number = 1;
 
   constructor(
     private fb: FormBuilder,
@@ -59,12 +64,13 @@ export class AddMealComponent {
     private dbConnect: DatabaseConnectorService,
     private route: ActivatedRoute
   ) {
-
     this.form = this.fb.group({
+      id: [null],
+      dataposilku: [""],
       nazwa: [""],
-      kategoria: [null , Validators.required],
+      kategoria: [null, Validators.required],
       ilosc: [null, Validators.required],
-      typ: ["meal" , Validators.required], // Posiłek/Składnik
+      typ: ["meal", Validators.required], // Posiłek/Składnik
       kcal: [0, [Validators.required, Validators.min(0)]],
       bialka: [0, [Validators.required, Validators.min(0)]],
       weglowodany: [0, [Validators.required, Validators.min(0)]],
@@ -81,14 +87,29 @@ export class AddMealComponent {
     this.route.params.subscribe((params) => {
       console.log(params);
       this.katId = params["id"];
-      this.form.get('kategoria')?.setValue(this.katId);
+      this.form.get("kategoria")?.setValue(this.katId);
     });
   }
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
-      this.katId = +params['id']; // Pobierz parametr id
-      console.log('Wybrana domyślna kategoria: ', this.katId);
+      this.katId = +params["id"]; // Pobierz parametr -
+      // numer kategorii jaka była wybrana w poprzednim ekranie
+      console.log("Wybrana domyślna kategoria: ", this.katId);
+    });
+
+    this.mealsService.currentDate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((date) => {
+        console.log("Data posiłku: ", date);
+        this.form.get("dataposilku")?.setValue(date);
+      });
+
+    this.dbConnect.getUserDBID().subscribe({
+      next: (id: number) => {
+        this.userid = id;
+      },
+      error: (err) => console.error("Nie udało się pobrać ID użytkownika", err),
     });
 
     // Pobierz listę kategorii z serwisu
@@ -101,39 +122,39 @@ export class AddMealComponent {
           (category) => category.id === this.katId
         );
         if (selectedCategory) {
-          this.form.get('kategoria')?.setValue(this.katId);
+          this.form.get("kategoria")?.setValue(this.katId);
         }
       },
-      error: (err) => console.error('Nie udało się pobrać kategorii', err),
+      error: (err) => console.error("Nie udało się pobrać kategorii", err),
     });
 
     // Nasłuchuj zmiany typu (Posiłek lub Produkt)
-    this.form.get('typ')?.valueChanges.subscribe((value) => {
-      this.isMeal = value === 'meal';
-      this.form.get('nazwa')?.reset(null, { emitEvent: false });
-      this.form.get('ilosc')?.reset(null, { emitEvent: false });
-      this.form.get('bialka')?.reset(null, { emitEvent: false });
-      this.form.get('kcal')?.reset(null, { emitEvent: false });
-      this.form.get('weglowodany')?.reset(null, { emitEvent: false });
-      this.form.get('tluszcze')?.reset(null, { emitEvent: false });
+    this.form.get("typ")?.valueChanges.subscribe((value) => {
+      this.isMeal = value === "meal";
+      this.form.get("nazwa")?.reset(null, { emitEvent: false });
+      this.form.get("ilosc")?.reset(null, { emitEvent: false });
+      this.form.get("bialka")?.reset(null, { emitEvent: false });
+      this.form.get("kcal")?.reset(null, { emitEvent: false });
+      this.form.get("weglowodany")?.reset(null, { emitEvent: false });
+      this.form.get("tluszcze")?.reset(null, { emitEvent: false });
 
-      this.form.get('bialka100')?.reset(null, { emitEvent: false });
-      this.form.get('kcal100')?.reset(null, { emitEvent: false });
-      this.form.get('weglowodany100')?.reset(null, { emitEvent: false });
-      this.form.get('tluszcze100')?.reset(null, { emitEvent: false });
+      this.form.get("bialka100")?.reset(null, { emitEvent: false });
+      this.form.get("kcal100")?.reset(null, { emitEvent: false });
+      this.form.get("weglowodany100")?.reset(null, { emitEvent: false });
+      this.form.get("tluszcze100")?.reset(null, { emitEvent: false });
+      this.form.get("liczbamaxporcji")?.reset(null, { emitEvent: false });
 
       if (this.isMeal) {
         this.loadRecipes(); // Załaduj przepisy
       } else {
         this.loadProducts(); // Załaduj produkty
       }
-
     });
 
     // Domyślnie ustaw na „Posiłek” i załaduj przepisy
-    this.form.get('typ')?.setValue('meal');
+    this.form.get("typ")?.setValue("meal");
     this.loadRecipes();
-    this.form.get('url')?.valueChanges.subscribe((newUrl) => {
+    this.form.get("url")?.valueChanges.subscribe((newUrl) => {
       this.getImage();
     });
   }
@@ -148,13 +169,11 @@ export class AddMealComponent {
             nazwa: recipe.nazwaPrzepisu,
           }))
           .sort((a, b) => a.nazwa.localeCompare(b.nazwa)); // Sortowanie po nazwie
-        console.log('Załadowano i posortowano przepisy:', this.items);
+        console.log("Załadowano i posortowano przepisy:", this.items);
       },
-      error: (err) => console.error('Nie udało się pobrać przepisów', err),
+      error: (err) => console.error("Nie udało się pobrać przepisów", err),
     });
   }
-
-
 
   loadProducts() {
     this.dbConnect.getAllProdukts().subscribe({
@@ -164,24 +183,27 @@ export class AddMealComponent {
           id: product.id,
           nazwa: product.nazwaProduktu,
         }));
-        console.log('Załadowano produkty:', this.produkt);
+        console.log("Załadowano produkty:", this.produkt);
       },
-      error: (err) => console.error('Nie udało się pobrać produktów', err),
+      error: (err) => console.error("Nie udało się pobrać produktów", err),
     });
   }
 
   onSelectChange(event: any) {
     const selectedValue = event.value; // Pobierz wybraną wartość (id elementu)
-    console.log('Wybrano element o id:', selectedValue);
+    console.log("Wybrano element o id:", selectedValue);
 
     if (this.isMeal) {
       // Jeśli wybrano posiłek (przepis)
-      const selectedRecipe = this.recipes.find((recipe) => recipe.id === selectedValue);
+      const selectedRecipe = this.recipes.find(
+        (recipe) => recipe.id === selectedValue
+      );
 
       if (selectedRecipe) {
-        console.log('Wybrano przepis:', selectedRecipe);
+        console.log("Wybrano przepis:", selectedRecipe);
         this.form.patchValue({
-          url: selectedRecipe.imageurl || '',
+          id: selectedRecipe.id,
+          url: selectedRecipe.imageurl || "",
           kcal100: selectedRecipe.gda.kcal,
           bialka100: selectedRecipe.gda.bialka,
           weglowodany100: selectedRecipe.gda.weglowodany,
@@ -189,13 +211,15 @@ export class AddMealComponent {
           liczbamaxporcji: selectedRecipe.liczbaporcji || 1,
         });
       }
-      this.form.get('ilosc')?.setValue(''); // Wyczyść pole ilość
+      this.form.get("ilosc")?.setValue(""); // Wyczyść pole ilość
     } else {
       // Jeśli wybrano produkt
-      const selectedProduct = this.produkt.find((product) => product.id === selectedValue);
+      const selectedProduct = this.produkt.find(
+        (product) => product.id === selectedValue
+      );
 
       if (selectedProduct) {
-        console.log('Wybrano produkt:', selectedProduct);
+        console.log("Wybrano produkt:", selectedProduct);
         this.form.patchValue({
           kcal100: selectedProduct.kcal,
           bialka100: selectedProduct.bialko,
@@ -204,14 +228,12 @@ export class AddMealComponent {
           liczbamaxporcji: 1, // Domyślna wartość dla produktu
         });
       }
-      this.form.get('ilosc')?.setValue(''); // Wyczyść pole ilość
+      this.form.get("ilosc")?.setValue(""); // Wyczyść pole ilość
     }
   }
 
-
-
   getImage() {
-    console.log('Aktualizacja obrazka:', this.form.value.url);
+    console.log("Aktualizacja obrazka:", this.form.value.url);
     if (this.form.value.url === "") {
       return "../../../assets/place-add-meal.jpg";
     } else {
@@ -220,33 +242,45 @@ export class AddMealComponent {
   }
 
   saveMeal() {
-    // if (this.form.invalid) {
-    //   console.warn('Formularz jest niepoprawny');
-    //   return;
-    // }
-    // const newItem = {
-    //   name: this.form.value.name,
-    //   categoryId: this.form.value.category,
-    //   isMeal: this.isMeal,
-    //   gda: {
-    //     kcal: this.form.value.calories,
-    //     protein: this.form.value.protein,
-    //     carbs: this.form.value.carbs,
-    //     fats: this.form.value.fats,
-    //   },
-    // };
-    // // Wyślij dane do API
-    // this.mealsService
-    //   .addMealOrIngredient(newItem)
-    //   .subscribe({
-    //     next: () => {
-    //       console.log('Dodano element:', newItem);
-    //       this.router.navigate(['/']); // Przekierowanie na główną stronę
-    //     },
-    //     error: (err) =>
-    //       console.error('Błąd podczas dodawania elementu:', err),
-    //   });
+    if (this.form.invalid) {
+      console.error("Formularz jest niepoprawny");
+      return;
+    } else {
+      const meal = this.form.value;
+      console.log("Zapisywanie posiłku:", meal);
+
+      if (this.isMeal) {
+        this.mealsService.addMealPosilek(meal, this.userid).subscribe({
+          next: () => {
+            console.log("Posiłek został zapisany");
+            this.router.navigate(["/logged/dashboard/today"]);
+          },
+          error: (err) => {
+            console.error("Nie udało się zapisać posiłku", err);
+          },
+        });
+      } else {
+        this.mealsService.addMealProdukt(meal, this.userid).subscribe({
+          next: () => {
+            console.log("Produkt został zapisany");
+            this.router.navigate(["/logged/dashboard/today"]);
+          },
+          error: (err) => {
+            console.error("Nie udało się zapisać produktu", err);
+          },
+        });
+      }
+    }
   }
+
+  addRecipe() {
+    this.router.navigate(["/logged/recipes/new"]);
+  }
+
+  addProduct() {
+    this.router.navigate(["/logged/products/new"]);
+  }
+
   cancel() {
     this.location.back();
   }
@@ -312,4 +346,42 @@ export class AddMealComponent {
     }
   }
 
+  checkRecipeWithId() {
+    if (this.form.get("id")?.value === null) {
+      this.form.get("id")?.setErrors({ required: true });
+    } else {
+      this.router.navigate([
+        "/logged/recipes/view",
+        this.form.get("id")?.value,
+      ]);
+    }
+  }
+
+  checkProductwithId() {
+    if (this.form.get("id")?.value === null) {
+      this.form.get("id")?.setErrors({ required: true });
+    } else {
+      this.router.navigate([
+        "/logged/products/view",
+        this.form.get("id")?.value,
+      ]);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  zmianaDaty(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input && input.value) {
+      console.log("Zmiana daty:", input.value);
+      const newDate = new Date(input.value);
+      let formattedDate = this.mealsService.formatDate(newDate);
+      this.mealsService.setDate(formattedDate);
+    } else {
+      console.error("Data jest null");
+    }
+  }
 }
