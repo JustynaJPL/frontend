@@ -1,1 +1,117 @@
-<p>new-products works!</p>
+<app-app-navi></app-app-navi>
+<div class="container">
+  <div class="back">
+    <button mat-raised-button color="accent" (click)="goBack()">
+      <mat-icon class="mat-18">arrow_back</mat-icon>
+      <label for="">Powrót</label>
+    </button>
+  </div>
+
+  <mat-card class="new-product">
+    <mat-card-header>
+      <mat-card-title>Dodaj nowy produkt</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="newProductForm" (ngSubmit)="onSubmit()">
+        <div class="input-container">
+          <mat-form-field>
+            <input
+              matInput
+              placeholder="Nazwa produktu"
+              type="text"
+              formControlName="nazwaProduktu"
+              (keyup)="checkForDoubles($event)"
+            />
+            <mat-error
+              *ngIf="newProductForm.get('nazwaProduktu')?.hasError('required')"
+            >
+              Pole jest wymagane
+            </mat-error>
+            <mat-error
+              *ngIf="newProductForm.get('nazwaProduktu')?.hasError('duplicate')"
+            >
+            W bazie istnieje już produkt o takiej nazwie
+          </mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input
+              matInput
+              placeholder="Kcal na 100g"
+              type="number"
+              formControlName="kcal"
+              (keydown)="handleInput($event)"
+            />
+            <mat-error *ngIf="newProductForm.get('kcal')?.hasError('required')">
+              Pole jest wymagane
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input
+              matInput
+              placeholder="Białka na 100g"
+              type="number"
+              formControlName="bialko"
+              (keydown)="handleInput($event)"
+            />
+            <mat-error
+              *ngIf="newProductForm.get('bialko')?.hasError('required')"
+            >
+              Pole jest wymagane
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input
+              matInput
+              placeholder="Tłuszczy na 100g"
+              formControlName="tluszcze"
+              type="number"
+              (keydown)="handleInput($event)"
+            />
+            <mat-error
+              *ngIf="newProductForm.get('tluszcze')?.hasError('required')"
+            >
+              Pole jest wymagane
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input
+              matInput
+              placeholder="Węglowodany na 100g"
+              type="number"
+              formControlName="weglowodany"
+              (keydown)="handleInput($event)"
+            />
+            <mat-error
+              *ngIf="newProductForm.get('weglowodany')?.hasError('required')"
+            >
+              Pole jest wymagane
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <mat-card-actions>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="
+              newProductForm.pristine ||
+              newProductForm.untouched ||
+              newProductForm.invalid
+            "
+          >
+            Dodaj
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="resetForm()"
+            [disabled]="newProductForm.pristine && newProductForm.untouched"
+          >
+            Resetuj ustawienia
+          </button>
+        </mat-card-actions>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
