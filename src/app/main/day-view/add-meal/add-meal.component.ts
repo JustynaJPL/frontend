@@ -221,6 +221,7 @@ export class AddMealComponent {
       if (selectedProduct) {
         console.log("Wybrano produkt:", selectedProduct);
         this.form.patchValue({
+          id: selectedProduct.id,
           kcal100: selectedProduct.kcal,
           bialka100: selectedProduct.bialko,
           weglowodany100: selectedProduct.weglowodany,
@@ -357,12 +358,17 @@ export class AddMealComponent {
     }
   }
 
-  checkProductwithId() {
+  checkProductWithId() {
     if (this.form.get("id")?.value === null) {
       this.form.get("id")?.setErrors({ required: true });
+      console.error("Nie podano id produktu");
     } else {
+      console.log(
+        "Przekierowanie do produktu o id:",
+        this.form.get("id")?.value
+      );
       this.router.navigate([
-        "/logged/products/view",
+        "/logged/products/",'view',
         this.form.get("id")?.value,
       ]);
     }

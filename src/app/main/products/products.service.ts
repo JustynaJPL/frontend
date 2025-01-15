@@ -1,4 +1,4 @@
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { response } from 'express';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
@@ -22,29 +22,37 @@ export class ProductsService {
   public produkty$ = this.produktySubject.asObservable();
 
   constructor(private http:HttpClient) {
-    this.getProducts();
    }
 
-   getProducts(): void {
-    this.http.get<{data: any[]}>(this.ApiURL + this.productsURL, this.getAuthOptions())
+   getProducts(): Observable<Produkt[]> {
+    return this.http.get<{ data: any[] }>(this.ApiURL + this.productsURL, this.getAuthOptions())
       .pipe(
-        map(response => response.data.map(item => ({
-          id: item.id,
-          nazwaProduktu: item.attributes.nazwaProduktu,
-          kcal: item.attributes.kcal,
-          tluszcze: item.attributes.tluszcze,
-          weglowodany: item.attributes.weglowodany,
-          bialko: item.attributes.bialko
-        }))),
+        map(response => this.parseProducts(response)),
+        tap(products => this.produktySubject.next(products)),
         catchError(error => {
           console.error('Error fetching products', error);
           return of([]); // Zwraca pustą tablicę w przypadku błędu
         })
       );
-      // .subscribe(products => {
-      //   console.log('Fetched products', products);
-      //   this.produktySubject.next(products); // Aktualizacja BehaviorSubject
-      // });
+  }
+
+  private parseProducts(response: { data: any[] }): Produkt[] {
+    if (!response.data) {
+      throw new Error('Response format is incorrect or data is missing');
+    }
+    return response.data.map(item => ({
+      id: item.id,
+      nazwaProduktu: item.attributes.nazwaProduktu,
+      kcal: item.attributes.kcal,
+      tluszcze: item.attributes.tluszcze,
+      weglowodany: item.attributes.weglowodany,
+      bialko: item.attributes.bialko
+    }));
+  }
+
+  // Dodatkowy getter dla BehaviorSubject, który zwraca Observable
+  get produktyObservable(): Observable<Produkt[]> {
+    return this.produktySubject.asObservable();
   }
 
   addProduct(product: Produkt): Observable<any> {
@@ -74,7 +82,7 @@ export class ProductsService {
       );
   }
 
-  editProduct(product: Produkt): void {
+  editProduct(product: Produkt): Observable<Produkt[] | null> {
     const data = {
       data: {
           nazwaProduktu: product.nazwaProduktu,
@@ -84,19 +92,21 @@ export class ProductsService {
           bialko: product.bialko
       }
     };
-    this.http.put(this.ApiURL + this.productsURL + product.id, data, this.getAuthOptions())
+
+    // Zwracanie Observable zamiast tworzenia subskrypcji
+    return this.http.put<Produkt[]>(this.ApiURL + this.productsURL + product.id, data, this.getAuthOptions())
       .pipe(
         catchError(error => {
           console.error('Failed to edit product', error);
-          // Tutaj możesz dodać powiadomienie dla użytkownika
           alert('Nie udało się edytować produktu. Sprawdź logi dla szczegółów.');
           return of(null); // Kontynuacja strumienia bez przerywania aplikacji
+        }),
+        tap(() => {
+          this.getProducts(); // Odświeżenie listy produktów
         })
-      )
-      .subscribe(() => {
-        this.getProducts(); // Odświeżenie listy produktów
-      });
+      );
   }
+
 
   deleteProduct(id: number): void {
     this.http.delete(this.ApiURL + this.productsURL + id, this.getAuthOptions())
@@ -111,6 +121,26 @@ export class ProductsService {
       .subscribe(() => {
         this.getProducts(); // Odświeżenie listy produktów
       });
+  }
+
+  getProductWithID(id: number): Observable<Produkt | null> {
+    return this.http.get<{data: any}>(this.ApiURL + this.productsURL + id, this.getAuthOptions())
+      .pipe(
+        map(response => ({
+          id: response.data.id,
+          nazwaProduktu: response.data.attributes.nazwaProduktu,
+          kcal: response.data.attributes.kcal,
+          tluszcze: response.data.attributes.tluszcze,
+          weglowodany: response.data.attributes.weglowodany,
+          bialko: response.data.attributes.bialko
+        })),
+        catchError(error => {
+          console.error('Failed to fetch product', error);
+          // Tutaj możesz dodać powiadomienie dla użytkownika
+          alert('Nie udało się pobrać produktu. Sprawdź logi dla szczegółów.');
+          return of(null); // Kontynuacja strumienia bez przerywania aplikacji
+        })
+      );
   }
 
 }

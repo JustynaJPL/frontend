@@ -1,4 +1,49 @@
 <app-app-navi></app-app-navi>
-<div class="grid-container">
+<div class="container">
+  <mat-table [dataSource]="datasource">
+    <ng-container matColumnDef="nazwa">
+      <mat-header-cell *matHeaderCellDef> Nazwa produktu </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.nazwaProduktu }}
+      </mat-cell>
+    </ng-container>
 
+    <ng-container matColumnDef="kcal">
+      <mat-header-cell *matHeaderCellDef> Kcal na 100g</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.kcal }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="bialka">
+      <mat-header-cell *matHeaderCellDef> Białka</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.bialko }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="tluszcze">
+      <mat-header-cell *matHeaderCellDef> Tłuszcze</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.tluszcze }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="weglowodany">
+      <mat-header-cell *matHeaderCellDef> Węglowodany</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ element.weglowodany }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
 </div>
