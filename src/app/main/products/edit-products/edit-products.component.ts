@@ -63,14 +63,14 @@ export class EditProductsComponent {
   }
 
   ngOnInit(): void {
-    this.prodService.getProducts()
+    this.prodService.getProdukts()
       .pipe(takeUntil(this.destroy$))
       .subscribe((produkty) => {
         this.produkty = produkty;
         console.log(produkty);
       });
 
-    this.prodService.getProductWithID(this.id)
+    this.prodService.getProduktWithID(this.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe((product) => {
         if (product) {
@@ -105,7 +105,7 @@ export class EditProductsComponent {
   onSubmit() {
     console.log("Form", this.form.value);
     if (this.mode === "edit") {
-      this.prodService.editProduct(this.form.value)
+      this.prodService.editProdukt(this.form.value)
       .subscribe((response) => {
         console.log("Product updated", response);
         this.location.back();

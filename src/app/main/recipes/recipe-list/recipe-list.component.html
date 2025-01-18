@@ -1,9 +1,13 @@
 <app-app-navi></app-app-navi>
 <div class="container">
+  <div class="search-container">
   <mat-form-field>
-    <label for="">Wyszukaj: </label>
-    <input matInput (input)="applyFilter($event)" placeholder="Wpisz tekst" />
+    <input matInput (input)="applyFilter($event)" placeholder="Szukaj" />
   </mat-form-field>
+  <button mat-raised-button class="but-add" color="primary" routerLink="../new">
+    <mat-icon class="mat-18">add</mat-icon>
+  </button>
+  </div>
 
   <div fxLayout="row" style="height: 84vh">
     <div
@@ -92,13 +96,11 @@
 
       <mat-paginator
         [length]="przepisy.length"
-        [pageSize]="15"
+        [pageSize]="10"
         [pageSizeOptions]="[5, 10,15, 20, 50, 100]"
       ></mat-paginator>
     </div>
   </div>
 
-  <button mat-raised-button class="addbut" color="accent" routerLink="../new">
-    <mat-icon class="mat-18">add</mat-icon>
-  </button>
+
 </div>

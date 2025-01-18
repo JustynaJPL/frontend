@@ -71,7 +71,7 @@ export class NewProductsComponent {
   }
 
   onSubmit(): void {
-    this.prodService.addProduct(this.newProductForm.value).subscribe({
+    this.prodService.addProdukt(this.newProductForm.value).subscribe({
       next: () => {
         this._snackBar.open("Produkt dodany", "Zamknij", {
           duration: 2000,

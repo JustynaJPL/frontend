@@ -1,49 +1,102 @@
 <app-app-navi></app-app-navi>
 <div class="container">
-  <mat-table [dataSource]="datasource">
-    <ng-container matColumnDef="nazwa">
-      <mat-header-cell *matHeaderCellDef> Nazwa produktu </mat-header-cell>
+  <div class="search-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Search</mat-label>
+      <input
+        matInput
+        (keyup)="applyFilter($event)"
+        placeholder="Search the table"
+      />
+    </mat-form-field>
+    <button mat-button (click)="optionsforProduct('new', 0)"
+    color="primary" class="but-add">
+      <mat-icon class="mat-18">add</mat-icon>
+    </button>
+  </div>
+  <mat-table [dataSource]="datasource" class="flex-table">
+    <!-- Nazwa -->
+    <ng-container matColumnDef="nazwa" class="flex-cell-large">
+      <mat-header-cell *matHeaderCellDef class="flex-cell-large">
+        Nazwa produktu
+      </mat-header-cell>
       <mat-cell *matCellDef="let element">
         {{ element.nazwaProduktu }}
       </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="kcal">
-      <mat-header-cell *matHeaderCellDef> Kcal na 100g</mat-header-cell>
-      <mat-cell *matCellDef="let element">
+    <!-- Kcal -->
+    <ng-container matColumnDef="kcal" class="flex-cell-small">
+      <mat-header-cell *matHeaderCellDef>Kcal</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="flex-cell-small">
         {{ element.kcal }}
       </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="bialka">
-      <mat-header-cell *matHeaderCellDef> Białka</mat-header-cell>
-      <mat-cell *matCellDef="let element">
+    <!-- Białka -->
+    <ng-container matColumnDef="bialka" class="flex-cell-small">
+      <mat-header-cell *matHeaderCellDef>Białka</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="flex-cell-small">
         {{ element.bialko }}
       </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="tluszcze">
-      <mat-header-cell *matHeaderCellDef> Tłuszcze</mat-header-cell>
-      <mat-cell *matCellDef="let element">
+    <!-- Tłuszcze -->
+    <ng-container matColumnDef="tluszcze" class="flex-cell-small">
+      <mat-header-cell *matHeaderCellDef>Tłuszcze</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="flex-cell-small">
         {{ element.tluszcze }}
       </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="weglowodany">
-      <mat-header-cell *matHeaderCellDef> Węglowodany</mat-header-cell>
-      <mat-cell *matCellDef="let element">
+    <!-- Węglowodany -->
+    <ng-container matColumnDef="weglowodany" class="flex-cell-small">
+      <mat-header-cell *matHeaderCellDef>Węglowodany</mat-header-cell>
+      <mat-cell *matCellDef="let element" class="flex-cell-small">
         {{ element.weglowodany }}
       </mat-cell>
     </ng-container>
 
+    <!-- Actions -->
     <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef> </mat-header-cell>
-      <mat-cell *matCellDef="let element">
-
+      <mat-header-cell *matHeaderCellDef class="flex-cell-large">
+      </mat-header-cell>
+      <mat-cell *matCellDef="let element" class="flex-cell-large">
+        <button
+          mat-button
+          color="primary"
+          (click)="optionsforProduct('check', element.id)"
+        >
+          <mat-icon class="mat-18">search</mat-icon>
+        </button>
+        <button
+          mat-button
+          color="accent"
+          (click)="optionsforProduct('edit', element.id)"
+        >
+          <mat-icon class="mat-18">edit</mat-icon>
+        </button>
+        <button
+          mat-button
+          color="warn"
+          (click)="optionsforProduct('delete', element.id)"
+        >
+          <mat-icon class="mat-18">delete</mat-icon>
+        </button>
       </mat-cell>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <!-- Wiersz nagłówka głównego -->
+    <mat-header-row
+      *matHeaderRowDef="displayedColumns; sticky: true"
+    ></mat-header-row>
+
+    <!-- Wiersz danych -->
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>
+
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 15, 20]"
+    showFirstLastButtons
+  ></mat-paginator>
 </div>
