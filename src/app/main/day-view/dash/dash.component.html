@@ -13,6 +13,10 @@
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>
+      <button mat-button (click)="showShoppingList()">
+        <mat-icon class="mat-18">checklist</mat-icon>
+        Lista zakupów
+      </button>
     </mat-card-header>
     <mat-card-content>
       <ng-container *ngIf="kategorie$ | async as kategorie">

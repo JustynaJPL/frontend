@@ -258,6 +258,10 @@ export class DashComponent {
 
   addNew(id:number){
     this.router.navigate(['../add-meal/', id], { relativeTo: this.route });
+  }
+
+  showShoppingList(){
+    this.router.navigate(['../shopping-list'],  { relativeTo: this.route });
 
   }
 }

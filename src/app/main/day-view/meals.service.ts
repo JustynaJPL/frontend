@@ -100,6 +100,15 @@ export class MealsService {
     return this.currentDate$;
   }
 
+  getLastDate(): string {
+      let lastDate: string = '';
+      this.getCurrData().pipe(take(1)).subscribe(date => {
+        lastDate = date;
+      });
+      return lastDate;
+    }
+
+
   /**
    * Pomocnicza metoda do formatowania Date do formatu 'yyyy-MM-dd'
    * @param date - obiekt Date
@@ -330,5 +339,42 @@ export class MealsService {
     return this.http
       .post(this.APIURL + this.posilkiUrl, data, this.getAuthOptions())
       .pipe(catchError(this.handleError));
+  }
+
+  getPosilkiofCurrentDate():Observable<any[]>{
+    // http://localhost:1337/api/posilki
+    // ?filters[user][id][$eq]=2&filters[data_posilku][$eq]=2025-01-12
+    // &fields[0]=ilosc_produktu&fields[1]=liczba_porcji_przepisu&populate[przepis][fields][0]=id&populate[przepis][fields][1]=liczbaPorcji&populate[produkt][fields][1]=id
+
+    const request = this.APIURL + this.posilkiUrl +'/'
+      + '?filters[user][id][$eq]=' + this.getUserId()
+      + '&filters[data_posilku][$eq]=' + this.getLastDate()
+      + '&fields[0]=ilosc_produktu'
+      + '&fields[1]=liczba_porcji_przepisu'
+      + '&populate[przepis][fields][0]=id'
+      + '&populate[przepis][fields][1]=liczbaPorcji'
+      + '&populate[produkt][fields][0]=id'
+      + '&populate[produkt][fields][1]=nazwaProduktu';
+
+
+    return this.http.get<any>(request, this.getAuthOptions()).pipe(
+      map((response: any) => {
+        console.log(response);
+        let posilkiInfo: any[] = [];
+        response.data.forEach((element: any) => {
+          let p: any = {
+            id: element.id,
+            ilosc_produktu: element.attributes.ilosc_produktu ? element.attributes.ilosc_produktu : null,
+            liczba_porcji_przepisu: element.attributes.liczba_porcji_przepisu ? element.attributes.liczba_porcji_przepisu : null,
+            idPrzepisu: element.attributes.przepis.data ? element.attributes.przepis.data.id : null,
+            liczbaMaxPorcjiPrzepisu: element.attributes.przepis.data ? element.attributes.przepis.data.attributes.liczbaPorcji :null,
+            idProduktu: element.attributes.produkt.data ? element.attributes.produkt.data.id : null,
+            nazwaProduktu: element.attributes.produkt.data ? element.attributes.produkt.data.attributes.nazwaProduktu : null,
+          };
+          posilkiInfo.push(p);
+        });
+        return posilkiInfo;
+      })
+    );
   }
 }

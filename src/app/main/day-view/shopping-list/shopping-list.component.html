@@ -1,0 +1,52 @@
+<app-app-navi></app-app-navi>
+<div class="grid-container">
+  <div class="back">
+    <button mat-raised-button color="accent" (click)="cancel()">
+      <mat-icon class="mat-18">arrow_back</mat-icon>
+      <label for="">Powrót</label>
+    </button>
+  </div>
+  <mat-card>
+    <mat-card-header>
+      <mat-form-field appearance="fill">
+        <mat-label>Wybierz datę</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [value]="selectedDateValue$ | async"
+          [readOnly]="true"
+        />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </mat-card-header>
+    <mat-card-content>
+      <h3>Twoja lista zakupów</h3>
+      <mat-table [dataSource]="datasource">
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef> Nazwa produktu
+          </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.nazwa}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="weightOrPortions">
+          <mat-header-cell *matHeaderCellDef> Waga </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.waga}} </mat-cell>
+        </ng-container>
+
+        a-md-data-table-column
+        <!-- press ctrl + space to add more column snippet or delete this line -->
+
+        <!-- press ctrl + space to add more column snippet or delete this line -->
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator
+      [pageSizeOptions]="[5, 10, 15, 20]"
+      showFirstLastButtons
+    ></mat-paginator>
+
+    </mat-card-content>
+  </mat-card>
+</div>
