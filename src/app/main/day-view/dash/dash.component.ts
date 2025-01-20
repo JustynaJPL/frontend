@@ -65,8 +65,7 @@ export class DashComponent {
     "name",
     "weightOrPortions",
     "macros",
-    "actions",
-    "add"
+    "actions"
   ];
 
   public kategorie$: Observable<Kategoria[]>;

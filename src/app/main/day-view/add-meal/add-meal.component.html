@@ -1,5 +1,11 @@
 <app-app-navi></app-app-navi>
 <div class="grid-container">
+  <div class="back">
+    <button mat-raised-button color="accent" (click)="cancel()" class="but-back">
+      <mat-icon class="mat-18">arrow_back</mat-icon>
+      <label for="">Powrót</label>
+    </button>
+  </div>
   <mat-card>
     <mat-card-header>
       <mat-card-title>Dodaj nowy</mat-card-title>
@@ -189,7 +195,6 @@
     </mat-card-content>
     <mat-card-actions align="start">
       <button mat-button type="submit" [disabled]="form.invalid" (click)="saveMeal()">Zapisz</button>
-      <button mat-button type="button" color="warn" (click)="cancel()">Anuluj</button>
       <button
         mat-button
         type="button"

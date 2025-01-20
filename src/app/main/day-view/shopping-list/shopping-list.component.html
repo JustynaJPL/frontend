@@ -14,7 +14,7 @@
           matInput
           [matDatepicker]="picker"
           [value]="selectedDateValue$ | async"
-          [readOnly]="true"
+          (dateChange)="onDateChange($event)"
         />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
@@ -33,12 +33,6 @@
           <mat-header-cell *matHeaderCellDef> Waga </mat-header-cell>
           <mat-cell *matCellDef="let element"> {{element.waga}} </mat-cell>
         </ng-container>
-
-        a-md-data-table-column
-        <!-- press ctrl + space to add more column snippet or delete this line -->
-
-        <!-- press ctrl + space to add more column snippet or delete this line -->
-
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
       </mat-table>

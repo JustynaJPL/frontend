@@ -4,20 +4,10 @@
   margin: 20px
   margin-left: 210px
 
-.dashboard-card
-  position: absolute
-  top: 15px
-  left: 15px
-  right: 15px
-  bottom: 15px
 
-.more-button
-  position: absolute
-  top: 5px
-  right: 10px
+mat-card-content
+  width: 100%
 
-.dashboard-card-content
-  text-align: center
 
 .summary
   color: custom.$primary-text-color
@@ -31,7 +21,73 @@
     align-items: stretch
     align-content: stretch
 
-  mat-card-header
-    background-color: custom.$primary-color
-    margin-bottom: 10px
-    padding-bottom: 5px
+    mat-card-header
+      background-color: custom.$primary-color
+      margin-bottom: 10px
+      padding-bottom: 5px
+
+.h-names
+  color: white
+
+
+.custom-table-container
+  display: block  // Pozwól tabeli działać poprawnie w kontenerze
+  margin-bottom: 20px
+  width: 100%  // Tabela wypełnia cały kontener
+
+  .custom-table
+    width: 1700px  // Tabela zajmuje całą szerokość
+    table-layout: fixed  // Ustawiamy stałe szerokości kolumn
+    border-collapse: collapse  // Zmniejszamy marginesy między komórkami
+    white-space: normal  // Pozwalamy na zawijanie tekstu w komórkach
+    word-wrap: break-word  // Łamiemy długie słowa w tekście
+
+    th,
+    td
+      padding: 8px  // Margines wewnętrzny dla czytelności
+      text-align: left  // Wyrównanie tekstu do lewej
+
+
+
+    /* Kolumny o szerokości w procentach */
+    .nazwa
+      width: 500px
+
+    .waga
+      width: 200px
+
+    .makro
+      width: 500px
+
+    .akcje
+      width: 500px
+      display: flex
+      flex-direction: row
+      flex-wrap: wrap
+      justify-content: space-around
+      align-items: center
+      align-content: center
+
+.mat-header-row
+    background-color: custom.$warn-color
+
+.but-add
+  background-color: custom.$accent-color
+  color: custom.$primary-text-color
+
+.but-shoplist
+  background-color: custom.$accent-color
+  color: custom.$primary-text-color
+  height: 59px
+  width: 200px
+  margin: 0 20px
+
+.tools
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: flex-start
+  align-items: flex-start
+  align-content: space-between
+
+

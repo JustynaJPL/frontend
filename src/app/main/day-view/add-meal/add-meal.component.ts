@@ -23,6 +23,7 @@ import { Przepis } from "../../../models/Przepis";
 import { Produkt } from "../../../models/Produkt";
 import { takeUntil } from "rxjs/operators";
 import { Subject } from "rxjs";
+import { MatIconModule } from "@angular/material/icon";
 
 @Component({
   selector: "app-add-meal",
@@ -40,6 +41,7 @@ import { Subject } from "rxjs";
     MatRadioModule,
     MatSelectModule,
     AppNaviComponent,
+    MatIconModule
   ],
 })
 export class AddMealComponent {

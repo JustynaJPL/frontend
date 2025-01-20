@@ -1,5 +1,11 @@
 <app-app-navi></app-app-navi>
 <div class="grid-container">
+  <div class="back">
+    <button mat-raised-button color="accent" (click)="cancel()" class="but-back">
+      <mat-icon class="mat-18">arrow_back</mat-icon>
+      <label for="">Powrót</label>
+    </button>
+  </div>
   <mat-card>
     <form [formGroup]="form" (ngSubmit)="saveMeal()">
       <!-- <div class="flex-container"> -->
@@ -127,9 +133,6 @@
       </ng-container>
       <!-- </div> -->
       <ng-container class="action-buttons">
-        <button mat-button type="button" color="warn" (click)="cancel()">
-          Powrót
-        </button>
         <button
           mat-raised-button
           color="primary"

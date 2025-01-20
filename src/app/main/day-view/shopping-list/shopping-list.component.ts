@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDatepickerInputEvent, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { catchError, forkJoin, map, Observable, of, Subject } from 'rxjs';
 import { MealsService } from '../meals.service';
@@ -57,37 +57,43 @@ export class ShoppingListComponent {
 
     ngOnInit(): void {
       // Pierwsza sekcja: Pobranie danych z API
-      this.meals
-        .getPosilkiofCurrentDate()
-        .pipe(
-          catchError((error) => {
-            console.error('Błąd podczas pobierania posiłków:', error);
-            return of([]); // Zwracamy pustą tablicę w przypadku błędu
-          })
-        )
-        .subscribe((response) => {
-          this.posilkiDaneSurowe = response;
-          console.log('Odebrane posiłki:', response);
+      this.retrieveDataFromDB();
+      this.datasource.paginator = this.paginator;
+      this.paginator.pageSize = 10; // Liczba elementów na stronę
+      this.paginator.pageIndex = 0;
+    }
 
-          // Przetwarzanie danych z pierwszej sekcji
-          for (let i = 0; i < this.posilkiDaneSurowe.length; i++) {
-            if (this.posilkiDaneSurowe[i].ilosc_produktu != null) {
-              let p: Zakup = {
-                id: i,
-                nazwa: this.posilkiDaneSurowe[i].nazwaProduktu,
-                waga: this.posilkiDaneSurowe[i].ilosc_produktu,
-              };
-              this.datasource.data.push(p);
-              this.datasource._updateChangeSubscription();
-            }
+    private retrieveDataFromDB() {
+    this.meals
+      .getPosilkiofCurrentDate()
+      .pipe(
+        catchError((error) => {
+          console.error('Błąd podczas pobierania posiłków:', error);
+          return of([]); // Zwracamy pustą tablicę w przypadku błędu
+        })
+      )
+      .subscribe((response) => {
+        this.datasource.data.splice(0);
+        this.datasource._updateChangeSubscription();
+        this.posilkiDaneSurowe = response;
+        console.log('Odebrane posiłki:', response);
+
+        // Przetwarzanie danych z pierwszej sekcji
+        for (let i = 0; i < this.posilkiDaneSurowe.length; i++) {
+          if (this.posilkiDaneSurowe[i].ilosc_produktu != null) {
+            let p: Zakup = {
+              id: i,
+              nazwa: this.posilkiDaneSurowe[i].nazwaProduktu,
+              waga: this.posilkiDaneSurowe[i].ilosc_produktu,
+            };
+            this.datasource.data.push(p);
+            this.datasource._updateChangeSubscription();
           }
+        }
 
-          // Przejście do drugiej sekcji
-          this.processSecondSection();
-        });
-        this.datasource.paginator = this.paginator;
-    this.paginator.pageSize = 10; // Liczba elementów na stronę
-    this.paginator.pageIndex = 0;
+        // Przejście do drugiej sekcji
+        this.processSecondSection();
+      });
     }
 
     processSecondSection(): void {
@@ -130,6 +136,12 @@ export class ShoppingListComponent {
         }
       );
     }
+
+    onDateChange($event: MatDatepickerInputEvent<any, any>) {
+        const date:string = this.meals.formatDate($event.target.value);
+        this.meals.setDate(date);
+        this.retrieveDataFromDB();
+      }
 
     ngOnDestroy() {
       // Zakończ subskrypcję, gdy komponent zostanie zniszczony
