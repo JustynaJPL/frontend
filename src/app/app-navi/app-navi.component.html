@@ -7,12 +7,6 @@
   [mode]="(isHandset$ | async) ? 'over' : 'side'"
   [opened]="(isHandset$ | async) === false"
 >
-  <mat-toolbar>
-    <button mat-button (click)="onClick()">
-      <mat-icon class="mat-18">menu</mat-icon>
-      Menu
-    </button>
-  </mat-toolbar>
 
   <mat-nav-list>
     <mat-list-item [routerLink]="['/logged/dashboard']">
