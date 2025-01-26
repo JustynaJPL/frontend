@@ -1,0 +1,75 @@
+<mat-card>
+  <mat-card-title-group>
+    <mat-card-title>CPM</mat-card-title>
+    <mat-card-subtitle
+      >Całkowita przemiana materii - czyli dzienne zapotrzebowanie kaloryczne
+    </mat-card-subtitle>
+  </mat-card-title-group>
+  <mat-card-content>
+    <p>
+      Jest to ilość energii potrzebnej do realizacji wydatków energetycznych
+      związanych z metabolizmem podstawowym i funkcjami życiowymi, a także
+      dodatkową aktywnością ruchową. Przy obliczaniu zapotrzebowania
+      kalorycznego organizmu znalazły zastosowanie współczynniki aktywności
+      fizycznej (z ang. PAL, physical activity level).Indywidualnie wartość
+      dobowego zapotrzebowania kalorycznego oblicza się mnożąc wartość
+      podstawowej przemiany materii (PPM) przez współczynnik aktywności
+      fizycznej (PAL).
+    </p>
+    <p class="wzor">
+      Całkowita przemiana materii (CPM) = podstawowa przemiana materii (PPM) x
+      współczynnik aktywności fizycznej (PAL)
+    </p>
+
+    <div class="cpm">
+      <form [formGroup]="userData" class="sport-content">
+        <mat-form-field
+          *ngIf="sport.length > 0; else noSports"
+          class="form-field"
+        >
+          <mat-label>Twoja aktywność</mat-label>
+          <mat-select
+            formControlName="sport"
+            (selectionChange)="changeSport()"
+          >
+            <mat-option *ngFor="let s of sport" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <ng-template #noSports>
+          <p>No sports available to select.</p>
+        </ng-template>
+
+        <mat-form-field>
+          <mat-label>Sugerowana wartość kcal na dzień: </mat-label>
+          <input matInput formControlName="cpm" />
+        </mat-form-field>
+      </form>
+    </div>
+
+    <p>
+      Aby stosowanie diety doprowadziło do ubytku, zwiększenia lub stabilizacji
+      masy ciała warto wiedzieć ile wynosi nasza całkowita przemiana materii.
+      Jest to suma wydatków energetycznych organizmu w ciągu dnia. Jeżeli
+      obliczone całkowite dzienne zapotrzebowanie kaloryczne dla danej osoby
+      wynosi 2200 kcal oznacza to, że spożywanie wraz z dietą takiej dawki
+      energii pozwoli na utrzymanie obecnej masy ciała. Konsumowanie większej
+      ilości kalorii w dłuższej perspektywie czasu doprowadzi do wzrostu masy
+      ciała, a spożywanie mniejszej liczby kalorii do obniżenia masy ciała.
+      Dlatego, jeśli naszym celem jest redukcja masy ciała i zawartości tkanki
+      tłuszczowej w ciele, należy spożywać ok 500 kcal dziennie mniej. Deficyt
+      tego rzędu pozwoli na ubytek ok. 0,5 kg masy ciała na przestrzeni
+      tygodnia. Natomiast jeśli chcemy zwiększyć masę ciała i rozbudować tkankę
+      mięśniową wartość kaloryczną jadłospisu należy zwiększyć o ok 300-500 kcal
+      na dzień i regularnie wykonywać trening siłowy, nazywany też treningiem
+      oporowym. Warto dodać, że zwiększając ilość ruchu w ciągu dnia wzrasta
+      również nasze zapotrzebowanie kaloryczne. Jeśli poziom aktywności spada,
+      zapotrzebowanie kaloryczne również się obniża. Dlatego jeśli planujemy
+      dodatkowe aktywności ruchowe warto wziąć to pod uwagę obliczając
+      całodziennie wydatki energetyczne organizmu. Ponadto wartość CPM zmienia
+      się wraz ze zmianą masy ciała. W związku z tym w trakcie procesu
+      odchudzania, a także budowania masy mięśniowej należy weryfikować aktualne
+      zapotrzebowanie kaloryczne, aby stosować dietę o odpowiedniej kaloryczność
+      do obecnych potrzeb organizmu.
+    </p>
+  </mat-card-content>
+</mat-card>

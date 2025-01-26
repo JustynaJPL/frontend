@@ -1,0 +1,49 @@
+@use '../../../../custom-theme.scss' as custom
+
+.container
+  margin: 5px
+  margin-left: 210px
+
+  display: flex
+  flex-direction: column
+  flex-wrap: wrap
+  justify-content: center
+  align-items: flex-start
+  align-content: stretch
+  .back
+    button
+      margin: 10px
+      cursor: pointer
+      mat-icon, label
+        cursor: pointer
+  .content
+    width: 90%
+
+  .card-container
+    display: grid
+    width: 100%
+    grid-template-columns: 30% 70%
+    gap: 16px
+    padding: 16px
+
+
+    .card
+      border-radius: 8px
+      padding: 16px
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+      text-align: center
+      mat-card-header
+        background-color: custom.$primary-color
+        color: custom.$primary-text-color
+        padding-bottom: 20px
+        margin-bottom: 10px
+      .sport-card
+        margin-bottom: 10px
+
+        mat-form-field
+          width: 100%
+        mat-card-header
+          background-color: custom.$accent-color
+
+
+

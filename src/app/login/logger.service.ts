@@ -55,6 +55,7 @@ export class LoggerService {
     // Usuwanie danych autoryzacyjnych
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
+    localStorage.removeItem('ppm');
 
   }
 

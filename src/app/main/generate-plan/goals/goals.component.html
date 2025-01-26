@@ -1,1 +1,54 @@
 <app-app-navi></app-app-navi>
+<div class="container">
+  <div class="content">
+    <div class="card-container">
+      <div class="card">
+        <mat-card-header>
+          <mat-card-title>
+            Ustawienia domyślne dotychczas w aplikacji</mat-card-title
+          >
+          <mat-card-subtitle
+            >Poniżej przedstawiono domyślne wartości jakie ustawiłaś/ustawiłeś w
+            aplikacji
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card class="sport-card">
+          <mat-card-header>
+            <mat-card-title>Twoja aktywność</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="userData">
+
+                <mat-form-field
+                  *ngIf="sport.length > 0; else noSports"
+                  class="form-field">
+                  <mat-label>Twoja aktywność</mat-label>
+                  <mat-select formControlName="sport">
+                    <mat-option *ngFor="let s of sport" [value]="s">{{
+                      s
+                    }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              <ng-template #noSports>
+                <p>No sports available to select.</p>
+              </ng-template>
+            </form>
+          </mat-card-content>
+        </mat-card>
+        <app-bmrcalc></app-bmrcalc>
+        <app-default-settings></app-default-settings>
+      </div>
+
+      <div class="card">
+        <mat-card-header>
+          <mat-card-title> Wybierz ustawienia dla twojego planu</mat-card-title>
+          <mat-card-subtitle
+            >Ustawienia zostaną użyte przy generowaniu planu
+          </mat-card-subtitle>
+        </mat-card-header>
+        <app-cpm></app-cpm>
+      </div>
+    </div>
+  </div>
+</div>

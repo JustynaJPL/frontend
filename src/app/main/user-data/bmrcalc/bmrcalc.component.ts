@@ -105,6 +105,9 @@ export class BmrcalcComponent {
         4.676 * this.userbmrvalues.age;
     }
 
+    localStorage.setItem('ppm',swe.toFixed(2));
+    console.log(localStorage.getItem('ppm'));
+
     // Zwracamy wartość zaokrągloną do dwóch miejsc po przecinku
     return parseFloat(swe.toFixed(0));
   }
