@@ -7,7 +7,7 @@ import { ResultsComponent } from './results/results.component';
 
 export const routes: Routes = [
   {path:'set-goals', component:GoalsComponent},
-  {path:'results', component:ResultsComponent},
+  {path:'results/:form', component:ResultsComponent},
   {
     path: '',
     redirectTo:'set-goals',
