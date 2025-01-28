@@ -7,7 +7,7 @@ import { ResultsComponent } from './results/results.component';
 
 export const routes: Routes = [
   {path:'set-goals', component:GoalsComponent},
-  {path:'results/:form', component:ResultsComponent},
+  {path:'results', component:ResultsComponent},
   {
     path: '',
     redirectTo:'set-goals',
@@ -19,6 +19,7 @@ export const routes: Routes = [
   declarations: [],
   imports: [
     CommonModule, RouterModule.forChild(routes), ReactiveFormsModule
-  ]
+  ],
+  exports: [RouterModule]
 })
 export class GeneratePlanModule { }

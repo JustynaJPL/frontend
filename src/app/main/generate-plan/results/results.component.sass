@@ -1,0 +1,29 @@
+@use '../../../../custom-theme.scss' as custom
+
+.container
+  margin: 5px
+  margin-left: 210px
+  display: flex
+  flex-direction: column
+  flex-wrap: wrap
+  justify-content: center
+  align-items: stretch
+  align-content: stretch
+  .but-back
+    margin: 20px
+  .goals
+    width: 100%
+    mat-card-header
+      background-color: custom.$primary-color
+      color: custom.$primary-text-color
+      margin-bottom: 10px
+      padding-bottom: 5px
+    mat-card-content
+      form
+        display: flex
+        flex-direction: row
+        flex-wrap: wrap
+        justify-content: space-around
+        align-items: center
+        align-content: center
+

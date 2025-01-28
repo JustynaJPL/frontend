@@ -1,4 +1,5 @@
-import { Validators } from "@angular/forms";
+import { GeneratePlanService } from './../generate-plan.service';
+import { FormBuilder, Validators } from "@angular/forms";
 import { FormControl, FormsModule } from "@angular/forms";
 import { Component } from "@angular/core";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
@@ -19,6 +20,7 @@ import {
   MatDatepickerModule,
 } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
+import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
   selector: "app-goals",
@@ -49,7 +51,14 @@ export class GoalsComponent {
   userData!: FormGroup;
   generateData!: FormGroup;
 
-  constructor(private location: Location, private loger: LoggerService) {
+  constructor(
+    private location: Location,
+    private loger: LoggerService,
+    private fb: FormBuilder,
+    private router:Router,
+    private route: ActivatedRoute,
+    private genPlan:GeneratePlanService
+  ) {
     this.userData = new FormGroup({
       id: new FormControl({ value: 0, disabled: true }),
       name: new FormControl({ value: "", disabled: true }),
@@ -61,14 +70,28 @@ export class GoalsComponent {
       age: new FormControl({ value: 0, disabled: true }),
     });
 
-    this.generateData = new FormGroup({
-      id: new FormControl(0, [Validators.required]),
-      kcal: new FormControl(0, [Validators.required]),
-      bialka: new FormControl(0, [Validators.required]),
-      weglowodany: new FormControl(0, [Validators.required]),
-      tluszcze: new FormControl(0, [Validators.required]),
-      datapoczatkowa: new FormControl("", [Validators.required]),
-    });
+    this.generateData = this.fb.group(
+      {
+        kcal: [
+          "",
+          [Validators.required, Validators.min(1200), Validators.max(4000)],
+        ],
+        bialka: [
+          "",
+          [Validators.required, Validators.min(0), Validators.max(100)],
+        ],
+        weglowodany: [
+          "",
+          [Validators.required, Validators.min(0), Validators.max(100)],
+        ],
+        tluszcze: [
+          "",
+          [Validators.required, Validators.min(0), Validators.max(100)],
+        ],
+        datapoczatkowa: ["", [Validators.required]],
+      },
+      { validator: this.checkPercentages }
+    );
   }
 
   ngOnInit(): void {
@@ -85,11 +108,27 @@ export class GoalsComponent {
     });
   }
 
+  checkPercentages(group: FormGroup) {
+    const bialka = group.get("bialka")!.value;
+    const weglowodany = group.get("weglowodany")!.value;
+    const tluszcze = group.get("tluszcze")!.value;
+    const total = +bialka + +weglowodany + +tluszcze;
+    return total === 100 ? null : { not100Percent: true };
+  }
+
   goBack(): void {
     this.location.back();
   }
 
-  submitData() {}
+  submitData() {
+    if (this.generateData.valid) {
+      console.log(this.generateData.value);
+      this.genPlan.updateFormData(this.generateData.value);
+      this.router.navigate(['../results'], { relativeTo: this.route });
+    } else {
+      console.log("Form is not valid");
+    }
+  }
 
   formatDate(date: Date): string {
     const year = date.getFullYear();
@@ -105,5 +144,16 @@ export class GoalsComponent {
 
   resetData() {
     this.generateData.reset();
+  }
+
+  handleInput(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (
+      charCode > 31 &&
+      (charCode < 48 || charCode > 57) && // Not a number from the main keyboard
+      (charCode < 96 || charCode > 105) // Not a number from the numeric keypad
+    ) {
+      event.preventDefault();
+    }
   }
 }

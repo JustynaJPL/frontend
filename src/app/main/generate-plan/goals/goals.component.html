@@ -19,17 +19,17 @@
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="userData">
-
-                <mat-form-field
-                  *ngIf="sport.length > 0; else noSports"
-                  class="form-field">
-                  <mat-label>Twoja aktywność</mat-label>
-                  <mat-select formControlName="sport">
-                    <mat-option *ngFor="let s of sport" [value]="s">{{
-                      s
-                    }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
+              <mat-form-field
+                *ngIf="sport.length > 0; else noSports"
+                class="form-field"
+              >
+                <mat-label>Twoja aktywność</mat-label>
+                <mat-select formControlName="sport">
+                  <mat-option *ngFor="let s of sport" [value]="s">{{
+                    s
+                  }}</mat-option>
+                </mat-select>
+              </mat-form-field>
               <ng-template #noSports>
                 <p>No sports available to select.</p>
               </ng-template>
@@ -49,28 +49,93 @@
         </mat-card-header>
         <app-cpm></app-cpm>
         <mat-card class="goals">
-            <mat-card-header>
-                <mat-card-title>Twoje dane do generowania planu posiłków</mat-card-title>
-                <mat-card-subtitle>Określ swoje cele</mat-card-subtitle>
-            </mat-card-header>
-            <form [formGroup]="generateData">
+          <mat-card-header>
+            <mat-card-title
+              >Twoje dane do generowania planu posiłków</mat-card-title
+            >
+            <mat-card-subtitle>Określ swoje cele</mat-card-subtitle>
+          </mat-card-header>
+          <form [formGroup]="generateData">
             <mat-card-content class="goals-generate">
               <mat-form-field>
                 <mat-label>Kcal[]: </mat-label>
-                <input matInput formControlName="kcal" />
+                <input
+                  matInput
+                  min="1200"
+                  max="4000"
+                  formControlName="kcal"
+                  (keydown)="handleInput($event)"
+                />
+                <mat-error *ngIf="generateData.get('kcal')?.errors?.['min']"
+                  >Wartość kcal musi być większa niż 1200.</mat-error
+                >
+                <mat-error *ngIf="generateData.get('kcal')?.errors?.['max']"
+                  >Wartość kcal musi być mniejsza niż 4000.</mat-error
+                >
+                <mat-error
+                  *ngIf="generateData.get('kcal')?.errors?.['required']"
+                >
+                  Liczba kalorii musi być wybrana
+                </mat-error>
               </mat-form-field>
               <mat-form-field>
                 <mat-label>Białko[%]: </mat-label>
-                <input matInput formControlName="bialka" />
+                <input
+                  matInput
+                  min="0"
+                  max="100"
+                  formControlName="bialka"
+                  (keydown)="handleInput($event)"
+                />
+                <mat-error
+                  *ngIf="generateData.get('bialka')?.errors?.['required']"
+                >
+                  Liczba białka musi być wybrana
+                </mat-error>
+                <mat-error *ngIf="generateData.errors?.['not100Percent']">
+                  Suma wartości procentowych białka, węglowodanów i tłuszczy
+                  musi wynosić 100%.
+                </mat-error>
               </mat-form-field>
               <mat-form-field>
                 <mat-label>Węglowodany[%]: </mat-label>
-                <input matInput formControlName="weglowodany" />
+                <input
+                  matInput
+                  min="0"
+                  max="100"
+                  formControlName="weglowodany"
+                  (keydown)="handleInput($event)"
+                />
+                <mat-error
+                  *ngIf="generateData.get('weglowodany')?.errors?.['required']"
+                >
+                  Liczba węglowodanów musi być wybrana
+                </mat-error>
+                <mat-error *ngIf="generateData.errors?.['not100Percent']">
+                  Suma wartości procentowych białka, węglowodanów i tłuszczy
+                  musi wynosić 100%.
+                </mat-error>
               </mat-form-field>
               <mat-form-field>
                 <mat-label>Tłuszcze[%]: </mat-label>
-                <input matInput formControlName="tluszcze" />
+                <input
+                  matInput
+                  min="0"
+                  max="100"
+                  formControlName="tluszcze"
+                  (keydown)="handleInput($event)"
+                />
+                <mat-error
+                  *ngIf="generateData.get('tluszcze')?.errors?.['required']"
+                >
+                  Liczba tłuszczy musi być wybrana
+                </mat-error>
+                <mat-error *ngIf="generateData.errors?.['not100Percent']">
+                  Suma wartości procentowych białka, węglowodanów i tłuszczy
+                  musi wynosić 100%.
+                </mat-error>
               </mat-form-field>
+
               <mat-form-field appearance="fill">
                 <mat-label>Wybierz datę rozpoczęcia</mat-label>
                 <input
@@ -79,51 +144,82 @@
                   (dateChange)="onDateChange($event)"
                   formControlName="datapoczatkowa"
                 />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
+                <mat-error
+                  *ngIf="generateData.get('datapoczatkowa')?.errors?.['required']"
+                >
+                  Data musi być wybrana
+                </mat-error>
               </mat-form-field>
             </mat-card-content>
             <mat-card-actions>
-                <button mat-button type="reset" class="goals-reset"  (click)="resetData()">Resetuj</button>
-                <button mat-button type="submit" class="goals-submit"  (click)="submitData()">Generuj plan</button>
+              <button
+                mat-button
+                type="reset"
+                class="goals-reset"
+                [disabled]="generateData.pristine || generateData.untouched"
+                (click)="resetData()"
+              >
+                Resetuj
+              </button>
+              <button
+                mat-button
+                type="submit"
+                class="goals-submit"
+                [disabled]="
+                  generateData.pristine ||
+                  generateData.untouched ||
+                  generateData.invalid
+                "
+                (click)="submitData()"
+              >
+                Generuj plan
+              </button>
             </mat-card-actions>
           </form>
-            <mat-card-footer>
-                <p>Wybierz dane jakie mają zostać wykorzystane do generowania twojego planu posiłków. W trakcie generacji plan może nie osiągnąć
-                  tej konkretnej wartości ale będą one w bliskim zakresie.
-                </p>
-                <p>
-                  Aby stosowanie diety doprowadziło do ubytku, zwiększenia lub stabilizacji
-                  masy ciała warto wiedzieć ile wynosi nasza całkowita przemiana materii.
-                  Jest to suma wydatków energetycznych organizmu w ciągu dnia. Jeżeli
-                  obliczone całkowite dzienne zapotrzebowanie kaloryczne dla danej osoby
-                  wynosi 2200 kcal oznacza to, że spożywanie wraz z dietą takiej dawki
-                  energii pozwoli na utrzymanie obecnej masy ciała. Konsumowanie większej
-                  ilości kalorii w dłuższej perspektywie czasu doprowadzi do wzrostu masy
-                  ciała, a spożywanie mniejszej liczby kalorii do obniżenia masy ciała.
-                  Dlatego, jeśli naszym celem jest redukcja masy ciała i zawartości tkanki
-                  tłuszczowej w ciele, należy spożywać ok 500 kcal dziennie mniej. Deficyt
-                  tego rzędu pozwoli na ubytek ok. 0,5 kg masy ciała na przestrzeni
-                  tygodnia. Natomiast jeśli chcemy zwiększyć masę ciała i rozbudować tkankę
-                  mięśniową wartość kaloryczną jadłospisu należy zwiększyć o ok 300-500 kcal
-                  na dzień i regularnie wykonywać trening siłowy, nazywany też treningiem
-                  oporowym. Warto dodać, że zwiększając ilość ruchu w ciągu dnia wzrasta
-                  również nasze zapotrzebowanie kaloryczne. Jeśli poziom aktywności spada,
-                  zapotrzebowanie kaloryczne również się obniża. Dlatego jeśli planujemy
-                  dodatkowe aktywności ruchowe warto wziąć to pod uwagę obliczając
-                  całodziennie wydatki energetyczne organizmu. Ponadto wartość CPM zmienia
-                  się wraz ze zmianą masy ciała. W związku z tym w trakcie procesu
-                  odchudzania, a także budowania masy mięśniowej należy weryfikować aktualne
-                  zapotrzebowanie kaloryczne, aby stosować dietę o odpowiedniej kaloryczność
-                  do obecnych potrzeb organizmu.
-                </p>
-                <p>
-                  Wartości białka, węglowodanów oraz tłuszczów muszą składać się na 100%
-                </p>
-                <p>
-                  Wygenerowany zostanie plan na 7 kolejnych dni zaczynając od dnia który został określony w tym formularzu
-                </p>
-            </mat-card-footer>
+          <mat-card-footer>
+            <p>
+              Wybierz dane jakie mają zostać wykorzystane do generowania twojego
+              planu posiłków. W trakcie generacji plan może nie osiągnąć tej
+              konkretnej wartości ale będą one w bliskim zakresie.
+            </p>
+            <p>
+              Aby stosowanie diety doprowadziło do ubytku, zwiększenia lub
+              stabilizacji masy ciała warto wiedzieć ile wynosi nasza całkowita
+              przemiana materii. Jest to suma wydatków energetycznych organizmu
+              w ciągu dnia. Jeżeli obliczone całkowite dzienne zapotrzebowanie
+              kaloryczne dla danej osoby wynosi 2200 kcal oznacza to, że
+              spożywanie wraz z dietą takiej dawki energii pozwoli na utrzymanie
+              obecnej masy ciała. Konsumowanie większej ilości kalorii w
+              dłuższej perspektywie czasu doprowadzi do wzrostu masy ciała, a
+              spożywanie mniejszej liczby kalorii do obniżenia masy ciała.
+              Dlatego, jeśli naszym celem jest redukcja masy ciała i zawartości
+              tkanki tłuszczowej w ciele, należy spożywać ok 500 kcal dziennie
+              mniej. Deficyt tego rzędu pozwoli na ubytek ok. 0,5 kg masy ciała
+              na przestrzeni tygodnia. Natomiast jeśli chcemy zwiększyć masę
+              ciała i rozbudować tkankę mięśniową wartość kaloryczną jadłospisu
+              należy zwiększyć o ok 300-500 kcal na dzień i regularnie wykonywać
+              trening siłowy, nazywany też treningiem oporowym. Warto dodać, że
+              zwiększając ilość ruchu w ciągu dnia wzrasta również nasze
+              zapotrzebowanie kaloryczne. Jeśli poziom aktywności spada,
+              zapotrzebowanie kaloryczne również się obniża. Dlatego jeśli
+              planujemy dodatkowe aktywności ruchowe warto wziąć to pod uwagę
+              obliczając całodziennie wydatki energetyczne organizmu. Ponadto
+              wartość CPM zmienia się wraz ze zmianą masy ciała. W związku z tym
+              w trakcie procesu odchudzania, a także budowania masy mięśniowej
+              należy weryfikować aktualne zapotrzebowanie kaloryczne, aby
+              stosować dietę o odpowiedniej kaloryczność do obecnych potrzeb
+              organizmu.
+            </p>
+            <p>
+              Wygenerowany zostanie plan na 7 kolejnych dni zaczynając od dnia
+              który został określony w tym formularzu
+            </p>
+          </mat-card-footer>
         </mat-card>
       </div>
     </div>

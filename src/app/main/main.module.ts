@@ -26,11 +26,6 @@ const routes: Routes = [
     canActivate: [AuthGuard] // Zabezpieczenie trasy
   },
   {
-    path: 'plan',
-    loadChildren: () => import('./current-plan/current-plan.module').then(m => m.CurrentPlanModule),
-    canActivate: [AuthGuard] // Zabezpieczenie trasy
-  },
-  {
     path: 'generate',
     loadChildren: () => import('./generate-plan/generate-plan.module').then(m => m.GeneratePlanModule),
     canActivate: [AuthGuard] // Zabezpieczenie trasy

@@ -1,1 +1,67 @@
-<p>results works!</p>
+<app-app-navi></app-app-navi>
+<div class="container">
+  <div class="back">
+    <button mat-raised-button color="accent" (click)="cancel()" class="but-back">
+      <mat-icon class="mat-18">arrow_back</mat-icon>
+      <label for="">Powrót</label>
+    </button>
+  </div>
+
+  <mat-card class="goals">
+    <mat-card-header>
+      <mat-card-title>Twoje cele</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="generateData">
+        <mat-form-field appearance="fill">
+          <mat-label>Data rozpoczęcia planu</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="datapoczatkowa"
+            [readonly]="true"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Data zakończenia planu</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="datazakonczenia"
+            [readonly]="true"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Kalorie</mat-label>
+          <input matInput formControlName="kcal" [readonly]="true">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Białka [%]</mat-label>
+          <input matInput formControlName="bialka" [readonly]="true">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Węglowodany [%]</mat-label>
+          <input matInput formControlName="weglowodany" [readonly]="true">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Tłuszcze [%]</mat-label>
+          <input matInput formControlName="tluszcze" [readonly]="true">
+        </mat-form-field>
+      </form>
+
+    </mat-card-content>
+  </mat-card>
+</div>
