@@ -34,7 +34,7 @@
             matInput
             type="number"
             formControlName="kcal"
-            (keydown)="handleInput($event)"
+            (keydown)="handleInput($event, 'kcal')"
           />
           <mat-error *ngIf="form.get('kcal')?.hasError('required')">
             Pole jest wymagane
@@ -46,7 +46,7 @@
             matInput
             type="number"
             formControlName="bialko"
-            (keydown)="handleInput($event)"
+            (keydown)="handleInput($event, 'bialko')"
           />
           <mat-error *ngIf="form.get('bialko')?.hasError('required')">
             Pole jest wymagane
@@ -58,7 +58,7 @@
             matInput
             type="number"
             formControlName="weglowodany"
-            (keydown)="handleInput($event)"
+            (keydown)="handleInput($event, 'weglowodany')"
           />
           <mat-error *ngIf="form.get('weglowodany')?.hasError('required')">
             Pole jest wymagane
@@ -70,7 +70,7 @@
             matInput
             type="number"
             formControlName="tluszcze"
-            (keydown)="handleInput($event)"
+            (keydown)="handleInput($event, 'tluszcze')"
           />
           <mat-error *ngIf="form.get('tluszcze')?.hasError('required')">
             Pole jest wymagane

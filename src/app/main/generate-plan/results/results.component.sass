@@ -14,16 +14,46 @@
   .goals
     width: 100%
     mat-card-header
-      background-color: custom.$primary-color
-      color: custom.$primary-text-color
-      margin-bottom: 10px
-      padding-bottom: 5px
+    background-color: custom.$primary-color
+    color: custom.$primary-text-color
+    margin-bottom: 10px
+    padding-bottom: 5px
     mat-card-content
-      form
-        display: flex
-        flex-direction: row
-        flex-wrap: wrap
-        justify-content: space-around
-        align-items: center
-        align-content: center
+    form
+      display: flex
+      flex-direction: row
+      justify-content: space-around
+      align-items: center
+      align-content: center
 
+.plan-cards
+  display: flex
+  flex-direction: row
+  flex-wrap: nowrap
+  justify-content: space-between
+  align-items: flex-start
+  align-content: flex-start
+  grid-template-columns: repeat(7, 1fr)
+  gap: 2px
+  mat-card
+    width: 100%
+    mat-card-header
+    background-color: custom.$warn-color
+    color: custom.$primary-text-color
+
+.sub-meals
+  margin: 20px 0
+  background-color: custom.$accent-color
+  width: 100%
+
+.loading
+  width: 100%
+  height: 100%
+  min-height: 60vh
+  display: flex
+  flex-direction: column
+  flex-wrap: nowrap
+  justify-content: center
+  align-items: center
+  align-content: center
+  color: custom.$primary-text-color

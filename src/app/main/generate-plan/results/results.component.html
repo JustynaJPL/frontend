@@ -1,7 +1,12 @@
 <app-app-navi></app-app-navi>
 <div class="container">
   <div class="back">
-    <button mat-raised-button color="accent" (click)="cancel()" class="but-back">
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="cancel()"
+      class="but-back"
+    >
       <mat-icon class="mat-18">arrow_back</mat-icon>
       <label for="">Powrót</label>
     </button>
@@ -17,51 +22,74 @@
           <mat-label>Data rozpoczęcia planu</mat-label>
           <input
             matInput
-            [matDatepicker]="picker"
+            [matDatepicker]="startPicker"
             formControlName="datapoczatkowa"
-            [readonly]="true"
           />
           <mat-datepicker-toggle
             matSuffix
-            [for]="picker"
+            [for]="startPicker"
           ></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
+          <mat-datepicker #startPicker></mat-datepicker>
         </mat-form-field>
+
         <mat-form-field appearance="fill">
           <mat-label>Data zakończenia planu</mat-label>
           <input
             matInput
-            [matDatepicker]="picker"
+            [matDatepicker]="endPicker"
             formControlName="datazakonczenia"
-            [readonly]="true"
           />
           <mat-datepicker-toggle
             matSuffix
-            [for]="picker"
+            [for]="endPicker"
           ></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
+          <mat-datepicker #endPicker></mat-datepicker>
         </mat-form-field>
+
         <mat-form-field appearance="fill">
           <mat-label>Kalorie</mat-label>
-          <input matInput formControlName="kcal" [readonly]="true">
+          <input matInput formControlName="kcal" [readonly]="true" />
         </mat-form-field>
 
         <mat-form-field appearance="fill">
           <mat-label>Białka [%]</mat-label>
-          <input matInput formControlName="bialka" [readonly]="true">
+          <input matInput formControlName="bialka" [readonly]="true" />
         </mat-form-field>
 
         <mat-form-field appearance="fill">
           <mat-label>Węglowodany [%]</mat-label>
-          <input matInput formControlName="weglowodany" [readonly]="true">
+          <input matInput formControlName="weglowodany" [readonly]="true" />
         </mat-form-field>
 
         <mat-form-field appearance="fill">
           <mat-label>Tłuszcze [%]</mat-label>
-          <input matInput formControlName="tluszcze" [readonly]="true">
+          <input matInput formControlName="tluszcze" [readonly]="true" />
         </mat-form-field>
       </form>
-
     </mat-card-content>
   </mat-card>
+
+  <div class="after-loading" *ngIf="valuesareloaded">
+    <div class="plan-cards">
+      <mat-card *ngFor="let item of cards">
+        <mat-card-header>
+          <mat-card-title>{{ returnDayofWeek(item.data) }}</mat-card-title>
+          <mat-card-subtitle>{{ item.data }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="meals" *ngFor="let kat of item.kategorie">
+            <h3>{{ kat.nazwa }}</h3>
+            <button mat-button>Meal</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <button mat-button class="sub-meals" (click)="addMeals()">
+      Dodaj posiłki do bazy danych
+    </button>
+  </div>
+  <div class="loading" *ngIf="!valuesareloaded">
+    <h3>Ładowanie danych</h3>
+    <mat-spinner></mat-spinner>
+  </div>
 </div>

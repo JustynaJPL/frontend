@@ -121,15 +121,30 @@ export class EditProductsComponent {
     this.form.patchValue(this.prodreset);
   }
 
-  handleInput(event: KeyboardEvent): void {
-    const charCode = event.which ? event.which : event.keyCode;
-    if (
-      charCode > 31 &&
-      (charCode < 48 || charCode > 57) && // Not a number from the main keyboard
-      (charCode < 96 || charCode > 105) // Not a number from the numeric keypad
-    ) {
-      event.preventDefault();
+  handleInput(event: KeyboardEvent, inputValue: string): void {
+    const allowedKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"];
+
+    if (allowedKeys.includes(event.key)) {
+      return; // Pozwalamy na użycie tych klawiszy
     }
+
+    const charCode = event.which ? event.which : event.keyCode;
+
+    // Sprawdzamy, czy wpisany znak to cyfra (0-9) lub kropka
+    if (
+      (charCode >= 48 && charCode <= 57) || // Klawiatura główna (0-9)
+      (charCode >= 96 && charCode <= 105)   // Klawiatura numeryczna (0-9)
+    ) {
+      return; // Pozwalamy na wpisanie cyfry
+    }
+
+    // Obsługa kropki, ale tylko jednej
+    if (event.key === "." && !inputValue.includes(".")) {
+      return;
+    }
+
+    // Jeśli znak nie pasuje do dozwolonych - blokujemy wpisywanie
+    event.preventDefault();
   }
 
   checkForDoubles(event: Event): void {

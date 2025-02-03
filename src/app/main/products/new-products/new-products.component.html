@@ -39,7 +39,7 @@
               placeholder="Kcal na 100g"
               type="number"
               formControlName="kcal"
-              (keydown)="handleInput($event)"
+              (keydown)="handleInput($event, 'kcal')"
             />
             <mat-error *ngIf="newProductForm.get('kcal')?.hasError('required')">
               Pole jest wymagane
@@ -51,7 +51,7 @@
               placeholder="Białka na 100g"
               type="number"
               formControlName="bialko"
-              (keydown)="handleInput($event)"
+              (keydown)="handleInput($event, 'bialko')"
             />
             <mat-error
               *ngIf="newProductForm.get('bialko')?.hasError('required')"
@@ -65,7 +65,7 @@
               placeholder="Tłuszczy na 100g"
               formControlName="tluszcze"
               type="number"
-              (keydown)="handleInput($event)"
+              (keydown)="handleInput($event, 'tluszcze')"
             />
             <mat-error
               *ngIf="newProductForm.get('tluszcze')?.hasError('required')"
@@ -79,7 +79,7 @@
               placeholder="Węglowodany na 100g"
               type="number"
               formControlName="weglowodany"
-              (keydown)="handleInput($event)"
+              (keydown)="handleInput($event, 'weglowodany')"
             />
             <mat-error
               *ngIf="newProductForm.get('weglowodany')?.hasError('required')"

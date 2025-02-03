@@ -373,10 +373,10 @@ export class NewRecipeComponent {
         wynik.tluszcze + skladniki.at(i).get("tluszczeperw")?.value;
       wynik.bialko = wynik.bialko + skladniki.at(i).get("bialkoperw")?.value;
     }
-    this.recipeForm.get("kcal")?.setValue(wynik.kcal);
-    this.recipeForm.get("weglowodany")?.setValue(wynik.weglowodany);
-    this.recipeForm.get("bialko")?.setValue(wynik.bialko);
-    this.recipeForm.get("tluszcze")?.setValue(wynik.tluszcze);
+    this.recipeForm.get("kcal")?.setValue(wynik.kcal.toFixed(2));
+    this.recipeForm.get("weglowodany")?.setValue(wynik.weglowodany.toFixed(2));
+    this.recipeForm.get("bialko")?.setValue(wynik.bialko.toFixed(2));
+    this.recipeForm.get("tluszcze")?.setValue(wynik.tluszcze.toFixed(2));
   }
 
   onInputKeyDown(event: KeyboardEvent) {
