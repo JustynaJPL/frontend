@@ -1,6 +1,7 @@
 import { HttpClient, HttpClientModule } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import {
+  BehaviorSubject,
   catchError,
   forkJoin,
   from,
@@ -28,17 +29,15 @@ import { PrzepisMinimal } from "../models/PrzepisMinimal";
 export class DatabaseConnectorService {
   private readonly _APIURL: string = "http://localhost:1337";
   private readonly przepisurl: string = "/api/przepisy";
-  private readonly kategoriaurl: string = "/api/kategories";
-  private readonly posilekurl: string = "/api/posilki";
-  private readonly skladnikurl: string = "/api/skladniks";
-  private readonly wagaurl: string = "/api/wagas";
-  private readonly uploadurl: string = "/api/upload/files";
   private readonly DBuploadURL: string = "/api/upload";
   private readonly skladniksurl: string = "/api/skladniks";
   private readonly geturlprodukts: string = "/api/produkts?populate=*";
   private readonly urlprodukts: string = "/api/produkts";
   private readonly getkategoriesurl: string = "/api/kategories";
   private readonly urlme = "/api/users/me";
+
+  private recipesSubject = new BehaviorSubject<Przepis[]>([]); // Przechowujemy przepisy
+  public recipes$ = this.recipesSubject.asObservable();
 
   public get APIURL(): string {
     return this._APIURL;
@@ -68,57 +67,58 @@ export class DatabaseConnectorService {
       .get(this._APIURL + this.przepisurl + "?populate=*", this.authopts)
       .pipe(
         map((data: any) => {
-          // console.log(data);
-          let recipes: Przepis[] = [];
-          for (let i = 0; i < data.data.length; i++) {
-            let p: Przepis = {
-              id: data.data[i].id,
-              nazwaPrzepisu: data.data[i].attributes.nazwaPrzepisu,
-              instrukcja1: data.data[i].attributes.instrukcja1,
-              instrukcja2: data.data[i].attributes.instrukcja2
-                ? data.data[i].attributes.instrukcja2
-                : "",
-              instrukcja3: data.data[i].attributes.instrukcja3
-                ? data.data[i].attributes.instrukcja3
-                : "",
-              instrukcja4: data.data[i].attributes.instrukcja4
-                ? data.data[i].attributes.instrukcja4
-                : "",
-              instrukcja5: data.data[i].attributes.instrukcja5
-                ? data.data[i].attributes.instrukcja5
-                : "",
-              instrukcja6: data.data[i].attributes.instrukcja6
-                ? data.data[i].attributes.instrukcja6
-                : "",
-              kategoria: {
-                id: data.data[i].attributes.kategoria.data.id,
-                nazwa:
-                  data.data[i].attributes.kategoria.data.attributes
-                    .nazwakategori,
-              },
-              gda: {
-                kcal: data.data[i].attributes.gda.kcal,
-                bialka: data.data[i].attributes.gda.bialka,
-                tluszcze: data.data[i].attributes.gda.tluszcze,
-                weglowodany: data.data[i].attributes.gda.weglowodany,
-              },
-              liczbaporcji: data.data[i].attributes.liczbaPorcji,
-              imageurl: data.data[i].attributes.przepisimg.data
-                ? data.data[i].attributes.przepisimg.data.attributes.url
-                : ''
-            };
-            recipes.push(p);
-          }
+          let recipes: Przepis[] = data.data.map((item: any) => ({
+            id: item.id,
+            nazwaPrzepisu: item.attributes.nazwaPrzepisu,
+            instrukcja1: item.attributes.instrukcja1,
+            instrukcja2: item.attributes.instrukcja2 || "",
+            instrukcja3: item.attributes.instrukcja3 || "",
+            instrukcja4: item.attributes.instrukcja4 || "",
+            instrukcja5: item.attributes.instrukcja5 || "",
+            instrukcja6: item.attributes.instrukcja6 || "",
+            kategoria: {
+              id: item.attributes.kategoria.data.id,
+              nazwa: item.attributes.kategoria.data.attributes.nazwakategori,
+            },
+            gda: {
+              kcal: item.attributes.gda.kcal,
+              bialka: item.attributes.gda.bialka,
+              tluszcze: item.attributes.gda.tluszcze,
+              weglowodany: item.attributes.gda.weglowodany,
+            },
+            liczbaporcji: item.attributes.liczbaPorcji,
+            imageurl: item.attributes.przepisimg.data
+              ? item.attributes.przepisimg.data.attributes.url
+              : '',
+            perPortion: {
+              kcal: item.attributes.perPortion.kcal,
+              bialka: item.attributes.perPortion.bialka,
+              tluszcze: item.attributes.perPortion.tluszcze,
+              weglowodany: item.attributes.perPortion.weglowodany,
+            }
+          }));
+
+          this.recipesSubject.next(recipes); // Aktualizujemy Subject
           return recipes;
         })
       );
   }
 
+  refreshRecipes(): void {
+    this.getAllrecipes().subscribe();
+  }
+
+
   deleteRecipeWithId(id: number): Observable<any> {
-    return this.http.delete(
-      "http://localhost:1337/api/przepisy/" + id,
-      this.authopts
-    );
+    return this.http
+      .delete(this.APIURL + this.przepisurl + "/" + id, this.authopts)
+      .pipe(
+        map((response) => {
+          console.log("Usunięto przepis:", response);
+          this.refreshRecipes(); // Odświeżamy listę przepisów
+          return response;
+        })
+      );
   }
 
   getRecipeWithId(id: number): Observable<Przepis> {
@@ -153,8 +153,7 @@ export class DatabaseConnectorService {
               : undefined,
             kategoria: {
               id: data.data[0].attributes.kategoria.data.id,
-              nazwa:
-                data.data[0].attributes.kategoria.data.attributes.nazwakategori,
+              nazwa: data.data[0].attributes.kategoria.data.attributes.nazwakategori,
             },
 
             gda: {
@@ -167,6 +166,12 @@ export class DatabaseConnectorService {
               ? data.data[0].attributes.przepisimg.data.attributes.url
               : undefined,
             liczbaporcji: data.data[0].attributes.liczbaPorcji,
+            perPortion: {
+              kcal: data.data[0].attributes.perPortion.kcal,
+              bialka: data.data[0].attributes.perPortion.bialka,
+              tluszcze: data.data[0].attributes.perPortion.tluszcze,
+              weglowodany: data.data[0].attributes.perPortion.weglowodany,
+            }
           };
           observer.next(p); // przekazujemy wartość do obserwatora
           observer.complete(); // informujemy, że operacja się zakończyła
@@ -230,6 +235,7 @@ export class DatabaseConnectorService {
       .pipe(
         switchMap((response: any) => {
           const items = response.data;
+          console.log(response.data);
           return from(items).pipe(
             mergeMap((element: any) =>
               this.http
@@ -391,6 +397,12 @@ export class DatabaseConnectorService {
               weglowodany: recipe.gda.weglowodany,
             },
             liczbaPorcji: recipe.liczbaporcji,
+            perPortion: {
+              kcal: recipe.perPortion.kcal,
+              bialka: recipe.perPortion.bialka,
+              tluszcze: recipe.perPortion.tluszcze,
+              weglowodany: recipe.perPortion.weglowodany,
+            }
           },
         },
         this.authopts
@@ -440,6 +452,12 @@ export class DatabaseConnectorService {
               weglowodany: recipe.gda.weglowodany,
             },
             liczbaPorcji: recipe.liczbaporcji,
+            perPortion: {
+              kcal: recipe.perPortion.kcal,
+              bialka: recipe.perPortion.bialka,
+              tluszcze: recipe.perPortion.tluszcze,
+              weglowodany: recipe.perPortion.weglowodany,
+            }
           },
         },
         this.authopts

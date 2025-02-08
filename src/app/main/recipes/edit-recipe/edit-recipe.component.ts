@@ -251,7 +251,13 @@ export class EditRecipeComponent {
           tluszcze: this.recipeForm.get("tluszcze")?.value,
           weglowodany: this.recipeForm.get("weglowodany")?.value,
         },
-        liczbaporcji:this.recipeForm.get("liczbaporcji")?.value
+        liczbaporcji: this.recipeForm.get("liczbaporcji")?.value,
+        perPortion: {
+          kcal: parseFloat((this.recipeForm.get("kcal")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2)),
+          bialka: parseFloat((this.recipeForm.get("bialko")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2)),
+          tluszcze: parseFloat((this.recipeForm.get("tluszcze")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2)),
+          weglowodany: parseFloat((this.recipeForm.get("weglowodany")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2))
+        },
       };
 
       const skladniki = this.recipeForm.get("skladniki") as FormArray;
@@ -306,6 +312,7 @@ export class EditRecipeComponent {
         ).subscribe({
           next: () => {
             this.submitedMessage("Recipe updated successfully!");
+            this.goBack();
           },
           error: (error) => {
             console.error("Error processing the form:", error);
@@ -314,7 +321,6 @@ export class EditRecipeComponent {
       }
 
 
-      this.goBack();
     }
   }
 

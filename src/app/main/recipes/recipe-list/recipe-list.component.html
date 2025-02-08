@@ -19,13 +19,13 @@
       <table mat-table [dataSource]="dataSource" matSort>
         <!-- Nazwa Column -->
         <ng-container matColumnDef="nazwa">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>NAZWA</th>
+          <th mat-header-cell *matHeaderCellDef>NAZWA</th>
           <td mat-cell *matCellDef="let row">{{ row.nazwaPrzepisu }}</td>
         </ng-container>
 
         <!-- Kategoria Column -->
         <ng-container matColumnDef="kategoria">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          <th mat-header-cell *matHeaderCellDef>
             KATEGORIA PRZEPISU
           </th>
           <td mat-cell *matCellDef="let row">
@@ -35,30 +35,30 @@
 
         <!-- Kcal Column -->
         <ng-container matColumnDef="kcal">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Kcal</th>
+          <th mat-header-cell *matHeaderCellDef>Kcal</th>
           <td mat-cell *matCellDef="let row">{{ row.gda.kcal }}</td>
         </ng-container>
 
         <!-- Color Białko -->
         <ng-container matColumnDef="bialko">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Białko</th>
+          <th mat-header-cell *matHeaderCellDef >Białko</th>
           <td mat-cell *matCellDef="let row">{{ row.gda.bialka }}</td>
         </ng-container>
 
         <!-- Color Tłuszcze -->
         <ng-container matColumnDef="tluszcze">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tłuszcze</th>
+          <th mat-header-cell *matHeaderCellDef >Tłuszcze</th>
           <td mat-cell *matCellDef="let row">{{ row.gda.tluszcze }}</td>
         </ng-container>
 
         <!-- Color Węglowodany -->
         <ng-container matColumnDef="weglowodany">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Węglowodany</th>
+          <th mat-header-cell *matHeaderCellDef>Węglowodany</th>
           <td mat-cell *matCellDef="let row">{{ row.gda.weglowodany }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
+          <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let row">
             <div class="actionbuttons">
               <button mat-raised-button routerLink="../view/{{ row.id }}">
@@ -101,6 +101,4 @@
       ></mat-paginator>
     </div>
   </div>
-
-
 </div>

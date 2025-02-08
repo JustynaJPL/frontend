@@ -14,6 +14,7 @@ import { MatListModule } from "@angular/material/list";
 import { MatInputModule } from "@angular/material/input";
 import { MatIconModule } from "@angular/material/icon";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-recipe-list",
@@ -38,6 +39,7 @@ import { AppNaviComponent } from "../../../app-navi/app-navi.component";
 })
 export class RecipeListComponent {
   dataSource!: MatTableDataSource<Przepis>;
+  recipes$!: Observable<Przepis[]>;
 
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
@@ -61,17 +63,11 @@ export class RecipeListComponent {
   }
 
   ngOnInit(): void {
-    this.dbconnect.getAllrecipes().subscribe(
-      (recipes: Przepis[]) => {
-        console.log(recipes);
-        this.przepisy = recipes;
-        this.dataSource.data = this.przepisy;
-        // console.log(this.przepisy); // Możesz wyświetlić pobrane przepisy w konsoli
-      },
-      (error) => {
-        console.log("Wystąpił błąd podczas pobierania przepisów:", error);
-      }
-    );
+    this.recipes$ = this.dbconnect.recipes$;
+    this.dbconnect.refreshRecipes();
+    this.recipes$.subscribe((recipes) => {
+      this.dataSource.data = recipes;
+    });
   }
 
   ngAfterViewInit() {

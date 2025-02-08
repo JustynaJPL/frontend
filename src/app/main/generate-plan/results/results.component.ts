@@ -40,7 +40,7 @@ export class ResultsComponent {
   generateData: FormGroup;
   kategorie: Kategoria[] = [];
   cards: KartaPlanu[] = [];
-  valuesareloaded:boolean = true;
+  valuesareloaded:boolean = false;
 
 
   constructor(
@@ -51,9 +51,6 @@ export class ResultsComponent {
   ) {
     this.generateData = fb.group({
       kcal: [0],
-      // bialka: [0],
-      // weglowodany: [0],
-      // tluszcze: [0],
       datapoczatkowa: [""],
       datazakonczenia: [""],
     });

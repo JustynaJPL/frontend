@@ -78,64 +78,6 @@
                   Liczba kalorii musi być wybrana
                 </mat-error>
               </mat-form-field>
-              <!-- <mat-form-field>
-                <mat-label>Białko[%]: </mat-label>
-                <input
-                  matInput
-                  min="0"
-                  max="100"
-                  formControlName="bialka"
-                  (keydown)="handleInput($event)"
-                />
-                <mat-error
-                  *ngIf="generateData.get('bialka')?.errors?.['required']"
-                >
-                  Liczba białka musi być wybrana
-                </mat-error>
-                <mat-error *ngIf="generateData.errors?.['not100Percent']">
-                  Suma wartości procentowych białka, węglowodanów i tłuszczy
-                  musi wynosić 100%.
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Węglowodany[%]: </mat-label>
-                <input
-                  matInput
-                  min="0"
-                  max="100"
-                  formControlName="weglowodany"
-                  (keydown)="handleInput($event)"
-                />
-                <mat-error
-                  *ngIf="generateData.get('weglowodany')?.errors?.['required']"
-                >
-                  Liczba węglowodanów musi być wybrana
-                </mat-error>
-                <mat-error *ngIf="generateData.errors?.['not100Percent']">
-                  Suma wartości procentowych białka, węglowodanów i tłuszczy
-                  musi wynosić 100%.
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Tłuszcze[%]: </mat-label>
-                <input
-                  matInput
-                  min="0"
-                  max="100"
-                  formControlName="tluszcze"
-                  (keydown)="handleInput($event)"
-                />
-                <mat-error
-                  *ngIf="generateData.get('tluszcze')?.errors?.['required']"
-                >
-                  Liczba tłuszczy musi być wybrana
-                </mat-error>
-                <mat-error *ngIf="generateData.errors?.['not100Percent']">
-                  Suma wartości procentowych białka, węglowodanów i tłuszczy
-                  musi wynosić 100%.
-                </mat-error>
-              </mat-form-field> -->
-
               <mat-form-field appearance="fill">
                 <mat-label>Wybierz datę rozpoczęcia</mat-label>
                 <input

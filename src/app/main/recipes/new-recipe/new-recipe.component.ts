@@ -62,7 +62,6 @@ export function atLeastOneInstruction(): ValidatorFn {
     MatOption,
     MatSelectModule,
     TextFieldModule,
-    // BrowserAnimationsModule,
     MatInputModule,
     MatButtonModule,
   ],
@@ -205,7 +204,13 @@ export class NewRecipeComponent {
           tluszcze: this.recipeForm.get("tluszcze")?.value,
           weglowodany: this.recipeForm.get("weglowodany")?.value,
         },
-        liczbaporcji:this.recipeForm.get("liczbaporcji")?.value
+        liczbaporcji: this.recipeForm.get("liczbaporcji")?.value,
+        perPortion: {
+          kcal: parseFloat((this.recipeForm.get("kcal")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2)),
+          bialka: parseFloat((this.recipeForm.get("bialko")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2)),
+          tluszcze: parseFloat((this.recipeForm.get("tluszcze")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2)),
+          weglowodany: parseFloat((this.recipeForm.get("weglowodany")?.value/this.recipeForm.get("liczbaporcji")?.value).toFixed(2))
+        },
       };
 
       const skladniki = this.recipeForm.get("skladniki") as FormArray;
@@ -246,12 +251,12 @@ export class NewRecipeComponent {
         .subscribe({
           next: () => {
             this.submitedMessage("Przepis został dodany do bazy!");
+            this.goBack();
           },
           error: (error) => {
             console.error("Wystąpił błąd podczas przetwarzania formularza", error);
           },
         });
-      this.goBack();
     }
   }
 

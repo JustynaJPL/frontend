@@ -1,3 +1,4 @@
+import { GDA } from "./GDA";
 
 export interface Przepis {
   id: number;
@@ -12,13 +13,9 @@ export interface Przepis {
     id:number;
     nazwa:string;
   }
-  gda: {
-    kcal: number;
-    bialka: number;
-    tluszcze: number;
-    weglowodany: number;
-  };
+  gda: GDA;
   imageurl?:string;
   imageId?:number;
   liczbaporcji:number;
+  perPortion:GDA;
 }

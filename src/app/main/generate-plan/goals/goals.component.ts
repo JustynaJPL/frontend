@@ -76,18 +76,6 @@ export class GoalsComponent {
           "",
           [Validators.required, Validators.min(1200), Validators.max(4000)],
         ],
-        // bialka: [
-        //   "",
-        //   [Validators.required, Validators.min(0), Validators.max(100)],
-        // ],
-        // weglowodany: [
-        //   "",
-        //   [Validators.required, Validators.min(0), Validators.max(100)],
-        // ],
-        // tluszcze: [
-        //   "",
-        //   [Validators.required, Validators.min(0), Validators.max(100)],
-        // ],
         datapoczatkowa: ["", [Validators.required]],
       }
       // { validator: this.checkPercentages }
