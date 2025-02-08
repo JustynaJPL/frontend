@@ -99,6 +99,7 @@ export class ResultsComponent {
         this.generateCards();
         this.generateData.disable();
       });
+      this.genService.generatePlan(3000);
   }
 
   cancel() {

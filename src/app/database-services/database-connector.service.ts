@@ -20,6 +20,7 @@ import { GDA } from "../models/GDA";
 import { response } from "express";
 import { Posilek } from "../models/Posilek";
 import { PrzepisMinimal } from "../models/PrzepisMinimal";
+import { PrzepisGeneracja } from "../models/PrzepisGeneracja";
 // import axios from 'axios';
 // import {AxiosResponse} from 'axios';
 
@@ -35,6 +36,7 @@ export class DatabaseConnectorService {
   private readonly urlprodukts: string = "/api/produkts";
   private readonly getkategoriesurl: string = "/api/kategories";
   private readonly urlme = "/api/users/me";
+  private readonly gendates = '/api/gendates';
 
   private recipesSubject = new BehaviorSubject<Przepis[]>([]); // Przechowujemy przepisy
   public recipes$ = this.recipesSubject.asObservable();
@@ -552,5 +554,50 @@ export class DatabaseConnectorService {
           } as Produkt;
         })
       );
+  }
+
+
+  getRecipestoGenerate(): Observable<PrzepisGeneracja[]> {
+    return this.http
+      .get<any>(
+        `${this.APIURL}${this.przepisurl}?populate=*`
+      ,this.authopts)
+      .pipe(
+        map((data: any) => {
+          let recipes: PrzepisGeneracja[] = data.data.map(
+            (item: any) => ({
+            idPrzepisu: item.id,
+            nazwaPrzepisu: item.attributes.nazwaPrzepisu,
+            idKategorii: item.attributes.kategoria.data.id,
+            kcal: item.attributes.perPortion.kcal,
+            datadodania:item.attributes.createdAt
+          }));
+          // console.log('Pobrane przepisy: ' + recipes);
+          // console.log('Dane:' + data);
+          return recipes;
+        }),
+        catchError((error) => {
+          console.error('Wystąpił błąd podczas pobierania przepisów:', error);
+          return throwError(() => new Error('Błąd podczas pobierania przepisów'));
+        })
+      );
+  }
+
+  getGenerateDates(): Observable<Date[]> {
+    return this.http.get<any>(this.APIURL + this.gendates, this.authopts).pipe(
+      map((response: any) => {
+        let daty: Date[] = [];
+        response.data.forEach((element: any) => {
+          daty.push(new Date(element.attributes.genDate));
+        });
+        daty.sort((a, b) => a.getTime() - b.getTime());
+        console.log('Daty generacji'+ daty );
+        return daty;
+      }),
+      catchError((error) => {
+        console.error('Wystąpił błąd podczas pobierania dat:', error);
+        return throwError(() => new Error('Błąd podczas pobierania dat'));
+      })
+    );
   }
 }
