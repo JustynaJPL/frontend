@@ -64,7 +64,7 @@
         <mat-card-content>
           <div class="meals" *ngFor="let kat of item.kategorie">
             <h3>{{ kat.nazwa }}</h3>
-            <button mat-button>Meal</button>
+            <p mat-button>{{ returnPosilekName(item.id, kat.id) }}</p>
           </div>
         </mat-card-content>
       </mat-card>

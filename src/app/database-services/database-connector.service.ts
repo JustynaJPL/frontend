@@ -583,21 +583,28 @@ export class DatabaseConnectorService {
       );
   }
 
-  getGenerateDates(): Observable<Date[]> {
-    return this.http.get<any>(this.APIURL + this.gendates, this.authopts).pipe(
-      map((response: any) => {
-        let daty: Date[] = [];
-        response.data.forEach((element: any) => {
-          daty.push(new Date(element.attributes.genDate));
-        });
-        daty.sort((a, b) => a.getTime() - b.getTime());
-        console.log('Daty generacji'+ daty );
-        return daty;
-      }),
-      catchError((error) => {
-        console.error('Wystąpił błąd podczas pobierania dat:', error);
-        return throwError(() => new Error('Błąd podczas pobierania dat'));
-      })
+  getAllRecipesPerPortion(): Observable<any[]> {
+    return this.http.get<any[]>(
+      this.APIURL + this.przepisurl + '?fields[0]=id&populate[perPortion]=*',
+      this.authopts
     );
   }
+
+  // getGenerateDates(): Observable<Date[]> {
+  //   return this.http.get<any>(this.APIURL + this.gendates, this.authopts).pipe(
+  //     map((response: any) => {
+  //       let daty: Date[] = [];
+  //       response.data.forEach((element: any) => {
+  //         daty.push(new Date(element.attributes.genDate));
+  //       });
+  //       daty.sort((a, b) => a.getTime() - b.getTime());
+  //       console.log('Daty generacji'+ daty );
+  //       return daty;
+  //     }),
+  //     catchError((error) => {
+  //       console.error('Wystąpił błąd podczas pobierania dat:', error);
+  //       return throwError(() => new Error('Błąd podczas pobierania dat'));
+  //     })
+  //   );
+  // }
 }

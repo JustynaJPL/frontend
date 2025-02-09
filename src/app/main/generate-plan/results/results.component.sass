@@ -37,9 +37,18 @@
   gap: 2px
   mat-card
     width: 100%
-    mat-card-header
-    background-color: custom.$warn-color
+    height: 100%
     color: custom.$primary-text-color
+    mat-card-header
+      background-color: custom.$warn-color
+      color: custom.$primary-text-color
+    mat-card-content
+      .meals
+        p
+          padding: 10px
+          &:hover
+            background-color: rgba(51, 51, 48, 0.879)
+
 
 .sub-meals
   margin: 20px 0

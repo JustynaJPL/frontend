@@ -14,8 +14,9 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { Kategoria } from "../../../models/Kategoria";
 import { MealsService } from "../../day-view/meals.service";
 import { KartaPlanu } from "../../../models/KartaPlanu";
-import { EMPTY, switchMap } from "rxjs";
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { EMPTY, filter, switchMap } from "rxjs";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { WygenerowanyPlan } from "../../../models/WygenerowanyPlan";
 
 @Component({
   selector: "app-results",
@@ -33,15 +34,16 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
 })
 export class ResultsComponent {
   generateData: FormGroup;
   kategorie: Kategoria[] = [];
   cards: KartaPlanu[] = [];
-  valuesareloaded:boolean = false;
-
+  valuesareloaded: boolean = false;
+  plan!: WygenerowanyPlan;
+  private isPlanGenerated = false;
 
   constructor(
     private genService: GeneratePlanService,
@@ -54,14 +56,13 @@ export class ResultsComponent {
       datapoczatkowa: [""],
       datazakonczenia: [""],
     });
-
-
   }
 
   // ta funkcja powoduje wygenerowanie kart dla wszytskich dni planu z
   // określeniem ich daty - dodaje puste karty żeby na ich podstawie wygenrować
   //karty w komponencie
   private generateCards() {
+    this.cards = [];
     let daty: string[] = this.generateDates(
       this.generateData.get("datapoczatkowa")?.value
     );
@@ -82,24 +83,34 @@ export class ResultsComponent {
   ngOnInit() {
     this.genService.formData$
       .pipe(
+        filter((formData) => formData !== null),
         switchMap((formData) => {
-          if (formData) {
-            this.generateData.patchValue(formData.value);
-            console.log(formData.value);
-            return this.meals.getKategorie();
-          } else {
-            console.log("Błąd przy wczytywaniu danych z formularza!");
-            return EMPTY;
-          }
+          this.generateData.patchValue(formData!.value);
+          // console.log(formData!.value);
+          return this.meals.getKategorie();
         })
       )
       .subscribe((response) => {
         this.kategorie = response;
-        console.log(this.kategorie);
+        // console.log(this.kategorie);
         this.generateCards();
         this.generateData.disable();
+
+        if (!this.isPlanGenerated) {
+          // this.genService.generatePlan(this.generateData.get("kcal")?.value || 2000);
+          this.isPlanGenerated = true;
+        }
       });
-      this.genService.generatePlan(3000);
+
+    this.genService.results$.subscribe((plan) => {
+      console.log("Otrzymano plan w ResultsComponent: ", plan);
+      this.plan = plan;
+      for (let i = 0; i < 7; i++) {
+        this.cards[i].posilki = plan.dni[i];
+      }
+      console.log("Karty planu: ", this.cards);
+      this.valuesareloaded = true;
+    });
   }
 
   cancel() {
@@ -126,23 +137,44 @@ export class ResultsComponent {
       // Aktualizujemy currentDate bez błędów stref czasowych
       currentDate.setDate(currentDate.getDate() + 1);
 
-      if(i == 6) {
-        this.generateData.get('datazakonczenia')?.setValue(formattedDate);
+      if (i == 6) {
+        this.generateData.get("datazakonczenia")?.setValue(formattedDate);
       }
     }
     return dates;
   }
 
-
   returnDayofWeek(date: string): string {
-    const daysOfWeek = ["Niedziela", "Poniedziałek", "Wtorek", "Środa",
-       "Czwartek", "Piątek", "Sobota"];
+    const daysOfWeek = [
+      "Niedziela",
+      "Poniedziałek",
+      "Wtorek",
+      "Środa",
+      "Czwartek",
+      "Piątek",
+      "Sobota",
+    ];
     const dayIndex = new Date(date).getDay();
     return daysOfWeek[dayIndex];
   }
 
-  addMeals(){
+  addMeals() {
 
 
+  }
+
+  returnPosilekName(cardId: number, kat: number): string {
+    const card = this.cards.find((c) => c.id === cardId);
+    if (!card) return ""; // Jeśli nie ma karty, zwracamy pusty string
+
+    // 🔥 Spłaszczamy tablicę `posilki`, jeśli jest wielowymiarowa
+    const allMeals = card.posilki.flat();
+
+    // Szukamy posiłku pasującego do kategorii
+    const posilek = allMeals.find((p) => p.idKategorii === kat);
+
+    // console.log(`Znaleziony posiłek dla cardId=${cardId}, kat=${kat}:`, posilek);
+
+    return posilek ? posilek.nazwaPrzepisu : "Brak posiłku";
   }
 }
