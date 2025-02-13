@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { BehaviorSubject } from "rxjs";
-import { DatabaseConnectorService } from "../../database-services/database-connector.service";
+import { DatabaseConnectorService } from "../database-connector.service";
 import { PrzepisGeneracja } from "../../models/PrzepisGeneracja";
 import { DBResults } from "../../models/DBResults";
 import { WygenerowanyPlan } from "../../models/WygenerowanyPlan";

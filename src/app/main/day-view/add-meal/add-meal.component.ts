@@ -17,7 +17,7 @@ import { MatRadioModule } from "@angular/material/radio";
 import { CommonModule, Location } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
-import { DatabaseConnectorService } from "../../../database-services/database-connector.service";
+import { DatabaseConnectorService } from "../../database-connector.service";
 import { ChangeDetectorRef } from "@angular/core";
 import { Przepis } from "../../../models/Przepis";
 import { Produkt } from "../../../models/Produkt";

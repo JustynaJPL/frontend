@@ -590,6 +590,14 @@ export class DatabaseConnectorService {
     );
   }
 
+  getRecipePortionData(id:number):Observable<any>{
+    return this.http.get(
+      this.APIURL + this.przepisurl + '/' + id +
+      '?fields[0]=id&populate[perPortion]=*',
+      this.authopts
+    );
+  }
+
   // getGenerateDates(): Observable<Date[]> {
   //   return this.http.get<any>(this.APIURL + this.gendates, this.authopts).pipe(
   //     map((response: any) => {

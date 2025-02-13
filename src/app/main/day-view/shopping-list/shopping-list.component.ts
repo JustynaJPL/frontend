@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { Location } from '@angular/common';
 import { Zakup } from '../../../models/Zakup';
-import { DatabaseConnectorService } from '../../../database-services/database-connector.service';
+import { DatabaseConnectorService } from "../../database-connector.service";
 import { Skladnik } from '../../../models/Skladnik';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 

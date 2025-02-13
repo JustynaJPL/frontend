@@ -1,5 +1,5 @@
 import { Component, ViewChild } from "@angular/core";
-import { DatabaseConnectorService } from "../../../database-services/database-connector.service";
+import { DatabaseConnectorService } from "../../database-connector.service";
 import { CommonModule } from "@angular/common";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Przepis } from "../../../models/Przepis";

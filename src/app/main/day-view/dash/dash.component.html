@@ -113,10 +113,10 @@
             <mat-card-title>Wartości sumaryczne makroskładników</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <h3>Kcal: {{ sumGDA.kcal }}</h3>
-            <h3>Białka: {{ sumGDA.bialka }}</h3>
-            <h3>Tłuszcze: {{ sumGDA.tluszcze }}</h3>
-            <h3>Węglowodany: {{ sumGDA.weglowodany }}</h3>
+            <h3>Kcal: {{ sumGDA.kcal.toFixed(2) }}</h3>
+            <h3>Białka: {{ sumGDA.bialka.toFixed(2) }}</h3>
+            <h3>Tłuszcze: {{ sumGDA.tluszcze.toFixed(2) }}</h3>
+            <h3>Węglowodany: {{ sumGDA.weglowodany.toFixed(2) }}</h3>
           </mat-card-content>
         </mat-card>
         <div class="chart">

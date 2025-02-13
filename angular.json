@@ -98,6 +98,7 @@
               "src/assets"
             ],
             "styles": [
+              "src/custom-theme.scss",
               "src/styles.sass"
             ],
             "scripts": []
@@ -109,4 +110,5 @@
   "cli": {
     "analytics": "03f963b9-6a18-4c84-9a22-136c6d4b3afe"
   }
+
 }

@@ -1,7 +1,6 @@
 import { Kategoria } from "./../../../models/Kategoria";
-import { Component, inject } from "@angular/core";
-import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
-import { catchError, map, switchMap, takeUntil } from "rxjs/operators";
+import { Component } from "@angular/core";
+import { catchError, switchMap, takeUntil } from "rxjs/operators";
 import { AsyncPipe, CommonModule } from "@angular/common";
 import { MatGridListModule } from "@angular/material/grid-list";
 import { MatMenuModule } from "@angular/material/menu";
@@ -9,8 +8,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
-import { DatabaseConnectorService } from "../../../database-services/database-connector.service";
-
 import { GDA } from "../../../models/GDA";
 import { CanvasJSAngularChartsModule } from "@canvasjs/angular-charts";
 import { MatNativeDateModule } from "@angular/material/core";
@@ -21,12 +18,10 @@ import {
   MatDatepickerModule,
 } from "@angular/material/datepicker";
 import { MealsService } from "../meals.service";
-import { CommonEngine } from "@angular/ssr";
 import { FormsModule } from "@angular/forms";
 import { MatTableModule } from "@angular/material/table";
 import { combineLatest, Observable, Subject } from "rxjs";
 import { Posilek } from "../../../models/Posilek";
-import { DefaultDataPoint, PieDataPoint } from "chart.js";
 import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
@@ -87,9 +82,9 @@ export class DashComponent {
         {
           type: "pie",
           startAngle: 45,
-          // indexLabel: "{name}: {y}",
-          // indexLabelPlacement: "inside",
-          // yValueFormatString: "#,###.##'%'",
+          indexLabel: "{name}: {y}",
+          indexLabelPlacement: "inside",
+          yValueFormatString: "#,###.##'%'",
           dataPoints: [{ y: 1, name: "" }],
         },
       ],
@@ -146,6 +141,12 @@ export class DashComponent {
   onDateChange($event: MatDatepickerInputEvent<any, any>) {
     const date:string = this.formatDate($event.target.value);
     this.meals.setDate(date);
+    this.sumGDA = {
+      kcal: 0,
+      bialka: 0,
+      tluszcze: 0,
+      weglowodany: 0,
+    };
   }
 
   // {funkcje dotyczące formatowania wykresu w zależnosci od danych

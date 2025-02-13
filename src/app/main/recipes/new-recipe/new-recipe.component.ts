@@ -14,7 +14,7 @@ import {
   FormControl,
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { DatabaseConnectorService } from "../../../database-services/database-connector.service";
+import { DatabaseConnectorService } from "../../database-connector.service";
 import {
   MatError,
   MatFormField,

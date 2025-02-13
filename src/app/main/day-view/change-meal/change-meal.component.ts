@@ -2,12 +2,9 @@ import { Component, Input } from "@angular/core";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
 import { CommonModule } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
-import { ActivatedRoute, Data, Router } from "@angular/router";
+import { ActivatedRoute,  Router } from "@angular/router";
 import { MealsService } from "../meals.service";
-import { Posilek } from "../../../models/Posilek";
-import { combineLatest, Observable, Subject } from "rxjs";
-import { catchError, map, switchMap, takeUntil } from "rxjs/operators";
-import { Kategoria } from "../../../models/Kategoria";
+import {  Subject } from "rxjs";
 import {
   FormBuilder,
   FormGroup,
@@ -19,11 +16,10 @@ import { Location } from "@angular/common";
 import { ChangeDetectorRef } from "@angular/core";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatOptionModule } from "@angular/material/core";
-import { MatRadioButton } from "@angular/material/radio";
 import { MatButtonModule } from "@angular/material/button";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { DatabaseConnectorService } from "../../../database-services/database-connector.service";
+import { DatabaseConnectorService } from "../../database-connector.service";
 import { MatIconModule } from "@angular/material/icon";
 
 @Component({

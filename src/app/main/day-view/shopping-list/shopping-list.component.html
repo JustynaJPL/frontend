@@ -30,8 +30,8 @@
         </ng-container>
 
         <ng-container matColumnDef="weightOrPortions">
-          <mat-header-cell *matHeaderCellDef> Waga </mat-header-cell>
-          <mat-cell *matCellDef="let element"> {{element.waga}} </mat-cell>
+          <mat-header-cell *matHeaderCellDef> Waga[g] </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.waga.toFixed(2)}} </mat-cell>
         </ng-container>
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>

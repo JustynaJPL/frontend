@@ -14,9 +14,11 @@ import { MatNativeDateModule } from "@angular/material/core";
 import { Kategoria } from "../../../models/Kategoria";
 import { MealsService } from "../../day-view/meals.service";
 import { KartaPlanu } from "../../../models/KartaPlanu";
-import { EMPTY, filter, switchMap } from "rxjs";
+import { filter, forkJoin, map, Subject, switchMap, takeUntil } from "rxjs";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { WygenerowanyPlan } from "../../../models/WygenerowanyPlan";
+import { DatabaseConnectorService } from "../../database-connector.service"
+import { GenPosilek } from "../../../models/GenPosilek";
 
 @Component({
   selector: "app-results",
@@ -43,13 +45,15 @@ export class ResultsComponent {
   cards: KartaPlanu[] = [];
   valuesareloaded: boolean = false;
   plan!: WygenerowanyPlan;
-  private isPlanGenerated = false;
+  uid: number = 0;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private genService: GeneratePlanService,
     private fb: FormBuilder,
     private location: Location,
-    private meals: MealsService
+    private meals: MealsService,
+    private db: DatabaseConnectorService
   ) {
     this.generateData = fb.group({
       kcal: [0],
@@ -86,31 +90,31 @@ export class ResultsComponent {
         filter((formData) => formData !== null),
         switchMap((formData) => {
           this.generateData.patchValue(formData!.value);
-          // console.log(formData!.value);
           return this.meals.getKategorie();
-        })
+        }),
+        takeUntil(this.destroy$) // Odsubskrybowanie przy zniszczeniu komponentu
       )
       .subscribe((response) => {
         this.kategorie = response;
-        // console.log(this.kategorie);
         this.generateCards();
         this.generateData.disable();
-
-        if (!this.isPlanGenerated) {
-          // this.genService.generatePlan(this.generateData.get("kcal")?.value || 2000);
-          this.isPlanGenerated = true;
-        }
       });
 
-    this.genService.results$.subscribe((plan) => {
-      console.log("Otrzymano plan w ResultsComponent: ", plan);
-      this.plan = plan;
-      for (let i = 0; i < 7; i++) {
-        this.cards[i].posilki = plan.dni[i];
-      }
-      console.log("Karty planu: ", this.cards);
-      this.valuesareloaded = true;
-    });
+    this.genService.results$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((plan) => {
+        this.plan = plan;
+        for (let i = 0; i < 7; i++) {
+          this.cards[i].posilki = plan.dni[i];
+        }
+        this.valuesareloaded = true;
+      });
+
+    this.db.getUserDBID()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((id: number) => {
+        this.uid = id;
+      });
   }
 
   cancel() {
@@ -158,16 +162,11 @@ export class ResultsComponent {
     return daysOfWeek[dayIndex];
   }
 
-  addMeals() {
-
-
-  }
-
   returnPosilekName(cardId: number, kat: number): string {
     const card = this.cards.find((c) => c.id === cardId);
     if (!card) return ""; // Jeśli nie ma karty, zwracamy pusty string
 
-    // 🔥 Spłaszczamy tablicę `posilki`, jeśli jest wielowymiarowa
+    //Spłaszczamy tablicę `posilki`, jeśli jest wielowymiarowa
     const allMeals = card.posilki.flat();
 
     // Szukamy posiłku pasującego do kategorii
@@ -176,5 +175,67 @@ export class ResultsComponent {
     // console.log(`Znaleziony posiłek dla cardId=${cardId}, kat=${kat}:`, posilek);
 
     return posilek ? posilek.nazwaPrzepisu : "Brak posiłku";
+  }
+
+  addMeals() {
+    let meals: GenPosilek[] = [];
+
+    for (let i = 0; i < this.cards.length; i++) {
+      let dailyMeals: any = this.cards[i].posilki[0];
+      for (let j = 0; j < dailyMeals.length; j++) {
+        let meal: GenPosilek = {
+          dataposilku: this.cards[i].data,
+          ilosc: 1,
+          kategoria: dailyMeals[j].idKategorii,
+          nazwa: dailyMeals[j].idPrzepisu,
+          kcal: 0,
+          bialka: 0,
+          tluszcze: 0,
+          weglowodany: 0,
+        };
+        meals.push(meal);
+      }
+    }
+
+    // Najpierw pobierz dane o porcji dla wszystkich posiłków
+    const portionRequests = meals.map((meal) =>
+      this.db.getRecipePortionData(meal.nazwa).pipe(
+        map((response) => {
+          const perPortion = response.data.attributes.perPortion;
+          meal.kcal = perPortion.kcal;
+          meal.bialka = perPortion.bialka;
+          meal.tluszcze = perPortion.tluszcze;
+          meal.weglowodany = perPortion.weglowodany;
+          return meal;
+        })
+      )
+    );
+
+    forkJoin(portionRequests)
+      .pipe(
+        switchMap((updatedMeals) => {
+          console.log("Zaktualizowane dane posiłków:", updatedMeals);
+
+          // Teraz odpalamy addMealPosilek dla każdego posiłku
+          const addMealRequests = updatedMeals.map((meal) =>
+            this.meals.addMealPosilek(meal, this.uid)
+          );
+
+          return forkJoin(addMealRequests);
+        })
+      )
+      .subscribe({
+        next: (results) => {
+          console.log("Wszystkie posiłki zostały dodane do bazy:", results);
+        },
+        error: (err) => {
+          console.error("Wystąpił błąd podczas dodawania posiłków:", err);
+        },
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
