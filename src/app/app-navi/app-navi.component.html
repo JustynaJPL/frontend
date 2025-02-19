@@ -5,8 +5,9 @@
   fixedInViewport
   [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
   [mode]="(isHandset$ | async) ? 'over' : 'side'"
-  [opened]="(isHandset$ | async) === false"
->
+  [opened]="(isHandset$ | async) === false">
+
+  <img src="../../assets/logo.png" alt="" style="height: 50px;width: 50px; cursor: pointer; margin: 30px 70px" [routerLink]="['/logged/dashboard']">
 
   <mat-nav-list>
     <mat-list-item [routerLink]="['/logged/dashboard']">
@@ -58,6 +59,7 @@
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
       }
+
       <span> Planer Diety</span>
       <button mat-button (click)="logout()" class="logout"><mat-icon class="mat-18">logout</mat-icon> Wyloguj</button>
     </mat-toolbar>

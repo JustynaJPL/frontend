@@ -156,7 +156,7 @@ export class GeneratePlanService {
   private chooseRandom() {
     let randomPicks: Set<number> = new Set();
     const maxIndex = this.results.findIndex(
-      (result) => result.fit >= 45 && result.fit <= 55
+      (result) => result.fit >= 95 && result.fit <= 105
     );
     if (maxIndex === -1) {
       console.error("No result found with fit value between 45 and 55");
@@ -176,6 +176,7 @@ export class GeneratePlanService {
       this.wybraneR.push(this.results[pick]);
     });
     // console.log("Wyniki: ", this.wybraneR);
+
     this.returnPlantoUser();
   }
 
