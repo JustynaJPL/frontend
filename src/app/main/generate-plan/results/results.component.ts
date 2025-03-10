@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
 import { CommonModule } from "@angular/common";
 import { MatCardModule } from "@angular/material/card";
@@ -17,7 +17,7 @@ import { KartaPlanu } from "../../../models/KartaPlanu";
 import { filter, forkJoin, map, Subject, switchMap, takeUntil } from "rxjs";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { WygenerowanyPlan } from "../../../models/WygenerowanyPlan";
-import { DatabaseConnectorService } from "../../database-connector.service"
+import { DatabaseConnectorService } from "../../database-connector.service";
 import { GenPosilek } from "../../../models/GenPosilek";
 
 @Component({
@@ -53,7 +53,8 @@ export class ResultsComponent {
     private fb: FormBuilder,
     private location: Location,
     private meals: MealsService,
-    private db: DatabaseConnectorService
+    private db: DatabaseConnectorService,
+    private cdr: ChangeDetectorRef
   ) {
     this.generateData = fb.group({
       kcal: [0],
@@ -92,25 +93,29 @@ export class ResultsComponent {
           this.generateData.patchValue(formData!.value);
           return this.meals.getKategorie();
         }),
-        takeUntil(this.destroy$) // Odsubskrybowanie przy zniszczeniu komponentu
-      )
-      .subscribe((response) => {
-        this.kategorie = response;
-        this.generateCards();
-        this.generateData.disable();
-      });
+        switchMap((response) => {
+          this.kategorie = response;
+          this.generateCards();
 
-    this.genService.results$
-      .pipe(takeUntil(this.destroy$))
+          // Teraz czekamy na wyniki `results$` dopiero po wykonaniu `generateCards()`
+          return this.genService.results$;
+        }),
+        takeUntil(this.destroy$)
+      )
       .subscribe((plan) => {
         this.plan = plan;
+        this.generateData.disable();
+
         for (let i = 0; i < 7; i++) {
           this.cards[i].posilki = plan.dni[i];
         }
+
         this.valuesareloaded = true;
+        this.cdr.detectChanges();
       });
 
-    this.db.getUserDBID()
+    this.db
+      .getUserDBID()
       .pipe(takeUntil(this.destroy$))
       .subscribe((id: number) => {
         this.uid = id;

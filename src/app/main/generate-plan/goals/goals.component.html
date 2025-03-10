@@ -67,10 +67,10 @@
                   (keydown)="handleInput($event)"
                 />
                 <mat-error *ngIf="generateData.get('kcal')?.errors?.['min']"
-                  >Wartość kcal musi być większa niż 1200.</mat-error
+                  >Wartość kcal musi być większa niż 1400.</mat-error
                 >
                 <mat-error *ngIf="generateData.get('kcal')?.errors?.['max']"
-                  >Wartość kcal musi być mniejsza niż 4000.</mat-error
+                  >Wartość kcal musi być mniejsza niż 3400.</mat-error
                 >
                 <mat-error
                   *ngIf="generateData.get('kcal')?.errors?.['required']"
@@ -127,7 +127,7 @@
             <p>
               Wybierz dane jakie mają zostać wykorzystane do generowania twojego
               planu posiłków. W trakcie generacji plan może nie osiągnąć tej
-              konkretnej wartości ale będą one w bliskim zakresie.
+              konkretnej wartości ale będą one w zakresie w-50 - w+50 kcal.
             </p>
             <p>
               Aby stosowanie diety doprowadziło do ubytku, zwiększenia lub

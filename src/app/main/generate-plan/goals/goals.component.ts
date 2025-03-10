@@ -74,7 +74,7 @@ export class GoalsComponent {
       {
         kcal: [
           "",
-          [Validators.required, Validators.min(1200), Validators.max(4000)],
+          [Validators.required, Validators.min(1400), Validators.max(3400)],
         ],
         datapoczatkowa: ["", [Validators.required]],
       }

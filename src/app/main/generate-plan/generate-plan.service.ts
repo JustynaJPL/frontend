@@ -1,10 +1,11 @@
+import { DBResults } from "./../../models/DBResults";
 import { Injectable } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { BehaviorSubject } from "rxjs";
 import { DatabaseConnectorService } from "../database-connector.service";
 import { PrzepisGeneracja } from "../../models/PrzepisGeneracja";
-import { DBResults } from "../../models/DBResults";
 import { WygenerowanyPlan } from "../../models/WygenerowanyPlan";
+import { stat } from "node:fs/promises";
 
 @Injectable({
   providedIn: "root",
@@ -24,6 +25,12 @@ export class GeneratePlanService {
     kcalPerDay: [],
   });
   results$ = this.resultsFinal.asObservable();
+  statistic: { kno: number, kcal100: number, kcal200: number, kcal300: number, kcal400: number, kcal500: number, kcal600: number, kcal700: number, kcal800: number, kcal900: number, kcal1000: number }[] = [
+    { kno: 1, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 },
+    { kno: 2, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 },
+    { kno: 3, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 },
+    { kno: 4, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 }
+  ];
 
   wybraneR: DBResults[] = [];
 
@@ -40,7 +47,7 @@ export class GeneratePlanService {
       })
     );
     const formData = this.getFormData();
-    const kcal = formData.get('kcal')?.value;
+    const kcal = formData.get("kcal")?.value;
     if (kcal) {
       this.generatePlan(kcal);
     }
@@ -72,12 +79,17 @@ export class GeneratePlanService {
   }
 
   private sortRecipes() {
-
     this.przepisK1 = [];
     this.przepisK2 = [];
     this.przepisK3 = [];
     this.przepisK4 = [];
 
+    this.statistic = [
+      { kno: 1, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 },
+      { kno: 2, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 },
+      { kno: 3, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 },
+      { kno: 4, kcal100: 0, kcal200: 0, kcal300: 0, kcal400: 0, kcal500: 0, kcal600: 0, kcal700: 0, kcal800: 0, kcal900: 0, kcal1000: 0 }
+    ];
 
     this.recipes.forEach((recipe) => {
       switch (recipe.idKategorii) {
@@ -96,7 +108,9 @@ export class GeneratePlanService {
         default:
           console.error("Nieznana kategoria:", recipe.idKategorii);
       }
+      this.statisticAnalize(recipe.idKategorii, recipe.kcal);
     });
+    this.showStatistics();
 
     // console.log("k1:", this.przepisK1);
     // console.log("k2:", this.przepisK2);
@@ -107,7 +121,6 @@ export class GeneratePlanService {
   }
 
   private generateResults() {
-
     this.results = [];
 
     for (let i = 0; i < this.przepisK1.length; i++) {
@@ -154,9 +167,9 @@ export class GeneratePlanService {
   }
 
   private chooseRandom() {
-    let randomPicks: Set<number> = new Set();
+    // let randomPicks: Set<number> = new Set();
     const maxIndex = this.results.findIndex(
-      (result) => result.fit >= 95 && result.fit <= 105
+      (result) => result.fit >= 45 && result.fit <= 55
     );
     if (maxIndex === -1) {
       console.error("No result found with fit value between 45 and 55");
@@ -165,17 +178,44 @@ export class GeneratePlanService {
       console.log("Indeks fit=50 : ", maxIndex);
     }
 
-    while (randomPicks.size < 7) {
-      randomPicks.add(this.getRandomInt(0, maxIndex));
+    this.wybraneR = [];
+    // this.wybraneR.push(this.results[this.getRandomInt(0, maxIndex)]);
+    this.wybraneR.push(this.results[0]);
+    let r=1;
+
+    genloop:while (this.wybraneR.length < 7) {
+      // randomPicks.add(this.getRandomInt(0, maxIndex));
+      // let r = this.getRandomInt(0, maxIndex);
+      let newValue: number[] = this.results[r].recipesIds;
+      let duplicates = false;
+      checkloop: for (let i = 0; i < this.wybraneR.length; i++) {
+        for (let j = 0; j < this.wybraneR[i].recipesIds.length; j++) {
+          let alreadyused = this.wybraneR[i].recipesIds[j];
+          for (let k = 0; k < newValue.length; k++) {
+            if (newValue[k] == alreadyused) {
+              duplicates = true;
+              break checkloop;
+            }
+          }
+        }
+      }
+      if (!duplicates) {
+        this.wybraneR.push(this.results[r]); // Dodaj do tablicy tylko jeśli nie było duplikatu
+      }
+      r++;
+      if(r==maxIndex){
+        console.log('Osiągnięto limit maxIndex');
+        break genloop;
+      }
     }
 
     // console.log("Wybrane numery ", Array.from(randomPicks));
-    this.wybraneR=[];
-    randomPicks.forEach((pick) => {
-      // console.log(`Rezultat: ${pick} : `, this.results[pick]);
-      this.wybraneR.push(this.results[pick]);
-    });
-    // console.log("Wyniki: ", this.wybraneR);
+
+    // randomPicks.forEach((pick) => {
+    //   // console.log(`Rezultat: ${pick} : `, this.results[pick]);
+    //   this.wybraneR.push(this.results[pick]);
+    // });
+    // // console.log("Wyniki: ", this.wybraneR);
 
     this.returnPlantoUser();
   }
@@ -197,14 +237,111 @@ export class GeneratePlanService {
       plan.dni.push([dzien]);
       plan.kcalPerDay.push(elem.sum);
     });
-    // console.log("Plan: ", plan);
+    console.log("Plan: ", plan);
     this.resultsFinal.next(plan);
   }
 
-  private getRandomInt(min: number, max: number): number {
-    const randomBuffer = new Uint32Array(1);
-    window.crypto.getRandomValues(randomBuffer);
-    return min + (randomBuffer[0] % (max - min + 1));
+  // Statystyka
+  statisticAnalize(idKategorii: number, kcal: number) {
+    switch (idKategorii) {
+      case 1:
+        if (kcal >= 100 && kcal < 200) {
+          this.statistic[0].kcal100++;
+        } else if (kcal >= 200 && kcal < 300) {
+          this.statistic[0].kcal200++;
+        } else if (kcal >= 300 && kcal < 400) {
+          this.statistic[0].kcal300++;
+        } else if (kcal >= 400 && kcal < 500) {
+          this.statistic[0].kcal400++;
+        } else if (kcal >= 500 && kcal < 600) {
+          this.statistic[0].kcal500++;
+        } else if (kcal >= 600 && kcal < 700) {
+          this.statistic[0].kcal600++;
+        } else if (kcal >= 700 && kcal < 800) {
+          this.statistic[0].kcal700++;
+        } else if (kcal >= 800 && kcal < 900) {
+          this.statistic[0].kcal800++;
+        } else if (kcal >= 900 && kcal < 1000) {
+          this.statistic[0].kcal900++;
+        } else if (kcal >= 1000) {
+          this.statistic[0].kcal1000++;
+        }
+        break;
+      case 2:
+        if (kcal >= 100 && kcal < 200) {
+          this.statistic[1].kcal100++;
+        } else if (kcal >= 200 && kcal < 300) {
+          this.statistic[1].kcal200++;
+        } else if (kcal >= 300 && kcal < 400) {
+          this.statistic[1].kcal300++;
+        } else if (kcal >= 400 && kcal < 500) {
+          this.statistic[1].kcal400++;
+        } else if (kcal >= 500 && kcal < 600) {
+          this.statistic[1].kcal500++;
+        } else if (kcal >= 600 && kcal < 700) {
+          this.statistic[1].kcal600++;
+        } else if (kcal >= 700 && kcal < 800) {
+          this.statistic[1].kcal700++;
+        } else if (kcal >= 800 && kcal < 900) {
+          this.statistic[1].kcal800++;
+        } else if (kcal >= 900 && kcal < 1000) {
+          this.statistic[1].kcal900++;
+        } else if (kcal >= 1000) {
+          this.statistic[1].kcal1000++;
+        }
+        break;
+        case 3:
+        if (kcal >= 100 && kcal < 200) {
+          this.statistic[2].kcal100++;
+        } else if (kcal >= 200 && kcal < 300) {
+          this.statistic[2].kcal200++;
+        } else if (kcal >= 300 && kcal < 400) {
+          this.statistic[2].kcal300++;
+        } else if (kcal >= 400 && kcal < 500) {
+          this.statistic[2].kcal400++;
+        } else if (kcal >= 500 && kcal < 600) {
+          this.statistic[2].kcal500++;
+        } else if (kcal >= 600 && kcal < 700) {
+          this.statistic[2].kcal600++;
+        } else if (kcal >= 700 && kcal < 800) {
+          this.statistic[2].kcal700++;
+        } else if (kcal >= 800 && kcal < 900) {
+          this.statistic[2].kcal800++;
+        } else if (kcal >= 900 && kcal < 1000) {
+          this.statistic[2].kcal900++;
+        } else if (kcal >= 1000) {
+          this.statistic[2].kcal1000++;
+        }
+        break;
+        case 4:
+        if (kcal >= 100 && kcal < 200) {
+          this.statistic[3].kcal100++;
+        } else if (kcal >= 200 && kcal < 300) {
+          this.statistic[3].kcal200++;
+        } else if (kcal >= 300 && kcal < 400) {
+          this.statistic[3].kcal300++;
+        } else if (kcal >= 400 && kcal < 500) {
+          this.statistic[3].kcal400++;
+        } else if (kcal >= 500 && kcal < 600) {
+          this.statistic[3].kcal500++;
+        } else if (kcal >= 600 && kcal < 700) {
+          this.statistic[3].kcal600++;
+        } else if (kcal >= 700 && kcal < 800) {
+          this.statistic[3].kcal700++;
+        } else if (kcal >= 800 && kcal < 900) {
+          this.statistic[3].kcal800++;
+        } else if (kcal >= 900 && kcal < 1000) {
+          this.statistic[3].kcal900++;
+        } else if (kcal >= 1000) {
+          this.statistic[3].kcal1000++;
+        }
+        break;
+      default:
+        console.error("Nieznana kategoria:", idKategorii);
+      }
+  }
+  showStatistics() {
+    console.log('Statystyka: ', this.statistic);
   }
 
 }
