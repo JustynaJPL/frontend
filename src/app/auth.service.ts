@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -6,7 +7,7 @@ import { Injectable } from '@angular/core';
 export class AuthService {
   private isAuthenticated = false;
 
-  constructor() {
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.checkToken(); // Sprawdzenie tokenu przy inicjalizacji serwisu
   }
 
@@ -22,8 +23,12 @@ export class AuthService {
 
   // Sprawdzenie obecności tokenu w localStorage
   checkToken(): void {
-    const token = localStorage.getItem('token');
-    this.isAuthenticated = !!token; // Jeśli token istnieje, użytkownik jest zalogowany
+    if (isPlatformBrowser(this.platformId)) {
+      const token = localStorage.getItem('token');
+      this.isAuthenticated = !!token; // Ustawienie flagi logowania
+    } else {
+      this.isAuthenticated = false; // Na serwerze domyślnie false
+    }
   }
 
   // Wylogowanie użytkownika
@@ -31,4 +36,5 @@ export class AuthService {
     localStorage.removeItem('token');
     this.setAuthenticated(false);
   }
+
 }
