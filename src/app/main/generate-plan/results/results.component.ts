@@ -232,9 +232,12 @@ export class ResultsComponent {
       .subscribe({
         next: (results) => {
           console.log("Wszystkie posiłki zostały dodane do bazy:", results);
+          alert("✅ Dodano posiłki do bazy!");
+          this.location.back();
         },
         error: (err) => {
           console.error("Wystąpił błąd podczas dodawania posiłków:", err);
+          alert("❌ Wystąpił błąd podczas dodawania posiłków. Spróbuj ponownie.");
         },
       });
   }
