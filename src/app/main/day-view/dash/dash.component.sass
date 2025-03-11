@@ -1,4 +1,9 @@
-@use '../../../../../src/custom-theme.scss' as custom
+$primary-color: #2196F3  // Blue
+$accent-color: #FF5252  // Red
+$warn-color: #388E3C     // Green
+$text-color: #333
+$background-color: #F5F5F5
+$primary-text-color:#F5F5F5
 
 .grid-container
   margin: 20px
@@ -10,7 +15,7 @@ mat-card-content
 
 
 .summary
-  color: custom.$primary-text-color
+  color: $background-color
 
   .summary-content
     width: 80%
@@ -22,7 +27,7 @@ mat-card-content
     align-content: stretch
 
     mat-card-header
-      background-color: custom.$primary-color
+      background-color: $primary-color
       margin-bottom: 10px
       padding-bottom: 5px
 
@@ -69,15 +74,15 @@ mat-card-content
       align-content: center
 
 .mat-header-row
-    background-color: custom.$warn-color
+    background-color: $warn-color
 
 .but-add
-  background-color: custom.$accent-color
-  color: custom.$primary-text-color
+  background-color: $accent-color
+  color: $primary-text-color
 
 .but-shoplist
-  background-color: custom.$accent-color
-  color: custom.$primary-text-color
+  background-color: $accent-color
+  color: $primary-text-color
   height: 59px
   width: 200px
   margin: 0 20px

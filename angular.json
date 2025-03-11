@@ -30,9 +30,8 @@
               "src/assets"
             ],
             "styles": [
-
-              "src/styles.sass",
-              "src/custom-theme.scss"
+              "src/custom-theme.scss",
+              "src/styles.sass"
             ],
             "scripts": [],
             "server": "src/main.server.ts",

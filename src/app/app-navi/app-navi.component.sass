@@ -1,12 +1,13 @@
-@use '../../../src/custom-theme.scss' as custom
+$my-primary-color: #2196F3  // Blue
+$my-accent-color: #FF5252  // Red
+$my-warn-color: #388E3C     // Green
+$my-text-color: #333
+$my-background-color: #F5F5F5
 
 .sidenav-container
   height: 100%
-
   .sidenav
     width: 200px
-
-
 
 .sidenav .mat-toolbar
   background: inherit
@@ -31,7 +32,7 @@ mat-nav-list
 mat-list-item
   padding: 0
   &:hover
-    background-color: custom.$accent-color
+    background-color: $my-accent-color
 
 mat-list-item a[matLine]
     display: flex
@@ -54,33 +55,33 @@ mat-list-item .list-item-text
 .sidenav
   display: flex
   flex-direction: column
-  height: 100% /* Rozciągnij side-nav na całą wysokość */
+  height: 100%
 
 .mat-nav-list
-  flex-grow: 1 /* Pozwól liście nawigacyjnej zająć całą dostępną przestrzeń */
+  flex-grow: 1
 
 .user-profile
-  padding: 16px /* Odstęp wokół profilu użytkownika */
+  padding: 16px
   display: flex
   align-items: center
-  justify-content: center /* Centrowanie w poziomie */
-  margin-top: 40vh /* Przenieś element na dół sidenav */
-  text-align: center /* Wyrównaj tekst */
+  justify-content: center
+  margin-top: 40vh
+  text-align: center
 
 .user-link
   text-decoration: none
-  color: inherit /* Zachowaj domyślny kolor tekstu */
+  color: inherit
 
 .user-profile .avatar
-  width: 150px /* Ustaw mniejszy rozmiar avatara */
+  width: 150px
   height: 150px
-  border-radius: 50% /* Upewnij się, że avatar jest okrągły */
-  margin-bottom: 8px /* Odstęp między avatarem a nazwą */
+  border-radius: 50%
+  margin-bottom: 8px
 
 .user-profile h3
-  font-size: 1rem /* Dostosowanie rozmiaru tekstu */
+  font-size: 1rem
   margin: 0
 
 .logout
-  background-color: custom.$accent-color
-  color: custom.$primary-text-color
+  background-color: $my-accent-color
+  color: $my-text-color

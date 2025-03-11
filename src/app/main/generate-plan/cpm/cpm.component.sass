@@ -1,8 +1,13 @@
-@use '../../../../custom-theme.scss' as custom
+$primary-color: #2196F3  // Blue
+$accent-color: #FF5252  // Red
+$warn-color: #388E3C     // Green
+$text-color: #333
+$background-color: #F5F5F5
+$primary-text-color:#F5F5F5
 
 mat-card-title-group
-  color: custom.$primary-text-color
-  background-color: custom.$accent-color
+  color: $primary-text-color
+  background-color: $accent-color
   text-align: start
   mat-card-title
     margin-left:20px
@@ -14,11 +19,11 @@ mat-card-title-group
 
 p
   font-size: 10px
-  color: custom.$primary-text-color
+  color: $primary-text-color
 
 .wzor
   font-size: 14px
-  color: custom.$warn-color
+  color: $warn-color
 
 .sport-content
   display: flex

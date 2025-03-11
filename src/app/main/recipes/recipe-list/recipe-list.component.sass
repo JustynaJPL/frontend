@@ -1,7 +1,9 @@
-// @use '@angular/material' as mat
-// @use '@angular/material/theming' as mat-theme
-
-@use '../../../../custom-theme.scss' as custom
+$primary-color: #2196F3  // Blue
+$accent-color:  #388E3C// Red
+$warn-color: #FF5252      // Green
+$text-color: #333
+$background-color: #F5F5F5
+$primary-text-color:#F5F5F5
 
 .container
   margin: 20px
@@ -9,7 +11,7 @@
 
   .mat-row
     &:hover
-      background-color: custom.$primary-hover-color
+      background-color: $primary-color
 
   .actionbuttons
     display: flex
@@ -25,9 +27,9 @@
         padding: 0
         font-size: 20px
     .edit
-        background-color: custom.$accent-color
+        background-color: $accent-color
     .delete
-        background-color: custom.$warn-color
+        background-color: $warn-color
 
     table
       width: 100%

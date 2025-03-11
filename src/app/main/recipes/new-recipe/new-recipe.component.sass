@@ -1,4 +1,9 @@
-@use '../../../../custom-theme.scss' as custom
+$primary-color: #2196F3  // Blue
+$accent-color:  #388E3C// Red
+$warn-color: #FF5252      // Green
+$text-color: #333
+$background-color: #F5F5F5
+$primary-text-color:#F5F5F5
 
 .container
   margin-left: 200px
@@ -60,7 +65,7 @@
         align-items: flex-start
         align-content: flex-start
         padding: 0 2%
-        color: custom.$primary-text-color
+        color: $primary-text-color
 
         h1
           display: block
@@ -134,7 +139,7 @@
           width: 25%
 
         mat-label
-          color: custom.$accent-color
+          color: $accent-color
 
       .instructions
         display: flex
@@ -151,9 +156,9 @@
           width: 100%
 
   .error-btn
-    background-color: custom.$warn-color
+    background-color: $warn-color
     border: none
-    color: custom.$primary-text-color
+    color: $primary-text-color
     padding: 5px
     margin: 20px
 
@@ -164,9 +169,9 @@
     width: 100%
 
   .addskladnik
-    background-color: custom.$accent-color
+    background-color: $accent-color
     border: none
-    color: custom.$primary-text-color
+    color: $primary-text-color
     padding: 5px
     margin: 20px
     border-radius: 5px
@@ -174,9 +179,9 @@
     font-style: bold
 
   .submit-btn
-    background-color: custom.$primary-color
+    background-color: $primary-color
     border: none
-    color: custom.$primary-text-color
+    color: $primary-text-color
     padding: 5px
     margin: 20px
     border-radius: 5px

@@ -1,4 +1,9 @@
-@use '../../../../custom-theme.scss' as custom
+$primary-color: #2196F3  // Blue
+$accent-color:  #388E3C// Red
+$warn-color: #FF5252      // Green
+$text-color: #333
+$background-color: #F5F5F5
+$primary-text-color:#F5F5F5
 
 .no-data, .data, .add
   display: none
@@ -30,9 +35,9 @@ mat-card
   min-height: 35vh
 
 mat-card-header
-  background-color: custom.$primary-color
+  background-color: $primary-color
   padding-bottom: 10px
-  color: custom.$primary-text-color
+  color: $primary-text-color
   margin-bottom: 10px
 
 .add-btn
