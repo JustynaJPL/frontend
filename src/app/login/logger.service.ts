@@ -76,7 +76,7 @@ export class LoggerService {
             height: response.height,
             birth: new Date(response.birth),
             sport: response.sport,
-            avatar: response.avatar.formats.medium.url,
+            avatar: response.avatar.url,
             avatarid: response.avatar.id,
           };
           return d;
