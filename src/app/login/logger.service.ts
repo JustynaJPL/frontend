@@ -1,16 +1,11 @@
 import { Injectable } from "@angular/core";
 import {
   HttpClient,
-  HttpClientModule,
-  HttpHeaders,
 } from "@angular/common/http";
 import { forkJoin, Observable, of, throwError } from "rxjs";
 import { catchError, map, tap } from "rxjs/operators";
 import { MyData } from "../models/MyData";
 import { GDA } from "../models/GDA";
-import { response } from "express";
-import { FormControl, FormGroup } from "@angular/forms";
-import { connect } from "http2";
 import { WeightData } from "../models/OdczytWagi";
 
 @Injectable({

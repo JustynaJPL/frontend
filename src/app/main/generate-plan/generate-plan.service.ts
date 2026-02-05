@@ -5,7 +5,6 @@ import { BehaviorSubject } from "rxjs";
 import { DatabaseConnectorService } from "../database-connector.service";
 import { PrzepisGeneracja } from "../../models/PrzepisGeneracja";
 import { WygenerowanyPlan } from "../../models/WygenerowanyPlan";
-import { stat } from "node:fs/promises";
 
 @Injectable({
   providedIn: "root",

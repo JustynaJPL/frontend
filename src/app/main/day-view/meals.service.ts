@@ -10,10 +10,8 @@ import {
   of,
   throwError,
 } from "rxjs";
-import { GDA } from "../../models/GDA";
 import { Kategoria, KategorieResponse } from "../../models/Kategoria";
-import { switchMap, take, tap, finalize } from "rxjs/operators";
-import { connect } from "http2";
+import { switchMap, take, tap } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root",
