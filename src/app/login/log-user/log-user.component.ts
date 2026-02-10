@@ -32,6 +32,7 @@ import { Router } from "@angular/router"; // Importuj Router
   ],
 })
 export class LogUserComponent implements OnInit {
+
   loginForm: FormGroup;
   isPassVisible: boolean = false;
   loginStatus: string = "";
@@ -70,5 +71,8 @@ export class LogUserComponent implements OnInit {
     } else {
       console.warn("Form is invalid");
     }
+  }
+  goToBrowse() {
+    this.router.navigate(["/browse"]);
   }
 }
