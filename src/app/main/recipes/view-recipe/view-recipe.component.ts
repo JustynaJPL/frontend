@@ -2,14 +2,11 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component } from "@angular/core";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
 import {
-  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from "@angular/forms";
 import { Kategoria } from "../../../models/Kategoria";
@@ -19,11 +16,9 @@ import { DatabaseConnectorService } from "../../database-connector.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Przepis } from "../../../models/Przepis";
 import { Skladnik } from "../../../models/Skladnik";
-import { switchMap } from "rxjs/internal/operators/switchMap";
 import {
   MatError,
   MatOption,
-  MatSelectChange,
   MatSelectModule,
 } from "@angular/material/select";
 import { Location } from "@angular/common";
@@ -33,9 +28,7 @@ import { MatFormFieldModule, MatLabel } from "@angular/material/form-field";
 import { TextFieldModule } from "@angular/cdk/text-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { concatMap, of, Subscription } from "rxjs";
-import { url } from "inspector";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "app-view-recipe",

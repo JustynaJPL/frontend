@@ -1,1 +1,36 @@
-<p>view-product works!</p>
+<div class="container">
+  <div class="back">
+    <button mat-raised-button color="accent" (click)="cancel()">
+      <mat-icon class="mat-18">arrow_back</mat-icon>
+      <label for="">Powrót</label>
+    </button>
+  </div>
+<mat-card>
+  <mat-card-title-group>
+    <mat-card-title>Dane produktu</mat-card-title>
+  </mat-card-title-group>
+  <mat-card-content class="form-content">
+    <form [formGroup]="form">
+    <mat-form-field>
+      <mat-label>Nazwa produktu</mat-label>
+      <input matInput type="text" formControlName="nazwaProduktu" [readonly]="true" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Kcal na 100g</mat-label>
+      <input matInput type="number" formControlName="kcal" [readonly]="true" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Białka na 100g</mat-label>
+      <input matInput type="number" formControlName="bialko" [readonly]="true" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Węglowodany na 100g</mat-label>
+      <input matInput type="number" formControlName="weglowodany" [readonly]="true" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Tłuszcze na 100g</mat-label>
+      <input matInput type="number" formControlName="tluszcze" [readonly]="true" />
+    </mat-form-field>
+    </form>
+  </mat-card-content>
+</mat-card>

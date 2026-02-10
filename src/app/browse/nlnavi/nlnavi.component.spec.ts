@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewRecipeComponent } from './view-recipe.component';
+import { NlnaviComponent } from './nlnavi.component';
 
-describe('ViewRecipeComponent', () => {
-  let component: ViewRecipeComponent;
-  let fixture: ComponentFixture<ViewRecipeComponent>;
+describe('NlnaviComponent', () => {
+  let component: NlnaviComponent;
+  let fixture: ComponentFixture<NlnaviComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ViewRecipeComponent]
+      imports: [NlnaviComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(ViewRecipeComponent);
+    fixture = TestBed.createComponent(NlnaviComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

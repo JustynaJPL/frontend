@@ -1,49 +1,60 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
-import { AuthGuard } from '../auth-guard.service'; // Import AuthGuard
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { RouterModule, Routes } from "@angular/router";
+import { ReactiveFormsModule } from "@angular/forms";
+import { AuthGuard } from "../auth-guard.service";
+import { RecipesModule } from "./recipes/recipes.module";
+import { AppNaviComponent } from "../app-navi/app-navi.component";
 
 const routes: Routes = [
   {
-    path: 'dashboard',
-    loadChildren: () => import('./day-view/day-view.module').then(m => m.DayViewModule),
-    canActivate: [AuthGuard] // Zabezpieczenie trasy
+    path: "",
+    component: AppNaviComponent,
+    children: [
+      {
+        path: "dashboard",
+        loadChildren: () =>
+          import("./day-view/day-view.module").then((m) => m.DayViewModule),
+        canActivate: [AuthGuard], // Zabezpieczenie trasy
+      },
+      {
+        path: "my-data",
+        loadChildren: () =>
+          import("./user-data/user-data.module").then((m) => m.UserDataModule),
+        canActivate: [AuthGuard], // Zabezpieczenie trasy
+      },
+      {
+        path: "recipes",
+        loadChildren: () =>
+          import("./recipes/recipes.module").then((m) => m.RecipesModule),
+        canActivate: [AuthGuard], // Zabezpieczenie trasy
+      },
+      {
+        path: "products",
+        loadChildren: () =>
+          import("./products/products.module").then((m) => m.ProductsModule),
+        canActivate: [AuthGuard], // Zabezpieczenie trasy
+      },
+      {
+        path: "generate",
+        loadChildren: () =>
+          import("./generate-plan/generate-plan.module").then(
+            (m) => m.GeneratePlanModule,
+          ),
+        canActivate: [AuthGuard], // Zabezpieczenie trasy
+      },
+      {
+        path: "",
+        redirectTo: "dashboard",
+        pathMatch: "full",
+      },
+    ],
   },
-  {
-    path: 'my-data',
-    loadChildren: () => import('./user-data/user-data.module').then(m => m.UserDataModule),
-    canActivate: [AuthGuard] // Zabezpieczenie trasy
-  },
-  {
-    path: 'recipes',
-    loadChildren: () => import('./recipes/recipes.module').then(m => m.RecipesModule),
-    canActivate: [AuthGuard] // Zabezpieczenie trasy
-  },
-  {
-    path: 'products',
-    loadChildren: () => import('./products/products.module').then(m => m.ProductsModule),
-    canActivate: [AuthGuard] // Zabezpieczenie trasy
-  },
-  {
-    path: 'generate',
-    loadChildren: () => import('./generate-plan/generate-plan.module').then(m => m.GeneratePlanModule),
-    canActivate: [AuthGuard] // Zabezpieczenie trasy
-  },
-  {
-    path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full',
-  }
 ];
 
 @NgModule({
   declarations: [],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(routes),
-    ReactiveFormsModule
-  ],
-  exports: [RouterModule]
+  imports: [CommonModule, RouterModule.forChild(routes), ReactiveFormsModule],
+  exports: [RouterModule, RecipesModule],
 })
-export class MainModule { }
+export class MainModule {}

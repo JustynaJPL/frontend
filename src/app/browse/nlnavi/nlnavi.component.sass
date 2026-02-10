@@ -1,0 +1,29 @@
+$my-primary-color: #2196F3 // Blue
+$my-accent-color: #FF5252 // Red
+$my-warn-color: #388E3C // Green
+$my-text-color: #fff
+$my-background-color: #333
+
+.module-nav
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  z-index: 100
+  background-color: $my-primary-color
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+
+  button
+    margin: 20px
+    background-color: $my-warn-color
+    &:hover
+      background-color: $my-accent-color
+      color: $my-text-color
+
+.content
+  margin-top: 80px
+  padding: 20px
+  display: flex
+  flex-direction: column

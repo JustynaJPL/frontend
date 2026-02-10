@@ -61,7 +61,9 @@ export class DatabaseConnectorService {
   // recipes code
   getAllrecipes(): Observable<Przepis[]> {
     return this.http
-      .get(this._APIURL + this.przepisurl + "?populate=*", this.authopts)
+      .get(this._APIURL + this.przepisurl + "?populate=*"
+        // , this.authopts
+      )
       .pipe(
         map((data: any) => {
           let recipes: Przepis[] = data.data.map((item: any) => ({
@@ -124,8 +126,8 @@ export class DatabaseConnectorService {
         .get(
           "http://localhost:1337/api/przepisy?filters[id][$eq]=" +
             id +
-            "&populate=*",
-          this.authopts
+            "&populate=*"
+            // ,this.authopts
         )
         .subscribe((data: any) => {
           console.log(data);
@@ -181,8 +183,8 @@ export class DatabaseConnectorService {
       .get(
         "http://localhost:1337/api/skladniks?filters[przepis][id][$eq]=" +
           id +
-          "&populate[2]=produkt.nazwaProduktu",
-        this.authopts
+          "&populate[2]=produkt.nazwaProduktu"
+          // ,this.authopts
       )
       .pipe(
         map((response: any) => {

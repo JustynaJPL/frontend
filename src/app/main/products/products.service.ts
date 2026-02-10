@@ -31,7 +31,9 @@ export class ProductsService {
    * Pobranie wszystkich produktów
    */
   getProdukts(): Observable<Produkt[]> {
-    return this.http.get<{ data: ProduktApi[] }>(this.ApiURL + this.productsURL, this.getAuthOptions())
+    return this.http.get<{ data: ProduktApi[] }>(this.ApiURL + this.productsURL
+      // , this.getAuthOptions()
+  )
       .pipe(
         map((response) => {
           const products = response.data.map((item) => ({
@@ -156,8 +158,8 @@ export class ProductsService {
   getProduktWithID(id: number): Observable<Produkt | null> {
     return this.http
       .get<{ data: ProduktApi }>(
-        this.ApiURL + this.productsURL + '/' + id,
-        this.getAuthOptions()
+        this.ApiURL + this.productsURL + '/' + id
+        // ,this.getAuthOptions()
       )
       .pipe(
         map((response) => ({

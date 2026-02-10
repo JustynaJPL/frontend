@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { RecipeListComponent } from './recipe-list/recipe-list.component';
-import { ViewRecipeComponent } from './view-recipe/view-recipe.component';
+import { ViewRecipeComponent } from '../../main/recipes/view-recipe/view-recipe.component';
 
 export const routes: Routes = [
   {path:'list', component:RecipeListComponent},
@@ -17,7 +17,9 @@ export const routes: Routes = [
 @NgModule({
   declarations: [],
   imports: [
-    CommonModule
-  ]
+    CommonModule,
+    RouterModule.forChild(routes)
+  ],
+  exports: [RouterModule]
 })
 export class NlrecipesModule { }

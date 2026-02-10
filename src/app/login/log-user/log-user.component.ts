@@ -61,7 +61,7 @@ export class LogUserComponent implements OnInit {
       this.loggerService.login(this.loginForm.value).subscribe(
         () => {
           console.log('Login successful');
-          this.router.navigate(["/logged"]);
+          this.router.navigate(["/logged/dashboard"]);
           // Tutaj możemy dodać dodatkowe działania po zalogowaniu
         },
         (error) => {
