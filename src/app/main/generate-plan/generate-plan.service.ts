@@ -110,12 +110,6 @@ export class GeneratePlanService {
       this.statisticAnalize(recipe.idKategorii, recipe.kcal);
     });
     this.showStatistics();
-
-    // console.log("k1:", this.przepisK1);
-    // console.log("k2:", this.przepisK2);
-    // console.log("k3:", this.przepisK3);
-    // console.log("k4:", this.przepisK4);
-
     this.generateResults();
   }
 
@@ -162,10 +156,10 @@ export class GeneratePlanService {
 
   private sortResults() {
     this.results.sort((a, b) => a.fit - b.fit);
-    this.chooseRandom();
+    this.chooseRecipeswithoutDoubles();
   }
 
-  private chooseRandom() {
+  private chooseRecipeswithoutDoubles() {
     // let randomPicks: Set<number> = new Set();
     const maxIndex = this.results.findIndex(
       (result) => result.fit >= 45 && result.fit <= 55
@@ -207,14 +201,6 @@ export class GeneratePlanService {
         break genloop;
       }
     }
-
-    // console.log("Wybrane numery ", Array.from(randomPicks));
-
-    // randomPicks.forEach((pick) => {
-    //   // console.log(`Rezultat: ${pick} : `, this.results[pick]);
-    //   this.wybraneR.push(this.results[pick]);
-    // });
-    // // console.log("Wyniki: ", this.wybraneR);
 
     this.returnPlantoUser();
   }

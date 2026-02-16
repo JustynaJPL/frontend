@@ -19,14 +19,16 @@
           <mat-error *ngIf="loginForm.get('pass')?.invalid && loginForm.get('pass')?.touched">Hasło jest wymagane</mat-error>
           <mat-hint></mat-hint>
         </mat-form-field>
-        <mat-card-footer class="example-card-footer">
+        <mat-card-footer class="card-footer">
           <button mat-button class="btn-sub" type="submit" [disabled]="loginForm.invalid">Zaloguj</button>
         </mat-card-footer>
       </form>
       </mat-card-content>
-      <mat-card-footer class="example-card-footer">
-        <span>Nie masz konta? <a routerLink="/register">Zarejestruj się</a></span>
-        <button mat-button (click)="goToBrowse()">Sprawdz bez logowania</button>
+      <mat-card-footer class="card-footer">
+        <span>Nie masz konta?</span>
+        <span>Skontaktuj się z administratorem, aby uzyskać dostęp.</span>
+        <button mat-button color="primary" (click)="openContactDialog()">Kontakt</button>
+        <button mat-button color="accent" (click)="goToBrowse()">Sprawdz bez logowania</button>
         </mat-card-footer>
   </mat-card>
 </div>

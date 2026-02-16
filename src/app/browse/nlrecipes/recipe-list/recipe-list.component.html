@@ -12,23 +12,23 @@
 
   <mat-table [dataSource]="dataSource" class="flex-table">
     <!-- Nazwa -->
-    <ng-container matColumnDef="nazwa">
-      <th mat-header-cell *matHeaderCellDef>NAZWA</th>
+    <ng-container matColumnDef="nazwa" class="flex-cell-large">
+      <th mat-header-cell *matHeaderCellDef class="flex-cell-large">Nazwa przepisu</th>
       <td mat-cell *matCellDef="let row">
         {{ row.nazwaPrzepisu }}
       </td>
     </ng-container>
 
     <!-- Kategoria -->
-    <ng-container matColumnDef="kategoria">
-      <th mat-header-cell *matHeaderCellDef>KATEGORIA PRZEPISU</th>
+    <ng-container matColumnDef="kategoria" class="flex-cell-large">
+      <th mat-header-cell *matHeaderCellDef class="flex-cell-large">Kategoria przepisu</th>
       <td mat-cell *matCellDef="let row">
         {{ row.kategoria?.nazwa }}
       </td>
     </ng-container>
 
     <!-- Kcal -->
-    <ng-container matColumnDef="kcal">
+    <ng-container matColumnDef="kcal" class="flex-cell-small">
       <th mat-header-cell *matHeaderCellDef>Kcal</th>
       <td mat-cell *matCellDef="let row">
         {{ row.gda?.kcal }}
@@ -36,32 +36,32 @@
     </ng-container>
 
     <!-- Białko -->
-    <ng-container matColumnDef="bialko">
-      <th mat-header-cell *matHeaderCellDef>Białko</th>
+    <ng-container matColumnDef="bialko" class="flex-cell-small">
+      <th mat-header-cell *matHeaderCellDef class="flex-cell-small">Białko</th>
       <td mat-cell *matCellDef="let row">
         {{ row.gda?.bialka }}
       </td>
     </ng-container>
 
     <!-- Tłuszcze -->
-    <ng-container matColumnDef="tluszcze">
-      <th mat-header-cell *matHeaderCellDef>Tłuszcze</th>
+    <ng-container matColumnDef="tluszcze" class="flex-cell-small">
+      <th mat-header-cell *matHeaderCellDef class="flex-cell-small">Tłuszcze</th>
       <td mat-cell *matCellDef="let row">
         {{ row.gda?.tluszcze }}
       </td>
     </ng-container>
 
     <!-- Węglowodany -->
-    <ng-container matColumnDef="weglowodany">
-      <th mat-header-cell *matHeaderCellDef>Węglowodany</th>
+    <ng-container matColumnDef="weglowodany" class="flex-cell-large">
+      <th mat-header-cell *matHeaderCellDef class="flex-cell-large">Węglowodany</th>
       <td mat-cell *matCellDef="let row">
         {{ row.gda?.weglowodany }}
       </td>
     </ng-container>
 
     <!-- Actions -->
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
+    <ng-container matColumnDef="actions" class="flex-cell-large">
+      <th mat-header-cell *matHeaderCellDef class="flex-cell-large"></th>
       <td mat-cell *matCellDef="let row">
         <button
           mat-icon-button

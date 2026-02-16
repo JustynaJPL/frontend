@@ -75,4 +75,11 @@ export class LogUserComponent implements OnInit {
   goToBrowse() {
     this.router.navigate(["/browse"]);
   }
+
+  openContactDialog(): void {
+    const email = 'admin@example.com'; // zmień na adres administratora
+    const subject = encodeURIComponent('Prośba o dostęp');
+    const body = encodeURIComponent('Dzień dobry,\n\nProszę o przyznanie dostępu do aplikacji.\n\nPozdrawiam,\n');
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  }
 }

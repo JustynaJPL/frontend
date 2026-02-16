@@ -128,6 +128,8 @@ export class WeightDataComponent {
     ).subscribe({
         next: (response) => {
             console.log('Weight data added successfully:', response);
+            // Optionally, you can refresh the weight data list or update the chart here
+            this.ngOnInit(); // Refresh data
         },
         error: (error) => {
             // Handle the error in the subscription if needed

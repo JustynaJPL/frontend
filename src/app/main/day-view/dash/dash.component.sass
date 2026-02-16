@@ -1,17 +1,14 @@
-$primary-color: #2196F3  // Blue
-$accent-color: #FF5252  // Red
-$warn-color: #388E3C     // Green
+$primary-color: #2196F3 // Blue
+$accent-color: #FF5252 // Red
+$warn-color: #388E3C // Green
 $text-color: #333
 $background-color: #F5F5F5
-$primary-text-color:#F5F5F5
+$primary-text-color: #F5F5F5
 
 .grid-container
 
-
-
 mat-card-content
-  width: 100%
-
+  width: 90%
 
 .summary
   color: $background-color
@@ -26,32 +23,29 @@ mat-card-content
     align-content: stretch
 
     mat-card-header
-      background-color: $primary-color
-      margin-bottom: 10px
-      padding-bottom: 5px
+    // background-color: $primary-color
+    margin-bottom: 10px
+    padding-bottom: 5px
 
 .h-names
   color: white
 
-
 .custom-table-container
-  display: block  // Pozwól tabeli działać poprawnie w kontenerze
+  display: block // Pozwól tabeli działać poprawnie w kontenerze
   margin-bottom: 20px
-  width: 100%  // Tabela wypełnia cały kontener
+  width: 100% // Tabela wypełnia cały kontener
 
   .custom-table
-    width: 1700px  // Tabela zajmuje całą szerokość
-    table-layout: fixed  // Ustawiamy stałe szerokości kolumn
-    border-collapse: collapse  // Zmniejszamy marginesy między komórkami
-    white-space: normal  // Pozwalamy na zawijanie tekstu w komórkach
-    word-wrap: break-word  // Łamiemy długie słowa w tekście
+    // width: 1700px // Tabela zajmuje całą szerokość
+    table-layout: fixed // Ustawiamy stałe szerokości kolumn
+    border-collapse: collapse // Zmniejszamy marginesy między komórkami
+    white-space: normal // Pozwalamy na zawijanie tekstu w komórkach
+    word-wrap: break-word // Łamiemy długie słowa w tekście
 
     th,
     td
-      padding: 8px  // Margines wewnętrzny dla czytelności
-      text-align: left  // Wyrównanie tekstu do lewej
-
-
+      padding: 8px // Margines wewnętrzny dla czytelności
+      text-align: left // Wyrównanie tekstu do lewej
 
     /* Kolumny o szerokości w procentach */
     .nazwa
@@ -73,7 +67,7 @@ mat-card-content
       align-content: center
 
 .mat-header-row
-    background-color: $warn-color
+  background-color: $warn-color
 
 .but-add
   background-color: $accent-color
@@ -93,5 +87,4 @@ mat-card-content
   justify-content: flex-start
   align-items: flex-start
   align-content: space-between
-
-
+  margin-top: 20px
