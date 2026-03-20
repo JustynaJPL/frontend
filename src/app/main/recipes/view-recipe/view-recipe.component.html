@@ -35,15 +35,11 @@
             <h1>Kategoria przepisu</h1>
             <div formGroupName="kategoria" class="kategoria">
               <mat-form-field>
-                <mat-label>Wybierz kategorię</mat-label>
-                <mat-select formControlName="nazwa">
-                  <mat-option
-                    *ngFor="let kat of kategorie; let i = index"
-                    [value]="kat.nazwa"
-                  >
-                    {{ kat.nazwa }}
-                  </mat-option>
-                </mat-select>
+                <mat-label>Kategoria</mat-label>
+                <input
+                  matInput
+                  formControlName="nazwa"
+                />
               </mat-form-field>
             </div>
           </div>
@@ -66,15 +62,12 @@
             >
               <div class="main">
                 <mat-form-field>
-                  <mat-label>Wybierz produkt</mat-label>
-                  <mat-select formControlName="nazwa" [disabled]="true">
-                    <mat-option
-                      *ngFor="let prod of produkty; let j = index"
-                      [value]="prod.nazwaProduktu"
-                    >
-                      {{ prod.nazwaProduktu }}
-                    </mat-option>
-                  </mat-select>
+                  <mat-label>Produkt</mat-label>
+                  <input
+                    matInput
+                    [value]="skladnik.get('nazwa')?.value"
+                    disabled
+                  />
                 </mat-form-field>
                 <mat-form-field class="main">
                   <mat-label>Ilość[g]</mat-label>
