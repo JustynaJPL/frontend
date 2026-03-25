@@ -64,9 +64,14 @@ export class RecipeListComponent {
 
   ngOnInit(): void {
     this.recipes$ = this.dbconnect.recipes$;
-    this.dbconnect.refreshRecipes();
-    this.recipes$.subscribe((recipes) => {
-      this.dataSource.data = recipes;
+
+    this.dbconnect.loadUserId().subscribe(() => {
+      this.dbconnect.refreshRecipes();
+
+      this.recipes$.subscribe((recipes) => {
+        this.dataSource.data = recipes;
+        console.log("Przepisy zostały załadowane:", recipes);
+      });
     });
   }
 
@@ -86,7 +91,7 @@ export class RecipeListComponent {
       },
       (error) => {
         console.log(`Błąd podczas usuwania przepisu o id ${id}:`, error);
-      }
+      },
     );
   }
 

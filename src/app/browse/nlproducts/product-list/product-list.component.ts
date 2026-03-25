@@ -9,7 +9,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Produkt } from "../../../models/Produkt";
 import { ProductsService } from "../../../main/products/products.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, switchMap, takeUntil } from "rxjs";
 
 @Component({
   selector: "app-product-list",
@@ -40,23 +40,31 @@ export class ProductListComponent {
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 
-  constructor(private prodService: ProductsService, private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private prodService: ProductsService,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
-    // Subskrybujemy produkty i aktualizujemy tabelę
-    this.prodService.produkty$
-      .pipe(takeUntil(this.destroy$)) // Automatyczne zakończenie subskrypcji
+    this.prodService
+      .initUser()
+      .pipe(
+        switchMap(() => this.prodService.getProdukts()),
+        takeUntil(this.destroy$),
+      )
       .subscribe((produkty: Produkt[]) => {
         produkty = produkty.sort((a, b) =>
           a.nazwaProduktu.localeCompare(b.nazwaProduktu),
         );
-        this.datasource.data = produkty; // Aktualizacja danych w tabeli
-        console.log("Dane produktów zostały zaktualizowane:", produkty);
+
+        this.datasource.data = produkty;
+
+        console.log("Dane produktów zostały załadowane:", produkty);
       });
 
-    // Konfiguracja paginatora
-    this.datasource.paginator = this.paginator;
-    this.paginator.pageSize = 10; // Liczba elementów na stronę
+     this.datasource.paginator = this.paginator;
+    this.paginator.pageSize = 10;
     this.paginator.pageIndex = 0;
   }
 

@@ -1,66 +1,71 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { Produkt } from '../../models/Produkt';
-import { ProduktApi } from '../../models/ProduktApi';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable, of } from "rxjs";
+import { catchError, map } from "rxjs/operators";
+import { Produkt } from "../../models/Produkt";
+import { ProduktApi } from "../../models/ProduktApi";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ProductsService {
-  private readonly ApiURL = 'http://localhost:1337/';
-  private readonly productsURL = 'api/produkts';
+  private readonly ApiURL = "http://localhost:1337";
+  private readonly productsURL = "/api/produkts";
+  private readonly urlme = "/api/users/me";
 
-  // BehaviorSubject przechowujący listę produktów
-  private produktySubject = new BehaviorSubject<Produkt[]>([]);
-  public produkty$ = this.produktySubject.asObservable();
+  private currentUserId: number | null = null;
+   private authopts = {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  };
 
-  constructor(private http: HttpClient) {
-    this.getProdukts().subscribe();
+  constructor(private http: HttpClient) {}
+
+  // 🔐 Pobranie usera (opcjonalne)
+  initUser(): Observable<number | null> {
+    return this.http.get<any>(this.ApiURL + this.urlme, this.authopts).pipe(
+      map((res) => {
+        this.currentUserId = res.id;
+        return res.id;
+      }),
+      catchError(() => {
+        this.currentUserId = null;
+        return of(null);
+      }),
+    );
   }
 
-  // Opcje autoryzacji
-  private getAuthOptions() {
-    return {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-    };
-  }
-
-  /**
-   * Pobranie wszystkich produktów
-   */
+  // 📥 Pobranie produktów
   getProdukts(): Observable<Produkt[]> {
-    return this.http.get<{ data: ProduktApi[] }>(this.ApiURL + this.productsURL
-      // , this.getAuthOptions()
-  )
-      .pipe(
-        map((response) => {
-          const products = response.data.map((item) => ({
-            id: item.id,
-            nazwaProduktu: item.attributes.nazwaProduktu,
-            kcal: item.attributes.kcal,
-            tluszcze: item.attributes.tluszcze,
-            weglowodany: item.attributes.weglowodany,
-            bialko: item.attributes.bialko,
-          }));
-          this.produktySubject.next(products); // Emituj dane do BehaviorSubject
-          return products;
-        }),
-        catchError((error) => {
-          console.error('Error fetching products', error);
-          return of([]);
-        })
-      );
+    let url = this.ApiURL + this.productsURL + "?populate=*";
+
+    if (this.currentUserId) {
+      url +=
+        "&filters[$or][0][users_permissions_users][id][$notIn]=" +
+        this.currentUserId +
+        "&filters[$or][1][users_permissions_users][id][$null]=true";
+    }
+
+    return this.http.get<{ data: ProduktApi[] }>(url).pipe(
+      map((response) =>
+        response.data.map((item) => ({
+          id: item.id,
+          nazwaProduktu: item.attributes.nazwaProduktu,
+          kcal: item.attributes.kcal,
+          tluszcze: item.attributes.tluszcze,
+          weglowodany: item.attributes.weglowodany,
+          bialko: item.attributes.bialko,
+        })),
+      ),
+      catchError((err) => {
+        console.error("Błąd pobierania produktów:", err);
+        return of([]);
+      }),
+    );
   }
 
-
-
-  /**
-   * Dodanie nowego produktu
-   */
+  // ➕ Dodanie produktu
   addProdukt(product: Produkt): Observable<Produkt | null> {
-    const data = {
+    const body = {
       data: {
         nazwaProduktu: product.nazwaProduktu,
         kcal: product.kcal,
@@ -71,34 +76,23 @@ export class ProductsService {
     };
 
     return this.http
-      .post<{ data: ProduktApi }>(
-        this.ApiURL + this.productsURL,
-        data,
-        this.getAuthOptions()
-      )
+      .post<{ data: ProduktApi }>(this.ApiURL + this.productsURL, body)
       .pipe(
-        map((response) => ({
-          id: response.data.id,
-          nazwaProduktu: response.data.attributes.nazwaProduktu,
-          kcal: response.data.attributes.kcal,
-          tluszcze: response.data.attributes.tluszcze,
-          weglowodany: response.data.attributes.weglowodany,
-          bialko: response.data.attributes.bialko,
+        map((res) => ({
+          id: res.data.id,
+          nazwaProduktu: res.data.attributes.nazwaProduktu,
+          kcal: res.data.attributes.kcal,
+          tluszcze: res.data.attributes.tluszcze,
+          weglowodany: res.data.attributes.weglowodany,
+          bialko: res.data.attributes.bialko,
         })),
-        tap((newProduct) => {
-          // Aktualizujemy lokalne dane natychmiast po dodaniu
-          const currentProducts = this.produktySubject.value;
-          this.produktySubject.next([...currentProducts, newProduct]);
-        }),
-        catchError(this.handleError)
+        catchError(() => of(null)),
       );
   }
 
-  /**
-   * Edycja istniejącego produktu
-   */
+  // ✏️ Edycja produktu
   editProdukt(product: Produkt): Observable<Produkt | null> {
-    const data = {
+    const body = {
       data: {
         nazwaProduktu: product.nazwaProduktu,
         kcal: product.kcal,
@@ -110,84 +104,51 @@ export class ProductsService {
 
     return this.http
       .put<{ data: ProduktApi }>(
-        this.ApiURL + this.productsURL + '/' + product.id,
-        data,
-        this.getAuthOptions()
+        this.ApiURL + this.productsURL + "/" + product.id,
+        body,
       )
       .pipe(
-        map((response) => ({
-          id: response.data.id,
-          nazwaProduktu: response.data.attributes.nazwaProduktu,
-          kcal: response.data.attributes.kcal,
-          tluszcze: response.data.attributes.tluszcze,
-          weglowodany: response.data.attributes.weglowodany,
-          bialko: response.data.attributes.bialko,
+        map((res) => ({
+          id: res.data.id,
+          nazwaProduktu: res.data.attributes.nazwaProduktu,
+          kcal: res.data.attributes.kcal,
+          tluszcze: res.data.attributes.tluszcze,
+          weglowodany: res.data.attributes.weglowodany,
+          bialko: res.data.attributes.bialko,
         })),
-        tap((updatedProduct) => {
-          // Aktualizujemy lokalne dane natychmiast po edycji
-          const currentProducts = this.produktySubject.value.map((p) =>
-            p.id === updatedProduct.id ? updatedProduct : p
-          );
-          this.produktySubject.next(currentProducts);
-        }),
-        catchError(this.handleError)
+        catchError(() => of(null)),
       );
   }
 
-  /**
-   * Usunięcie produktu
-   */
-  deleteProdukt(id: number): Observable<void> {
-    return this.http
-      .delete<void>(this.ApiURL + this.productsURL +'/'+ id, this.getAuthOptions())
-      .pipe(
-        tap(() => {
-          // Aktualizujemy lokalne dane natychmiast po usunięciu
-          const currentProducts = this.produktySubject.value.filter(
-            (p) => p.id !== id
-          );
-          this.produktySubject.next(currentProducts);
-        }),
-        catchError(this.handleError)
-      );
+  // ❌ "Usunięcie" (czyli przypisanie usera)
+  deleteProdukt(id: number): Observable<any> {
+    if (!this.currentUserId) return of(null);
+
+    const body = {
+      data: {
+        users_permissions_users: {
+          connect: [this.currentUserId],
+        },
+      },
+    };
+
+    return this.http.put(this.ApiURL + this.productsURL + "/" + id, body, this.authopts);
   }
 
-  /**
-   * Pobranie produktu o konkretnym ID
-   */
+  // 🔍 Pobranie jednego produktu
   getProduktWithID(id: number): Observable<Produkt | null> {
     return this.http
-      .get<{ data: ProduktApi }>(
-        this.ApiURL + this.productsURL + '/' + id
-        // ,this.getAuthOptions()
-      )
+      .get<{ data: ProduktApi }>(this.ApiURL + this.productsURL + "/" + id)
       .pipe(
-        map((response) => ({
-          id: response.data.id,
-          nazwaProduktu: response.data.attributes.nazwaProduktu,
-          kcal: response.data.attributes.kcal,
-          tluszcze: response.data.attributes.tluszcze,
-          weglowodany: response.data.attributes.weglowodany,
-          bialko: response.data.attributes.bialko,
+        map((res) => ({
+          id: res.data.id,
+          nazwaProduktu: res.data.attributes.nazwaProduktu,
+          kcal: res.data.attributes.kcal,
+          tluszcze: res.data.attributes.tluszcze,
+          weglowodany: res.data.attributes.weglowodany,
+          bialko: res.data.attributes.bialko,
         })),
-        catchError(this.handleError)
+        catchError(() => of(null)),
       );
-  }
-
-  /**
-   * Centralna obsługa błędów HTTP
-   */
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'Wystąpił błąd';
-    if (error.error instanceof ErrorEvent) {
-      // Błąd po stronie klienta
-      errorMessage = `Błąd klienta: ${error.error.message}`;
-    } else {
-      // Błąd po stronie serwera
-      errorMessage = `Błąd serwera (${error.status}): ${error.message}`;
-    }
-    console.error(errorMessage);
-    alert(errorMessage);
-    return throwError(() => new Error(errorMessage));
   }
 }

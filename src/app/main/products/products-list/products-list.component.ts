@@ -1,69 +1,65 @@
-import { Component, ViewChild, OnDestroy, OnInit } from '@angular/core';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Produkt } from '../../../models/Produkt';
-import { ProductsService } from '../products.service';
-import { catchError, Observable, Subject, takeUntil } from 'rxjs';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { Router } from '@angular/router';
+import { Component, ViewChild, OnDestroy, OnInit } from "@angular/core";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { Produkt } from "../../../models/Produkt";
+import { ProductsService } from "../products.service";
+import { catchError, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { Router } from "@angular/router";
 import { AppNaviComponent } from "../../../app-navi/app-navi.component";
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { CommonModule } from "@angular/common";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
 
 @Component({
-    selector: 'app-products-list',
-    standalone: true,
-    templateUrl: './products-list.component.html',
-    styleUrl: './products-list.component.sass',
-    imports: [AppNaviComponent,
-      CommonModule,
-      MatTableModule,
-      MatButtonModule,
-      MatIconModule,
-      MatPaginatorModule,
-      MatFormFieldModule,
-      MatInputModule
-    ]
+  selector: "app-products-list",
+  standalone: true,
+  templateUrl: "./products-list.component.html",
+  styleUrl: "./products-list.component.sass",
+  imports: [
+    AppNaviComponent,
+    CommonModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
 })
 export class ProductsListComponent implements OnInit, OnDestroy {
   datasource = new MatTableDataSource<Produkt>();
   private destroy$ = new Subject<void>();
   displayedColumns = [
-    'nazwa',
-    'kcal',
-    'bialka',
-    'tluszcze',
-    'weglowodany',
-    'actions',
+    "nazwa",
+    "kcal",
+    "bialka",
+    "tluszcze",
+    "weglowodany",
+    "actions",
   ];
 
-  macroColumns: string[] = ['nazwa', 'makroskladniki', 'actions'];
+  macroColumns: string[] = ["nazwa", "makroskladniki", "actions"];
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 
-  constructor(
-    private prodService: ProductsService,
-    private router: Router
-  ) {
-  }
+  constructor(private prodService: ProductsService, private router: Router) {}
 
   ngOnInit(): void {
-    // Subskrybujemy produkty i aktualizujemy tabelę
-    this.prodService.produkty$
-      .pipe(takeUntil(this.destroy$)) // Automatyczne zakończenie subskrypcji
-      .subscribe(
-        (produkty:Produkt[]) => {
-          produkty = produkty.sort((a, b) => a.nazwaProduktu.localeCompare(b.nazwaProduktu));
-          this.datasource.data = produkty; // Aktualizacja danych w tabeli
-          console.log('Dane produktów zostały zaktualizowane:', produkty);
-        }
-      );
+    this.prodService
+      .initUser()
+      .pipe(switchMap(() => this.prodService.getProdukts()))
+      .subscribe((produkty: Produkt[]) => {
+        produkty = produkty.sort((a, b) =>
+          a.nazwaProduktu.localeCompare(b.nazwaProduktu),
+        );
 
-    // Konfiguracja paginatora
+        this.datasource.data = produkty;
+      });
+
     this.datasource.paginator = this.paginator;
-    this.paginator.pageSize = 10; // Liczba elementów na stronę
+    this.paginator.pageSize = 10;
     this.paginator.pageIndex = 0;
   }
 
@@ -79,29 +75,33 @@ export class ProductsListComponent implements OnInit, OnDestroy {
    */
   optionsforProduct(mode: string, id: number): void {
     switch (mode) {
-      case 'edit':
+      case "edit":
         // Nawigacja do edycji produktu
-        this.router.navigate(['/logged/products/', 'edit', id]);
+        this.router.navigate(["/logged/products/", "edit", id]);
         break;
-      case 'delete':
+      case "delete":
         // Usuwanie produktu
         this.prodService.deleteProdukt(id).subscribe({
           next: () => {
-            console.log(`Produkt o ID ${id} został usunięty.`);
-            // Lista produktów zostanie automatycznie zaktualizowana
-          },
-          error: (err) => {
-            console.error('Błąd podczas usuwania produktu:', err);
-            alert('Nie udało się usunąć produktu. Sprawdź logi.');
-          },
+          console.log(`Produkt o ID ${id} został usunięty.`);
+          this.prodService.getProdukts().subscribe((produkty) => {
+            this.datasource.data = produkty.sort((a, b) =>
+              a.nazwaProduktu.localeCompare(b.nazwaProduktu)
+            );
+          });
+        },
+        error: (err) => {
+          console.error("Błąd podczas usuwania produktu:", err);
+          alert("Nie udało się usunąć produktu. Sprawdź logi.");
+        },
         });
         break;
-        case 'new':
-          this.router.navigate(['logged/products/new']);
+      case "new":
+        this.router.navigate(["logged/products/new"]);
         break;
       default:
         // Nawigacja do widoku szczegółowego
-        this.router.navigate(['/logged/products/', 'view', id]);
+        this.router.navigate(["/logged/products/", "view", id]);
         break;
     }
   }

@@ -1,58 +1,45 @@
-$my-primary-color: #2196F3  // Blue
-$my-accent-color: #FF5252  // Red
-$my-warn-color: #388E3C     // Green
+$my-primary-color: #2196F3 // Blue
+$my-accent-color: #FF5252 // Red
+$my-warn-color: #388E3C // Green
 $my-text-color: #333
-$my-background-color: #F5F5F5
+$my-background-color: #f5f5f519
 
+// Kontener główny
 .grid-container
   display: flex
   flex-direction: column
-  flex-wrap: wrap
-  justify-content: flex-start
-  align-items: flex-start
-  align-content: flex-start
   padding: 16px
   min-height: 100vh
+  background-color: $my-background-color
 
   .but-back
-    margin: 20px
+    margin: 20px 0
 
-mat-card
-  width: 100%
-  max-width: 90%
-  padding: 24px
-  border-radius: 8px
-  display: flex
-  flex-direction: column
-  gap: 24px
+  mat-card
+    width: 100%
+    max-width: 900px
+    padding: 24px
+    border-radius: 8px
+    display: flex
+    flex-direction: column
+    gap: 24px
+    margin: 0 auto
 
-.meal-form
-  display: flex
-  flex-direction: row
-  flex-wrap: wrap
-  justify-content: flex-start
-  align-items: flex-start
-  align-content: flex-start
-  grid-template-columns: 1fr
-  gap: 24px
-
+// Obrazek
 .imgcontainer
   display: flex
   justify-content: center
-  overflow: hidden
-
-
-.meal-img
-  width: 100%
-  max-width: 30vw
-  max-height: 30vh
-  height: auto
-  max-height: 40vh
-  object-fit: cover
-  border-radius: 8px
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1)
   margin-bottom: 20px
 
+  .meal-img
+    width: 100%
+    max-width: 30vw
+    max-height: 40vh
+    object-fit: cover
+    border-radius: 8px
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.1)
+
+// Formularz
 .meal-content
   display: flex
   flex-direction: column
@@ -60,31 +47,57 @@ mat-card
 
 .meal-data
   display: flex
-  flex-direction: column
+  flex-wrap: wrap
+  gap: 24px
 
+// Flex-items (kolumny formularza)
+.flex-container
+  display: flex
+  flex-wrap: wrap
+  gap: 24px
+
+  .flex-item
+    flex: 1 1 250px // rośnie, kurczy się, minimalna szerokość
+    display: flex
+    flex-direction: column
+    gap: 16px
+
+// Pola formularza
 mat-form-field
-  width: 100%
+    width: 100%
 
+// Przycisk akcji
 .action-buttons
   display: flex
-  justify-content: space-between
+  flex-wrap: wrap
   gap: 16px
 
   button
-    flex: 1
+    flex: 1 1 150px
+    min-width: 120px
 
-.flex-container
+// Makroskładniki i wartości
+.macro-values,
+.pervalue
   display: flex
-  flex-direction: row
-  flex-wrap: wrap
-  justify-content: flex-start
-  align-items: flex-start
-  align-content: flex-start
-  .flex-item
-    display: flex
+  flex-direction: column
+  gap: 12px
+
+// Responsywność
+@media (max-width: 768px)
+  .meal-img
+    max-width: 80vw
+    max-height: 30vh
+
+  .flex-container
     flex-direction: column
-    flex-wrap: wrap
-    justify-content: flex-start
-    align-items: flex-start
-    align-content: flex-start
-    flex: 1
+
+  .action-buttons
+    flex-direction: column
+
+@media (max-width: 480px)
+  mat-card
+    padding: 16px
+
+  .meal-img
+    max-width: 100%

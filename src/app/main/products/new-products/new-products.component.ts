@@ -15,7 +15,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { Produkt } from "../../../models/Produkt";
-import { Subscription } from "rxjs";
+import { Subscription, switchMap } from "rxjs";
 
 @Component({
   selector: "app-new-products",
@@ -55,12 +55,16 @@ export class NewProductsComponent {
   }
 
   ngOnInit(): void {
-    const produktySubscription = this.prodService.produkty$.subscribe(
-      (produkty) => {
-        this.produkty = produkty;
-      }
-    );
-    this.subscriptions.add(produktySubscription);
+    const sub = this.prodService
+      .initUser()
+      .pipe(switchMap(() => this.prodService.getProdukts()))
+      .subscribe((produkty) => {
+        this.produkty = produkty.sort((a, b) =>
+          a.nazwaProduktu.localeCompare(b.nazwaProduktu),
+        );
+      });
+
+    this.subscriptions.add(sub);
   }
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
@@ -95,7 +99,13 @@ export class NewProductsComponent {
   }
 
   handleInput(event: KeyboardEvent, inputValue: string): void {
-    const allowedKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"];
+    const allowedKeys = [
+      "Backspace",
+      "Delete",
+      "ArrowLeft",
+      "ArrowRight",
+      "Tab",
+    ];
 
     if (allowedKeys.includes(event.key)) {
       return; // Pozwalamy na użycie tych klawiszy
@@ -106,7 +116,7 @@ export class NewProductsComponent {
     // Sprawdzamy, czy wpisany znak to cyfra (0-9) lub kropka
     if (
       (charCode >= 48 && charCode <= 57) || // Klawiatura główna (0-9)
-      (charCode >= 96 && charCode <= 105)   // Klawiatura numeryczna (0-9)
+      (charCode >= 96 && charCode <= 105) // Klawiatura numeryczna (0-9)
     ) {
       return; // Pozwalamy na wpisanie cyfry
     }
@@ -119,7 +129,6 @@ export class NewProductsComponent {
     // Jeśli znak nie pasuje do dozwolonych - blokujemy wpisywanie
     event.preventDefault();
   }
-
 
   checkForDoubles(event: Event): void {
     const value = (event.target as HTMLInputElement).value;

@@ -8,6 +8,7 @@ import {
   map,
   mergeMap,
   Observable,
+  of,
   switchMap,
   throwError,
   toArray,
@@ -31,10 +32,11 @@ export class DatabaseConnectorService {
   private readonly urlprodukts: string = "/api/produkts";
   private readonly getkategoriesurl: string = "/api/kategories";
   private readonly urlme = "/api/users/me";
-  private readonly gendates = '/api/gendates';
+  private readonly gendates = "/api/gendates";
 
   private recipesSubject = new BehaviorSubject<Przepis[]>([]); // Przechowujemy przepisy
   public recipes$ = this.recipesSubject.asObservable();
+  private currentUserId: number | null = null;
 
   public get APIURL(): string {
     return this._APIURL;
@@ -48,75 +50,116 @@ export class DatabaseConnectorService {
     return this.http.get<any>(this.APIURL + this.urlme, this.authopts).pipe(
       map((response: any) => {
         return response.id;
-      })
+      }),
     );
   }
 
   constructor(private http: HttpClient) {}
 
-  // <--- login code block here
+  loadUserId(): Observable<number | null> {
+    return this.http.get<any>(this.APIURL + this.urlme, this.authopts).pipe(
+      map((res) => {
+        this.currentUserId = res.id;
+        return res.id;
+      }),
+      catchError((err) => {
+        this.currentUserId = null;
+        return of(null);
+      }),
+    );
+  }
 
-  // <--- login code block here
+  initUser(): void {
+    this.loadUserId().subscribe((id) => {
+      console.log("Załadowano userId:", id);
+    });
+  }
 
   // recipes code
   getAllrecipes(): Observable<Przepis[]> {
-    return this.http
-      .get(this._APIURL + this.przepisurl + "?populate=*"
-        // , this.authopts
-      )
-      .pipe(
-        map((data: any) => {
-          let recipes: Przepis[] = data.data.map((item: any) => ({
-            id: item.id,
-            nazwaPrzepisu: item.attributes.nazwaPrzepisu,
-            instrukcja1: item.attributes.instrukcja1,
-            instrukcja2: item.attributes.instrukcja2 || "",
-            instrukcja3: item.attributes.instrukcja3 || "",
-            instrukcja4: item.attributes.instrukcja4 || "",
-            instrukcja5: item.attributes.instrukcja5 || "",
-            instrukcja6: item.attributes.instrukcja6 || "",
-            kategoria: {
-              id: item.attributes.kategoria.data.id,
-              nazwa: item.attributes.kategoria.data.attributes.nazwakategori,
-            },
-            gda: {
-              kcal: item.attributes.gda.kcal,
-              bialka: item.attributes.gda.bialka,
-              tluszcze: item.attributes.gda.tluszcze,
-              weglowodany: item.attributes.gda.weglowodany,
-            },
-            liczbaporcji: item.attributes.liczbaPorcji,
-            imageurl: item.attributes.przepisimg.data
-              ? item.attributes.przepisimg.data.attributes.url
-              : '',
-            perPortion: {
-              kcal: item.attributes.perPortion.kcal,
-              bialka: item.attributes.perPortion.bialka,
-              tluszcze: item.attributes.perPortion.tluszcze,
-              weglowodany: item.attributes.perPortion.weglowodany,
-            }
-          }));
+    console.log("ID = " + this.currentUserId);
+    let url = this._APIURL + this.przepisurl + "?populate=*";
+    //?populate=*&filters[$or][0][users_permissions_users][id][$notIn]=2&filters[$or][1][users_permissions_users][id][$null]=true
 
-          this.recipesSubject.next(recipes); // Aktualizujemy Subject
-          return recipes;
-        })
-      );
+    if (this.currentUserId) {
+      url +=
+        "&filters[$or][0][users_permissions_users][id][$notIn]=" +
+        this.currentUserId +
+        "&filters[$or][1][users_permissions_users][id][$null]=true";
+    }
+    return this.http.get(url).pipe(
+      map((data: any) => {
+        let recipes: Przepis[] = data.data.map((item: any) => ({
+          id: item.id,
+          nazwaPrzepisu: item.attributes.nazwaPrzepisu,
+
+          instrukcja1: item.attributes.instrukcja1,
+          instrukcja2: item.attributes.instrukcja2 || "",
+          instrukcja3: item.attributes.instrukcja3 || "",
+          instrukcja4: item.attributes.instrukcja4 || "",
+          instrukcja5: item.attributes.instrukcja5 || "",
+          instrukcja6: item.attributes.instrukcja6 || "",
+
+          kategoria: {
+            id: item.attributes.kategoria.data.id,
+            nazwa: item.attributes.kategoria.data.attributes.nazwakategori,
+          },
+
+          gda: {
+            kcal: item.attributes.gda.kcal,
+            bialka: item.attributes.gda.bialka,
+            tluszcze: item.attributes.gda.tluszcze,
+            weglowodany: item.attributes.gda.weglowodany,
+          },
+
+          liczbaporcji: item.attributes.liczbaPorcji,
+
+          imageurl: item.attributes.przepisimg.data
+            ? item.attributes.przepisimg.data.attributes.url
+            : "",
+
+          perPortion: {
+            kcal: item.attributes.perPortion.kcal,
+            bialka: item.attributes.perPortion.bialka,
+            tluszcze: item.attributes.perPortion.tluszcze,
+            weglowodany: item.attributes.perPortion.weglowodany,
+          },
+        }));
+
+        this.recipesSubject.next(recipes);
+        return recipes;
+      }),
+    );
   }
 
   refreshRecipes(): void {
     this.getAllrecipes().subscribe();
   }
 
-
   deleteRecipeWithId(id: number): Observable<any> {
+    if (!this.currentUserId) {
+      console.log("Brak usera");
+      return of(null);
+    }
+
+    const body = {
+      data: {
+        users_permissions_users: {
+          connect: [this.currentUserId],
+        },
+      },
+    };
+
     return this.http
-      .delete(this.APIURL + this.przepisurl + "/" + id, this.authopts)
+      .put(this.APIURL + this.przepisurl + "/" + id, body, this.authopts)
       .pipe(
         map((response) => {
-          console.log("Usunięto przepis:", response);
-          this.refreshRecipes(); // Odświeżamy listę przepisów
+          console.log("Zaktualizowano przepis", response);
+
+          this.refreshRecipes(); // ← to jest OK
+
           return response;
-        })
+        }),
       );
   }
 
@@ -126,8 +169,8 @@ export class DatabaseConnectorService {
         .get(
           "http://localhost:1337/api/przepisy?filters[id][$eq]=" +
             id +
-            "&populate=*"
-            // ,this.authopts
+            "&populate=*",
+          // this.authopts,
         )
         .subscribe((data: any) => {
           console.log(data);
@@ -152,7 +195,8 @@ export class DatabaseConnectorService {
               : undefined,
             kategoria: {
               id: data.data[0].attributes.kategoria.data.id,
-              nazwa: data.data[0].attributes.kategoria.data.attributes.nazwakategori,
+              nazwa:
+                data.data[0].attributes.kategoria.data.attributes.nazwakategori,
             },
 
             gda: {
@@ -170,7 +214,7 @@ export class DatabaseConnectorService {
               bialka: data.data[0].attributes.perPortion.bialka,
               tluszcze: data.data[0].attributes.perPortion.tluszcze,
               weglowodany: data.data[0].attributes.perPortion.weglowodany,
-            }
+            },
           };
           observer.next(p); // przekazujemy wartość do obserwatora
           observer.complete(); // informujemy, że operacja się zakończyła
@@ -183,8 +227,8 @@ export class DatabaseConnectorService {
       .get(
         "http://localhost:1337/api/skladniks?filters[przepis][id][$eq]=" +
           id +
-          "&populate[2]=produkt.nazwaProduktu"
-          // ,this.authopts
+          "&populate[2]=produkt.nazwaProduktu",
+        // ,this.authopts
       )
       .pipe(
         map((response: any) => {
@@ -221,7 +265,7 @@ export class DatabaseConnectorService {
           }
           console.log(skladniki);
           return skladniki;
-        })
+        }),
       );
   }
 
@@ -229,7 +273,7 @@ export class DatabaseConnectorService {
     return this.http
       .get(
         this.APIURL + this.skladniksurl + "?filters[przepis][id][$eq]=" + id,
-        this.authopts
+        this.authopts,
       )
       .pipe(
         switchMap((response: any) => {
@@ -243,22 +287,22 @@ export class DatabaseConnectorService {
                   catchError((err) => {
                     console.error(
                       `Failed to delete item with ID ${element.id}:`,
-                      err
+                      err,
                     );
                     throw err;
-                  })
-                )
+                  }),
+                ),
             ),
             // Ensure that all deletes are processed before completing
-            toArray() // This will wait until all deletes are done before continuing
+            toArray(), // This will wait until all deletes are done before continuing
           );
-        })
+        }),
       );
   }
 
   createSkladniksofRecipe(
     skladniki: Skladnik[],
-    recipeId: number
+    recipeId: number,
   ): Observable<any> {
     const requests = skladniki.map((skladnik) => {
       const body = {
@@ -284,10 +328,10 @@ export class DatabaseConnectorService {
           catchError((error) => {
             console.error(
               "Wystąpił błąd podczas przypisywania składnika do przepisu w Strapi.",
-              error
+              error,
             );
             throw error;
-          })
+          }),
         );
     });
 
@@ -295,61 +339,73 @@ export class DatabaseConnectorService {
       map((responses) => {
         console.log("Wszystkie składniki zostały dodane do przepisu.");
         return responses;
-      })
+      }),
     );
   }
 
   getAllProdukts(): Observable<Produkt[]> {
-    return this.http.get(this.APIURL + this.geturlprodukts, this.authopts).pipe(
-      map((data: any) => {
-        let produkty: Produkt[] = [];
-        for (let i = 0; i < data.data.length; i++) {
-          let p: Produkt = {
-            id: data.data[i].id,
-            nazwaProduktu: data.data[i].attributes.nazwaProduktu,
-            kcal: data.data[i].attributes.kcal,
-            tluszcze: data.data[i].attributes.tluszcze,
-            weglowodany: data.data[i].attributes.weglowodany,
-            bialko: data.data[i].attributes.bialko,
-          };
-          produkty.push(p);
-        }
-        produkty.sort((a, b) => {
-          const nazwaA = a.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
-          const nazwaB = b.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
+    console.log("ID = " + this.currentUserId);
+    let url = this.APIURL +  "produkts?populate=*";
+    //?populate=*&filters[$or][0][users_permissions_users][id][$notIn]=2&filters[$or][1][users_permissions_users][id][$null]=true
 
-          if (nazwaA < nazwaB) {
-            return -1; // nazwaA jest przed nazwaB
+    if (this.currentUserId) {
+      url +=
+        "&filters[$or][0][users_permissions_users][id][$notIn]=" +
+        this.currentUserId +
+        "&filters[$or][1][users_permissions_users][id][$null]=true";
+    }
+    return this.http
+      .get(
+        this.APIURL + this.geturlprodukts
+      )
+      .pipe(
+        map((data: any) => {
+          let produkty: Produkt[] = [];
+          for (let i = 0; i < data.data.length; i++) {
+            let p: Produkt = {
+              id: data.data[i].id,
+              nazwaProduktu: data.data[i].attributes.nazwaProduktu,
+              kcal: data.data[i].attributes.kcal,
+              tluszcze: data.data[i].attributes.tluszcze,
+              weglowodany: data.data[i].attributes.weglowodany,
+              bialko: data.data[i].attributes.bialko,
+            };
+            produkty.push(p);
           }
-          if (nazwaA > nazwaB) {
-            return 1; // nazwaA jest po nazwaB
-          }
+          produkty.sort((a, b) => {
+            const nazwaA = a.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
+            const nazwaB = b.nazwaProduktu.toUpperCase(); // ignorowanie wielkości liter
 
-          return 0; // nazwy są identyczne
-        });
-        return produkty;
-      })
-    );
+            if (nazwaA < nazwaB) {
+              return -1; // nazwaA jest przed nazwaB
+            }
+            if (nazwaA > nazwaB) {
+              return 1; // nazwaA jest po nazwaB
+            }
+
+            return 0; // nazwy są identyczne
+          });
+          return produkty;
+        }),
+      );
   }
 
   getKategorie(): Observable<Kategoria[]> {
-    return this.http
-      .get(this.APIURL + this.getkategoriesurl, this.authopts)
-      .pipe(
-        map((data: any) => {
-          let kategorie: Kategoria[] = [];
-          // console.log(data);
-          for (let i = 0; i < data.data.length; i++) {
-            let k: Kategoria = {
-              id: data.data[i].id,
-              nazwa: data.data[i].attributes.nazwakategori,
-            };
-            kategorie.push(k);
-          }
-          // console.log(kategorie);
-          return kategorie;
-        })
-      );
+    return this.http.get(this.APIURL + this.getkategoriesurl).pipe(
+      map((data: any) => {
+        let kategorie: Kategoria[] = [];
+        // console.log(data);
+        for (let i = 0; i < data.data.length; i++) {
+          let k: Kategoria = {
+            id: data.data[i].id,
+            nazwa: data.data[i].attributes.nazwakategori,
+          };
+          kategorie.push(k);
+        }
+        // console.log(kategorie);
+        return kategorie;
+      }),
+    );
   }
 
   uploadFileToDB(formData: FormData): Observable<any> {
@@ -359,17 +415,17 @@ export class DatabaseConnectorService {
         map((response: any) => {
           console.log(
             "Plik został pomyślnie przesłany na serwer Strapi.",
-            response
+            response,
           );
           return response;
         }),
         catchError((error) => {
           console.error(
             "Wystąpił błąd podczas wysyłania pliku na serwer Strapi.",
-            error
+            error,
           );
           throw error;
-        })
+        }),
       );
   }
 
@@ -401,33 +457,33 @@ export class DatabaseConnectorService {
               bialka: recipe.perPortion.bialka,
               tluszcze: recipe.perPortion.tluszcze,
               weglowodany: recipe.perPortion.weglowodany,
-            }
+            },
           },
         },
-        this.authopts
+        this.authopts,
       )
       .pipe(
         map((response: any) => {
           console.log(
             "Przepis został pomyślnie przesłany na serwer Strapi.",
-            response
+            response,
           );
           return response;
         }),
         catchError((error) => {
           console.error(
             "Wystąpił błąd podczas wysyłania przepisu na serwer Strapi.",
-            error
+            error,
           );
           throw error;
-        })
+        }),
       );
   }
 
   updateRecipetoDB(
     recipe: Przepis,
     imageId: number,
-    recipeno: number
+    recipeno: number,
   ): Observable<any> {
     return this.http
       .put(
@@ -456,26 +512,26 @@ export class DatabaseConnectorService {
               bialka: recipe.perPortion.bialka,
               tluszcze: recipe.perPortion.tluszcze,
               weglowodany: recipe.perPortion.weglowodany,
-            }
+            },
           },
         },
-        this.authopts
+        this.authopts,
       )
       .pipe(
         map((response: any) => {
           console.log(
             "Przepis został pomyślnie przesłany na serwer Strapi.",
-            response
+            response,
           );
           return response;
         }),
         catchError((error) => {
           console.error(
             "Wystąpił błąd podczas wysyłania przepisu na serwer Strapi.",
-            error
+            error,
           );
           throw error;
-        })
+        }),
       );
   }
 
@@ -494,25 +550,26 @@ export class DatabaseConnectorService {
         map((response: any) => {
           console.log(
             "Plik został pomyślnie przypisany do przepisu w Strapi.",
-            response
+            response,
           );
           return response;
         }),
         catchError((error) => {
           console.error(
             "Wystąpił błąd podczas przypisywania pliku do przepisu w Strapi.",
-            error
+            error,
           );
           throw error;
-        })
+        }),
       );
   }
 
   getPrzepisMinimal(id: number): Observable<PrzepisMinimal> {
     return this.http
       .get<any>(
-        `${this.APIURL}${this.przepisurl}/${id}?populate[przepisimg][fields]=url&populate[gda]=*`
-      ,this.authopts)
+        `${this.APIURL}${this.przepisurl}/${id}?populate[przepisimg][fields]=url&populate[gda]=*`,
+        this.authopts,
+      )
       .pipe(
         map((response) => {
           const attributes = response.data.attributes;
@@ -529,15 +586,16 @@ export class DatabaseConnectorService {
               weglowodany: attributes.gda.weglowodany,
             },
           } as PrzepisMinimal;
-        })
+        }),
       );
   }
 
   getProduktMinimal(id: number): Observable<Produkt> {
     return this.http
       .get<any>(
-        `${this.APIURL}${this.urlprodukts}/${id}?populate=*`
-      ,this.authopts)
+        `${this.APIURL}${this.urlprodukts}/${id}?populate=*`,
+        this.authopts,
+      )
       .pipe(
         map((response) => {
           const attributes = response.data.attributes;
@@ -549,49 +607,50 @@ export class DatabaseConnectorService {
             tluszcze: attributes.tluszcze,
             weglowodany: attributes.weglowodany,
           } as Produkt;
-        })
+        }),
       );
   }
 
-
   getRecipestoGenerate(): Observable<PrzepisGeneracja[]> {
     return this.http
-      .get<any>(
-        `${this.APIURL}${this.przepisurl}?populate=*`
-      ,this.authopts)
+      .get<any>(`${this.APIURL}${this.przepisurl}?populate=*`, this.authopts)
       .pipe(
         map((data: any) => {
-          let recipes: PrzepisGeneracja[] = data.data.map(
-            (item: any) => ({
+          let recipes: PrzepisGeneracja[] = data.data.map((item: any) => ({
             idPrzepisu: item.id,
             nazwaPrzepisu: item.attributes.nazwaPrzepisu,
             idKategorii: item.attributes.kategoria.data.id,
             kcal: item.attributes.perPortion.kcal,
-            datadodania:item.attributes.createdAt
+            datadodania: item.attributes.createdAt,
           }));
           // console.log('Pobrane przepisy: ' + recipes);
           // console.log('Dane:' + data);
           return recipes;
         }),
         catchError((error) => {
-          console.error('Wystąpił błąd podczas pobierania przepisów:', error);
-          return throwError(() => new Error('Błąd podczas pobierania przepisów'));
-        })
+          console.error("Wystąpił błąd podczas pobierania przepisów:", error);
+          return throwError(
+            () => new Error("Błąd podczas pobierania przepisów"),
+          );
+        }),
       );
   }
 
   getAllRecipesPerPortion(): Observable<any[]> {
     return this.http.get<any[]>(
-      this.APIURL + this.przepisurl + '?fields[0]=id&populate[perPortion]=*',
-      this.authopts
+      this.APIURL + this.przepisurl + "?fields[0]=id&populate[perPortion]=*",
+      this.authopts,
     );
   }
 
-  getRecipePortionData(id:number):Observable<any>{
+  getRecipePortionData(id: number): Observable<any> {
     return this.http.get(
-      this.APIURL + this.przepisurl + '/' + id +
-      '?fields[0]=id&populate[perPortion]=*',
-      this.authopts
+      this.APIURL +
+        this.przepisurl +
+        "/" +
+        id +
+        "?fields[0]=id&populate[perPortion]=*",
+      this.authopts,
     );
   }
 }
